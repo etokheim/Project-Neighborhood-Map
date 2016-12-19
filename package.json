@@ -1,0 +1,39 @@
+{
+  "name": "neighborhood-map",
+  "version": "1.0.0",
+  "description": "A Google maps project",
+  "main": "gulpfile.js",
+  "dependencies": {
+    "bootstrap": "^3.3.7",
+    "browser-sync": "^2.18.5",
+    "material-design-icons": "^3.0.1"
+  },
+  "devDependencies": {
+    "browser-sync": "^2.18.5",
+    "cache": "^1.1.2",
+    "del": "^2.2.2",
+    "gulp-cache": "^0.4.5",
+    "gulp-clean-css": "^2.3.2",
+    "gulp-htmlmin": "^3.0.0",
+    "gulp-notify": "^2.2.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-uglify": "^2.0.0",
+    "gulp-usemin": "^0.3.26",
+    "reload": "^1.1.0",
+    "rename": "^1.0.3",
+    "uglify": "^0.1.5"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/etokheim/Project-Neighborhood-Map.git"
+  },
+  "author": "Erling Tokheim",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/etokheim/Project-Neighborhood-Map/issues"
+  },
+  "homepage": "https://github.com/etokheim/Project-Neighborhood-Map#readme"
+}
