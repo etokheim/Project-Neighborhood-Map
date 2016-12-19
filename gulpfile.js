@@ -12,7 +12,7 @@ var gulp =			require('gulp'),
 
 // Gulp default task
 gulp.task('default', ['clean'], function() {
-    gulp.start('get-bootstrap', 'minify-scripts', 'minify-css', 'minify-html');
+    gulp.start('get-bootstrap', 'get-knockout', 'minify-scripts', 'minify-css', 'minify-html');
 });
 
 gulp.task('minify-scripts', function() {
@@ -39,17 +39,28 @@ gulp.task('minify-html', function() {
 		.pipe(notify({ message: 'Minifying CSS complete' }));
 });
 
-// Get bootstrap files
+gulp.task('clean', function() {
+	return del(['dist/css', 'dist/js', 'dist/img', 'dist']);
+});
+
+
+/////////////////////
+// Get extra files //
+/////////////////////
 gulp.task("get-bootstrap", function() {
    gulp.src("./node_modules/bootstrap/dist/css/bootstrap.css")
        .pipe(gulp.dest("./src/css/plug-ins"));
 });
 
-gulp.task('clean', function() {
-	return del(['dist/css', 'dist/js', 'dist/img', 'dist']);
+gulp.task("get-knockout", function() {
+   gulp.src("./node_modules/knockout/build/output/knockout-latest.js")
+       .pipe(gulp.dest("./src/js/plug-ins/"));
 });
 
-// Watch Files For Changes & Reload
+
+//////////////////////////////////////
+// Watch Files For Changes & Reload //
+//////////////////////////////////////
 gulp.task('serve', function() {
 	browserSync({
 		notify: false,
