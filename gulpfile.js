@@ -12,11 +12,11 @@ var gulp =			require('gulp'),
 
 // Gulp default task
 gulp.task('default', ['clean'], function() {
-    gulp.start('get-bootstrap', 'get-knockout', 'minify-scripts', 'minify-css', 'minify-html');
+	gulp.start('get-bootstrap', 'get-jquery', 'get-knockout', 'minify-scripts', 'minify-css', 'minify-html');
 });
 
 gulp.task('minify-scripts', function() {
- 	return gulp.src('src/js/**/*.js')
+	return gulp.src('src/js/**/*.js')
 		.pipe(rename({suffix: '.min'}))
 		.pipe(uglify())
 		.pipe(gulp.dest('dist/js'))
@@ -48,13 +48,18 @@ gulp.task('clean', function() {
 // Get extra files //
 /////////////////////
 gulp.task("get-bootstrap", function() {
-   gulp.src("./node_modules/bootstrap/dist/css/bootstrap.css")
-       .pipe(gulp.dest("./src/css/plug-ins"));
+	gulp.src("./node_modules/bootstrap/dist/css/bootstrap.css")
+		.pipe(gulp.dest("./src/css/plug-ins"));
 });
 
 gulp.task("get-knockout", function() {
-   gulp.src("./node_modules/knockout/build/output/knockout-latest.js")
-       .pipe(gulp.dest("./src/js/plug-ins/"));
+	gulp.src("./node_modules/knockout/build/output/knockout-latest.js")
+		.pipe(gulp.dest("./src/js/plug-ins/"));
+});
+
+gulp.task("get-jquery", function() {
+	gulp.src("./node_modules/jquery/dist/jquery.min.js")
+		.pipe(gulp.dest("./src/js/plug-ins/"));
 });
 
 
