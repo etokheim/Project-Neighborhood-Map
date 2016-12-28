@@ -6,23 +6,83 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
 
 		<link rel="stylesheet" href="css/plug-ins/bootstrap.css">
+		<link rel="stylesheet" href="css/plug-ins/font-awesome.css">
 		<link rel="stylesheet" href="css/style.css">
 		<script src="js/plug-ins/jquery.min.js"></script>
 		<script src="js/plug-ins/knockout-latest.js"></script>
 	</head>
 	<body>
-		<div id="location_switcher_container">
+		<article class="featured_container featured_container_hidden">
+			<header>
+				<div class="featured_close"><i class="fa fa-times fa-lg"></i></div>
+				<div class="featured_image_container">
+				</div>
+
+				<h1 class="article_heading">Sverd i fjell</h1>
+			</header>
+			<div class="article_body">
+				<p class="ingress">
+					Lorem ipsum dolor sit amet, consectetur adipisicing elit. Maiores provident nemo vitae tempora, aperiam nisi et cupiditate, aut atque in.
+				</p>
+				<p class="body_text">
+					Lorem ipsum dolor sit amet, consectetur adipisicing elit. Totam rem cumque asperiores blanditiis laborum voluptatibus repellendus doloremque aliquid debitis, atque est labore, neque fuga ratione alias quos praesentium beatae, facere at doloribus odit. Sint expedita illo facere sit a dignissimos ullam eaque modi obcaecati qui, accusantium delectus ex maiores, maxime!
+				</p>
+				<p>
+					<cite>Henta frå <a href="http://en.wikipedia.org/wiki/Aladdin_(1992_Disney_film)">Wikipedia</a></cite>
+				</p>
+			</div>
+		</article>
+
+			<article class="featured_container featured_container_hidden">
+			<header>
+				<div class="featured_close"><i class="fa fa-times fa-lg"></i></div>
+				<div class="featured_image_container">
+				</div>
+
+				<h1 class="article_heading">Sverd i fjell</h1>
+			</header>
+			<div class="article_body">
+				<p class="ingress">
+					Lorem ipsum dolor sit amet, consectetur adipisicing elit. Maiores provident nemo vitae tempora, aperiam nisi et cupiditate, aut atque in.
+				</p>
+				<p class="body_text">
+					Lorem ipsum dolor sit amet, consectetur adipisicing elit. Totam rem cumque asperiores blanditiis laborum voluptatibus repellendus doloremque aliquid debitis, atque est labore, neque fuga ratione alias quos praesentium beatae, facere at doloribus odit. Sint expedita illo facere sit a dignissimos ullam eaque modi obcaecati qui, accusantium delectus ex maiores, maxime!
+				</p>
+				<p>
+					<cite>Henta frå <a href="http://en.wikipedia.org/wiki/Aladdin_(1992_Disney_film)">Wikipedia</a></cite>
+				</p>
+			</div>
+		</article>
+
+		</div>
+
+		<div class="location_switcher_container">
 			<div class="location_switcher_list_container">
 				<input type="text" placeholder="Filter" class="location_switcher_search_field">
 				<div class="location_switcher_type_filter">
 					<div class="location_switcher_type_filter_instance">
-						<img src="" alt="Filter by ">
+						<p>
+							<i class="fa fa-compass fa-lg"></i>
+						</p>
+						<p class="side_text">
+							Gåtur
+						</p>
 					</div>
 					<div class="location_switcher_type_filter_instance">
-						<img src="" alt="Filter by ">
+						<p>
+							<i class="fa fa-cutlery fa-lg"></i>
+						</p>
+						<p class="side_text">
+							Spisesteder
+						</p>
 					</div>
 					<div class="location_switcher_type_filter_instance">
-						<img src="" alt="Filter by ">
+						<p>
+							<i class="fa fa-map-marker fa-lg"></i>
+						</p>
+						<p class="side_text">
+							Severdigheter
+						</p>
 					</div>
 				</div>
 				<ul id="location_switcher_list" data-bind="foreach: locations">

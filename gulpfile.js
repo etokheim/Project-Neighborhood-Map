@@ -12,7 +12,7 @@ var gulp =			require('gulp'),
 
 // Gulp default task
 gulp.task('default', ['clean'], function() {
-	gulp.start('get-bootstrap', 'get-jquery', 'get-knockout', 'minify-scripts', 'minify-css', 'minify-html');
+	gulp.start('get-bootstrap', 'get-font-awesome', 'get-jquery', 'get-knockout', 'minify-scripts', 'minify-css', 'minify-html');
 });
 
 gulp.task('minify-scripts', function() {
@@ -49,7 +49,7 @@ gulp.task('clean', function() {
 /////////////////////
 gulp.task("get-bootstrap", function() {
 	gulp.src("./node_modules/bootstrap/dist/css/bootstrap.css")
-		.pipe(gulp.dest("./src/css/plug-ins"));
+		.pipe(gulp.dest("./src/css/plug-ins/"));
 });
 
 gulp.task("get-knockout", function() {
@@ -60,6 +60,14 @@ gulp.task("get-knockout", function() {
 gulp.task("get-jquery", function() {
 	gulp.src("./node_modules/jquery/dist/jquery.min.js")
 		.pipe(gulp.dest("./src/js/plug-ins/"));
+});
+
+gulp.task("get-font-awesome", function() {
+	gulp.src("./node_modules/font-awesome/css/font-awesome.css")
+		.pipe(gulp.dest("./src/css/plug-ins/"));
+
+	gulp.src("./node_modules/font-awesome/fonts/*")
+		.pipe(gulp.dest("./src/fonts/"));
 });
 
 
