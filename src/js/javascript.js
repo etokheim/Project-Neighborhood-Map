@@ -31,7 +31,7 @@ function Location(title, location) {
 
 	// Flickr:
 	this.flickr = {};
-	this.flickr.img = {};
+	this.flickr.img = [];
 
 // locations()[i] = {};
 // 	locations()[i].wikipedia.ingress = {};
