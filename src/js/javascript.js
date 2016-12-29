@@ -7,6 +7,46 @@ window.onload = function() {
 		}, 500);
 }
 
+var favoriteLocations = [
+	{title: 'Sverd i fjell', location: {lat: 58.9413738, lng: 5.6713647}},
+	{title: 'Stavanger domkirke', location: {lat: 58.9696008, lng: 5.7327193}},
+	{title: 'Kjeragbolten', location: {lat: 59.0346734, lng: 6.5753282}},
+	{title: 'Preikestolen', location: {lat: 58.9857634, lng: 6.1575914}},
+	{title: 'Trolltunga', location: {lat: 60.124167, lng: 6.7378113}},
+	{title: 'Sauanuten', location: {lat: 59.8274041, lng: 6.3854395}},
+	{title: 'Ulriken', location: {lat: 60.3774889, lng: 5.3847581}},
+];
+
+// Location constructor
+// Takes the favorite locations and puts them in the locations array.
+// The constructor creates some extra objects.
+function Location(title, location) {
+	this.title = title;
+	this.location = location;
+
+	// Wikipedia:
+	this.wikipedia = {};
+	this.wikipedia.url = {};
+	this.wikipedia.ingress = {};
+
+	// Flickr:
+	this.flickr = {};
+	this.flickr.img = {};
+
+// locations()[i] = {};
+// 	locations()[i].wikipedia.ingress = {};
+// 	locations()[i].flickr.img = [];
+// 	locations()[i].wikipedia = {};
+}
+
+locations = ko.observableArray([]);
+
+var favoriteLocationsLength = favoriteLocations.length;
+console.log(favoriteLocations);
+for (var i = 0; i < favoriteLocationsLength; i++) {
+	locations().push(new Location(favoriteLocations[i].title, favoriteLocations[i].location));
+}
+
 var map, markers, polygon, locations, focusedMarker, test;
 var ViewModel = function() {
 		map;
@@ -16,18 +56,6 @@ var ViewModel = function() {
 
 		// This global polygon variable is to ensure only ONE polygon is rendered.
 		polygon = null;
-
-		// These are the real estate listings that will be shown to the user.
-		// Normally we'd have these in a database instead.
-		locations = ko.observableArray([
-				{title: 'Sverd i fjell', location: {lat: 58.9413738, lng: 5.6713647}},
-				{title: 'Stavanger domkirke', location: {lat: 58.9696008, lng: 5.7327193}},
-				{title: 'Kjæragbolten', location: {lat: 59.0346734, lng: 6.5753282}},
-				{title: 'Preikestolen', location: {lat: 58.9857634, lng: 6.1575914}},
-				{title: 'Trolltunga', location: {lat: 60.124167, lng: 6.7378113}},
-				{title: 'Sauanuten', location: {lat: 59.8274041, lng: 6.3854395}},
-				{title: 'Ulriken', location: {lat: 60.3774889, lng: 5.3847581}},
-		]);
 
 		// Gives the location instances an index
 		for (var i = 0; i < locations().length; i++) {
@@ -54,10 +82,6 @@ ko.applyBindings(new ViewModel());
 var locationsLength = locations().length;
 var ajaxRunTimes = 0;
 for (var i = 0; i < locationsLength; i++) {
-	locations()[i].content = {};
-	locations()[i].content.intro = {};
-	locations()[i].content.img = [];
-	locations()[i].content.wikipedia = {};
 	// console.log("Running for the " + i + ". time.");
 	var response;
 
@@ -70,13 +94,14 @@ for (var i = 0; i < locationsLength; i++) {
 	}
 
 	ajax.flickr.url = 'https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=' + ajax.flickr.key + '&?jsoncallback=?';
-
 	$.ajax({
-		url: 'https://no.wikipedia.org/w/api.php?',
+		url: 'https://no.wikipedia.org/w/api.php?prop=info%7Cextracts',
 		dataType: 'jsonp',
 		data: {
-			search: ajax.title,
-			action: 'opensearch',
+			titles: ajax.title,
+			action: 'query',
+			// prop: ['info', 'extracts'], --> moved to url since it does't work
+			inprop: "url",
 			format: 'json',
 			requestid: i,
 		},
@@ -85,10 +110,36 @@ for (var i = 0; i < locationsLength; i++) {
 			clearTimeout(wikipediaErrorHandling);
 			// for (var j = 0; j < locationsLength; j++) {
 				// console.dir(i);
-				locations()[ajaxRunTimes].content.intro = response[2][0];
-				locations()[ajaxRunTimes].content.wikipedia.url = response[3][0];
-				// console.dir(locations()[ajaxRunTimes].content);
-				ajaxRunTimes++;
+
+				// Gets the name of the first property name of the object (Since we don't have the
+				// page ID - which is the name of the property)
+				var firstPropertyName = Object.getOwnPropertyNames(response.query.pages)[0];
+				// console.log("firstPropertyName = " + firstPropertyName);
+
+				// Gets the object we want the first property of
+				var canDo = locations()[response.requestid].wikipedia.ingress = response.query.pages;
+				var extract = canDo[firstPropertyName].extract;
+				var articleText = extract.split("</p>");
+
+				// If first paragraph is empty; use the second one.
+				if(articleText[0].length <= 3) {
+					console.log(articleText[0]);
+					var ingress = articleText[1];
+
+					var bodyText;
+					var articleTextLength = articleText.length;
+					for (var i = 0; i < articleTextLength; i++) {
+						bodyText += articleText[i];
+					}
+				} else {
+					var ingress = articleText[0];
+				}
+
+				locations()[response.requestid].wikipedia.ingress = ingress;
+
+				console.log(canDo[firstPropertyName]);
+				locations()[response.requestid].wikipedia.url = canDo[firstPropertyName].fullurl;
+				response.requestid++;
 				// response[1][i];
 				// $wikiElem.append('<li><a href="' + response[3][i] + '">' + response[1][i] + '</a></li>');
 			// }
@@ -120,7 +171,7 @@ function jsonFlickrApi(data) {
 	// Else if images is returned; add them to locations()
 	} else if(data.sizes) {
 		// console.log(data.sizes.size[5].source);
-		locations()[imgCount].content.img[0] = data.sizes.size[5].source;
+		locations()[imgCount].flickr.img[0] = data.sizes.size[5].source;
 		imgCount++;
 	}
 }
@@ -191,11 +242,11 @@ function displayAvailableFeaturedContainer(locationIndex) {
 function populateFeatured(featuredIndex, locationIndex) {
 	var location = locations()[locationIndex];
 	clearFeatured(featuredIndex);
-	$('.featured_container').eq(featuredIndex).find('.featured_image_container').append('<img class="" src="' + location.content.img + '">');
+	$('.featured_container').eq(featuredIndex).find('.featured_image_container').append('<img class="" alt="' + location.title + '" src="' + location.flickr.img + '">');
 	$('.featured_container').eq(featuredIndex).find('.article_heading').text(location.title);
-	$('.featured_container').eq(featuredIndex).find('.ingress').html(location.content.intro);
+	$('.featured_container').eq(featuredIndex).find('.ingress').html(location.wikipedia.ingress);
 	$('.featured_container').eq(featuredIndex).find('.body_text').html("");
-	$('.featured_container').eq(0).find('cite>a').attr('href', location.content.wikipedia.url);
+	$('.featured_container').eq(featuredIndex).find('cite>a').attr('href', location.wikipedia.url);
 }
 
 // Clears the content of the featured view.
@@ -259,7 +310,7 @@ var infoWindow = {
 		}
 
 		// Set infoWindow content
-		marker.infoWindow.setContent('<div style="width: 200px;"><h5>' + marker.title + '</h5><p>' + locations()[marker.index].content.intro + '</p><p><a onclick="readMore(' + marker.index + ')">Les meir</a></p></div>');
+		marker.infoWindow.setContent('<div style="width: 200px;"><h5>' + marker.title + '</h5><p>' + locations()[marker.index].wikipedia.ingress + '</p><p><a onclick="readMore(' + marker.index + ')">Les meir</a></p></div>');
 
 		// Close the infoWindow on "x" click
 		marker.infoWindow.addListener('closeclick', function() {
