@@ -28,15 +28,11 @@ function Location(title, location) {
 	this.wikipedia = {};
 	this.wikipedia.url = {};
 	this.wikipedia.ingress = {};
+	this.wikipedia.bodyText = {};
 
 	// Flickr:
 	this.flickr = {};
 	this.flickr.img = [];
-
-// locations()[i] = {};
-// 	locations()[i].wikipedia.ingress = {};
-// 	locations()[i].flickr.img = [];
-// 	locations()[i].wikipedia = {};
 }
 
 locations = ko.observableArray([]);
@@ -120,22 +116,33 @@ for (var i = 0; i < locationsLength; i++) {
 				var canDo = locations()[response.requestid].wikipedia.ingress = response.query.pages;
 				var extract = canDo[firstPropertyName].extract;
 				var articleText = extract.split("</p>");
+				var bodyText = '';
 
 				// If first paragraph is empty; use the second one.
+				// Else use the first one.
+				// Some articles has an empty <p></p> at the beginning.
 				if(articleText[0].length <= 3) {
 					console.log(articleText[0]);
 					var ingress = articleText[1];
 
-					var bodyText;
+
+					// Adds the rest of the article to the bodyText variable
 					var articleTextLength = articleText.length;
-					for (var i = 0; i < articleTextLength; i++) {
+					for (var i = 2; i < articleTextLength; i++) {
 						bodyText += articleText[i];
 					}
 				} else {
 					var ingress = articleText[0];
+
+					// Adds the rest of the article to the bodyText variable
+					var articleTextLength = articleText.length;
+					for (var i = 1; i < articleTextLength; i++) {
+						bodyText += articleText[i];
+					}
 				}
 
 				locations()[response.requestid].wikipedia.ingress = ingress;
+				locations()[response.requestid].wikipedia.bodyText = bodyText;
 
 				console.log(canDo[firstPropertyName]);
 				locations()[response.requestid].wikipedia.url = canDo[firstPropertyName].fullurl;
@@ -245,7 +252,7 @@ function populateFeatured(featuredIndex, locationIndex) {
 	$('.featured_container').eq(featuredIndex).find('.featured_image_container').append('<img class="" alt="' + location.title + '" src="' + location.flickr.img + '">');
 	$('.featured_container').eq(featuredIndex).find('.article_heading').text(location.title);
 	$('.featured_container').eq(featuredIndex).find('.ingress').html(location.wikipedia.ingress);
-	$('.featured_container').eq(featuredIndex).find('.body_text').html("");
+	$('.featured_container').eq(featuredIndex).find('.body_text').html(location.wikipedia.bodyText);
 	$('.featured_container').eq(featuredIndex).find('cite>a').attr('href', location.wikipedia.url);
 }
 
