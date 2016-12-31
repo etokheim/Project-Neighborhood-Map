@@ -53,6 +53,58 @@ Article
 .article_heading, .article_body {
 	width: 80%;
 	margin: 0 auto;
+	position: relative;
+
+	transition: all 600ms ease-out; /* Doesn't work */
+}
+
+.article_body_hidden {
+	max-height: 200px;
+	overflow: hidden;
+}
+
+.article_body_read_more {
+	width: 100%;
+	height: 100px;
+	position: absolute;
+	bottom: 0;
+
+	/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,ffffff+100&0+1,1+100 */
+	background: -moz-linear-gradient(top,  rgba(255,255,255,0) 0%, rgba(255,255,255,0) 1%, rgba(255,255,255,1) 100%); /* FF3.6-15 */
+	background: -webkit-linear-gradient(top,  rgba(255,255,255,0) 0%,rgba(255,255,255,0) 1%,rgba(255,255,255,1) 100%); /* Chrome10-25,Safari5.1-6 */
+	background: linear-gradient(to bottom,  rgba(255,255,255,0) 0%,rgba(255,255,255,0) 1%,rgba(255,255,255,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#ffffff',GradientType=0 ); /* IE6-9 */
+
+	transition: all 600ms ease-out;
+}
+
+.article_body_read_more_hidden {
+	opacity: 0;
+}
+
+.article_body_read_more_button {
+	width: calc(100% - 100px);
+	height: 3rem;
+	padding: 1rem;
+	line-height: 1rem;
+	border-radius: 3px;
+	border: 1px solid #aaa;
+	margin: 1rem auto 0;
+	text-align: center;
+	overflow: hidden;
+}
+
+.article_body_read_more_button_hidden {
+	height: 0;
+	padding: 0;
+	opacity: 0;
+	border: 0;
+}
+
+.article_body_read_more_button:hover, .article_body_read_more_button:focus {
+	background-color: #aaa;
+	color: #fff;
+	cursor: pointer;
 }
 
 .article_heading {

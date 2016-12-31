@@ -244,6 +244,19 @@ function displayAvailableFeaturedContainer(locationIndex) {
 	populateFeatured(featured.displaying, locationIndex);
 }
 
+function hideFeaturedContainer() {
+	$('.featured_container').eq(featured.displaying).toggleClass('featured_container_hidden');
+	toggleLocationSwitcher();
+
+	featured.displaying = false;
+}
+
+function displayBodyText(index) {
+	$('.article_body').eq(index).toggleClass('article_body_hidden');
+	$('.article_body_read_more').eq(index).toggleClass('article_body_read_more_hidden');
+	$('.article_body_read_more_button').eq(index).toggleClass('article_body_read_more_button_hidden');
+}
+
 // Populates the featured view with appropriate content.
 // Requires index of marker and the index of which featured container to populate.
 function populateFeatured(featuredIndex, locationIndex) {
