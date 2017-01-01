@@ -5,7 +5,7 @@ window.onload = function() {
 		setTimeout(function() {
 				toggleLocationSwitcherList();
 		}, 500);
-}
+};
 
 var favoriteLocations = [
 	{title: 'Sverd i fjell', location: {lat: 58.9413738, lng: 5.6713647}},
@@ -45,8 +45,6 @@ for (var i = 0; i < favoriteLocationsLength; i++) {
 
 var map, markers, polygon, locations, focusedMarker, test;
 var ViewModel = function() {
-		map;
-
 		// Create a new blank array for all the listing markers.
 		markers = ko.observableArray();
 
@@ -87,7 +85,7 @@ for (var i = 0; i < locationsLength; i++) {
 		flickr: {
 			key: 'e896b44b17e42a28558673f7db2b3504'
 		}
-	}
+	};
 
 	ajax.flickr.url = 'https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=' + ajax.flickr.key + '&?jsoncallback=?';
 	$.ajax({
@@ -191,15 +189,15 @@ var wikipediaErrorHandling = setTimeout(function() {
 
 var featured = {
 	displaying: false
-}
+};
 
 var locationList = {
 	displaying: true,
-}
+};
 
 var locationSwitcher = {
 	displaying: true,
-}
+};
 
 function toggleLocationSwitcher() {
 	locationSwitcher.displaying = !locationSwitcher.displaying;
@@ -291,7 +289,7 @@ function scroll(index) {
 	moveToMarker(markers()[index]);
 
 	infoWindow.closeAll(marker);
-	infoWindow.populate(marker, new google.maps.InfoWindow())
+	infoWindow.populate(marker, new google.maps.InfoWindow());
 
 	$('#swipe_list').animate({
 		scrollLeft: $(".location_switcher_swipe_list_item")[index].offsetLeft - $(".location_switcher_swipe_list_item").eq(index).width() / 2
@@ -316,7 +314,7 @@ function moveToMarker(marker) {
 		var coordinates = {
 				lat: marker.position.lat(),
 				lng: marker.position.lng()
-		}
+		};
 
 		map.panTo(coordinates);
 }
