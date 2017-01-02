@@ -228,6 +228,11 @@ Locations switcher
 	align-items: center;
 }
 
+.location_switcher_width {
+	width: 80%;
+	margin: 0 auto;
+}
+
 .location_switcher_swipe_list {
 	display: flex;
 	flex-wrap: nowrap;
@@ -245,7 +250,7 @@ Locations switcher
 }
 
 .location_switcher_type_filter {
-	height: 7rem;
+	height: 5rem;
 	border-bottom: 1px solid #eee;
 	display: flex;
 	flex-direction: row;
@@ -302,8 +307,8 @@ Locations switcher
 	background-color: #fff;
 	z-index: -1;
 	overflow-y: scroll;
-	text-align: center;
 	will-change: transform;
+	text-align: center;
 
 	transition: all 200ms ease-out;
 }
@@ -322,8 +327,18 @@ Locations switcher
 	background-color: #fff;
 	border-bottom: 1px solid #eee;
 	height: auto;
-	padding: 2.5rem;
+	padding: 1rem 25%;
 	list-style-type: none;
+}
+
+.location_switcher_list_title {
+	color: #000;
+	letter-spacing: 1px;
+}
+
+.location_switcher_list_type {
+	color: #aaa;
+	letter-spacing: 2px;
 }
 
 #location_switcher_list li:hover, #location_switcher_list li:focus {

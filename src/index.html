@@ -60,7 +60,7 @@
 			<div class="location_switcher_list_container">
 				<input type="text" placeholder="Filter" class="location_switcher_search_field">
 				<div class="location_switcher_type_filter">
-					<div class="location_switcher_type_filter_instance">
+					<div class="location_switcher_type_filter_instance" data-bind="click: filter().type.toggleHike()">
 						<p>
 							<i class="fa fa-compass fa-lg"></i>
 						</p>
@@ -86,7 +86,15 @@
 					</div>
 				</div>
 				<ul id="location_switcher_list" data-bind="foreach: locations">
-					<li data-bind="text: title, click: $root.test"></li>
+					<!-- ko if: visible -->
+						<li data-bind="click: $root.test">
+							<h2 class="location_switcher_list_title" data-bind="text: title"></h2>
+							<p class="location_switcher_list_type" data-bind="click: $root.test">
+								<i data-bind="attr: { class: type.icon }"></i>
+								<!-- ko text: type.keywords[0] --><!-- /ko -->
+							</p>
+						</li>
+					<!-- /ko -->
 				</ul>
 			</div>
 			<div id="location_switcher">

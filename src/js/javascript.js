@@ -1,28 +1,104 @@
 // map.setMapTypeId('terrain');
 
 window.onload = function() {
-		// Hides the list after the user has seen it
-		setTimeout(function() {
-				toggleLocationSwitcherList();
-		}, 500);
+	// Hides the list after the user has seen it
+	setTimeout(function() {
+			toggleLocationSwitcherList();
+	}, 500);
 };
 
+function getKeywords(type) {
+	if(type === 'hike') {
+		return {
+			keywords: ['Fjelltur', 'Tur'],
+			icon: 'fa fa-compass fa-lg'
+		};
+	}
+}
+
+function concatType() {
+}
+
 var favoriteLocations = [
-	{title: 'Sverd i fjell', location: {lat: 58.9413738, lng: 5.6713647}},
-	{title: 'Stavanger domkirke', location: {lat: 58.9696008, lng: 5.7327193}},
-	{title: 'Kjeragbolten', location: {lat: 59.0346734, lng: 6.5753282}},
-	{title: 'Preikestolen', location: {lat: 58.9857634, lng: 6.1575914}},
-	{title: 'Trolltunga', location: {lat: 60.124167, lng: 6.7378113}},
-	{title: 'Sauanuten', location: {lat: 59.8274041, lng: 6.3854395}},
-	{title: 'Ulriken', location: {lat: 60.3774889, lng: 5.3847581}},
+	{
+		title: 'Sverd i fjell',
+		type: getKeywords('hike'),
+
+		location: {
+			lat: 58.9413738,
+			lng: 5.6713647
+		}
+	},
+
+	{
+		title: 'Stavanger domkirke',
+		type: getKeywords('hike'),
+
+		location: {
+			lat: 58.9696008,
+			lng: 5.7327193
+		}
+	},
+
+	{
+		title: 'Kjeragbolten',
+		type: getKeywords('hike'),
+
+		location: {
+			lat: 59.0346734,
+			lng: 6.5753282
+		}
+	},
+
+	{
+		title: 'Preikestolen',
+		type: getKeywords('hike'),
+
+		location: {
+			lat: 58.9857634,
+			lng: 6.1575914
+		}
+	},
+
+	{
+		title: 'Trolltunga',
+		type: getKeywords('hike'),
+
+		location: {
+			lat: 60.124167,
+			lng: 6.7378113
+		}
+	},
+
+	{
+		title: 'Sauanuten',
+		type: getKeywords('hike'),
+
+		location: {
+			lat: 59.8274041,
+			lng: 6.3854395
+		}
+	},
+
+	{
+		title: 'Ulriken',
+		type: getKeywords('hike'),
+
+		location: {
+			lat: 60.3774889,
+			lng: 5.3847581
+		}
+	},
 ];
 
 // Location constructor
 // Takes the favorite locations and puts them in the locations array.
 // The constructor creates some extra objects.
-function Location(title, location) {
+function Location(title, type, location) {
 	this.title = title;
+	this.type = type;
 	this.location = location;
+	this.visible = ko.observable(true);
 
 	// Wikipedia:
 	this.wikipedia = {};
@@ -37,11 +113,121 @@ function Location(title, location) {
 
 locations = ko.observableArray([]);
 
+$('.location_switcher_search_field').on('input', function() {
+	var itemsToSearch = [];
+	for (var i = 0; i < locations().length; i++) {
+		// If a type filter is applied; only pass along the not filtered
+		if(filter().active) {
+			itemsToSearch.push({title: locations()[i].title.toLowerCase(), index: i});
+		}
+	}
+
+	// locations()[i].visible(search(this.value, itemsToSearch));
+	// console.log(search(this.value, itemsToSearch));
+	search(this.value, itemsToSearch);
+
+
+});
+
+// function compare(searchString, searchItems) {
+
+// 	for (var i = 0; i < searchItems.length; i++) {
+	
+// 		var item = {
+// 			name: searchItems[i],
+// 			matching: true
+// 		};
+
+// 		for (var j = 0; j < item.name.length; j++) {
+
+// 			var notMatching = 0;
+// 			for (var k = 0; k < searchString.length; k++) {
+
+// 				console.log(searchString[0].search(item.name));
+
+// 			}
+
+// 		}
+
+// 	}
+
+// }
+
+function search(search, strings) {
+	search = search.toLowerCase();
+	// string = string.toLowerCase();
+
+	console.log(search + strings.title);
+
+	
+	var matches = strings.filter(function(item) {
+		var posOfLastFound = -1; // remembers position of last found character
+		
+		// consider each search character one at a time
+		for (var i = 0; i < search.length; i++) {
+			var searchItem = search[i];
+			if (searchItem == ' ') continue;     // ignore spaces
+			
+			posOfLastFound = item.title.indexOf(searchItem, posOfLastFound+1);     // search for character & update position
+			if (posOfLastFound == -1) {
+
+				console.log("NOT FOUND: searchItem = " + searchItem + ", posOfLastFound = " + posOfLastFound + ", item = " + item.title);
+				locations()[item.index].visible(false);
+				return false;  // if it's not found, exclude this item
+			} else {
+				console.log("FOUND    : searchItem = " + searchItem + ", posOfLastFound = " + posOfLastFound + ", item = " + item.title + " ===== " + locations()[item.index].title);
+				locations()[item.index].visible(true);
+			}
+		}
+		return true;
+	});
+	console.log(matches);
+}
+
+
+	// var search = $(this).val();
+	
+	// /* Matching logic */
+	// /* End matching logic */
+	
+	// $('#results').empty();
+	// matches.forEach(function(match) {
+	// 	$('#results').append($('<li>').text(match));
+	// });
+
+
+
+
+
+
+
 var favoriteLocationsLength = favoriteLocations.length;
 console.log(favoriteLocations);
 for (var i = 0; i < favoriteLocationsLength; i++) {
-	locations().push(new Location(favoriteLocations[i].title, favoriteLocations[i].location));
+// for (var i = 0; i < 1; i++) {
+	locations().push(new Location(favoriteLocations[i].title, favoriteLocations[i].type, favoriteLocations[i].location));
 }
+
+var filter = ko.observable({
+	type: {
+		hike: false,
+		eat: false,
+		watch: false,
+
+		toggleHike: function() {
+			this.hike = !this.hike;
+			console.log("toggling hike " + this.hike);
+		}
+	},
+
+	active: function() {
+		if(this.hike || this.eat || this.watch) {
+			return true;
+		} else {
+			return false;
+		}
+	},
+});
 
 var map, markers, polygon, locations, focusedMarker, test;
 var ViewModel = function() {
@@ -215,30 +401,30 @@ function jsonFlickrApi(data) {
 	// // asking for image url's for that photo ID.
 	// // console.log(data);
 	// if(data.photos) {
-	// 	// console.log(data.photos.photo[0].id);
-	// 	var newUrl = 'https://www.flickr.com/services/rest/?method=flickr.photos.getSizes' + '&?callback=?';
+	//  // console.log(data.photos.photo[0].id);
+	//  var newUrl = 'https://www.flickr.com/services/rest/?method=flickr.photos.getSizes' + '&?callback=?';
 
-	// 	$.ajax({
-	// 		url: newUrl,
-	// 		dataType: 'jsonp',
-	// 		data: {
-	// 			photo_id: data.photos.photo[0].id,
-	// 			format: 'json',
-	// 			api_key: 'e896b44b17e42a28558673f7db2b3504',
-	// 			request_id: 0
-	// 		}
-	// 	}).done(function(response) {
-	// 		// console.log(response);
-	// 	}).fail(function(jqxhr, textStatus, error) {
-	// 		// console.log(jqxhr + ", " + textStatus + ", " + error);
-	// 		// console.log(jqxhr);
-	// 	});
+	//  $.ajax({
+	//      url: newUrl,
+	//      dataType: 'jsonp',
+	//      data: {
+	//          photo_id: data.photos.photo[0].id,
+	//          format: 'json',
+	//          api_key: 'e896b44b17e42a28558673f7db2b3504',
+	//          request_id: 0
+	//      }
+	//  }).done(function(response) {
+	//      // console.log(response);
+	//  }).fail(function(jqxhr, textStatus, error) {
+	//      // console.log(jqxhr + ", " + textStatus + ", " + error);
+	//      // console.log(jqxhr);
+	//  });
 
 	// // Else if images is returned; add them to locations()
 	// } else if(data.sizes) {
-	// 	// console.log(data.sizes.size[5].source);
-	// 	locations()[imgCount].flickr.img[0] = data.sizes.size[5].source;
-	// 	imgCount++;
+	//  // console.log(data.sizes.size[5].source);
+	//  locations()[imgCount].flickr.img[0] = data.sizes.size[5].source;
+	//  imgCount++;
 	// }
 }
 
