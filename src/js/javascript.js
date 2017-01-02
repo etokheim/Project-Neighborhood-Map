@@ -87,7 +87,9 @@ for (var i = 0; i < locationsLength; i++) {
 		}
 	};
 
-	ajax.flickr.url = 'https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=' + ajax.flickr.key + '&?jsoncallback=?';
+	ajax.flickr.url = 'https://www.flickr.com/services/rest/';
+
+
 	$.ajax({
 		url: 'https://no.wikipedia.org/w/api.php?prop=info%7Cextracts',
 		dataType: 'jsonp',
@@ -100,7 +102,7 @@ for (var i = 0; i < locationsLength; i++) {
 			requestid: i,
 		},
 		success: function(response) {
-			console.log(response);
+			// console.log(response);
 			clearTimeout(wikipediaErrorHandling);
 			// for (var j = 0; j < locationsLength; j++) {
 				// console.dir(i);
@@ -120,9 +122,7 @@ for (var i = 0; i < locationsLength; i++) {
 				// Else use the first one.
 				// Some articles has an empty <p></p> at the beginning.
 				if(articleText[0].length <= 3) {
-					console.log(articleText[0]);
 					var ingress = articleText[1];
-
 
 					// Adds the rest of the article to the bodyText variable
 					var articleTextLength = articleText.length;
@@ -142,7 +142,6 @@ for (var i = 0; i < locationsLength; i++) {
 				locations()[response.requestid].wikipedia.ingress = ingress;
 				locations()[response.requestid].wikipedia.bodyText = bodyText;
 
-				console.log(canDo[firstPropertyName]);
 				locations()[response.requestid].wikipedia.url = canDo[firstPropertyName].fullurl;
 				response.requestid++;
 				// response[1][i];
@@ -151,34 +150,96 @@ for (var i = 0; i < locationsLength; i++) {
 		}
 	});
 
-	var flickerAPI = ajax.flickr.url;
-	$.getJSON( flickerAPI, {
-		text: locations()[i].title,
-		format: "json"
-	});
+	// Store the current i value
+	(function(i) {
+		$.ajax({
+			url: ajax.flickr.url,
+			type: 'GET',
+			dataType: 'text',
+			data: {
+				method: 'flickr.photos.search',
+				text: locations()[i].title,
+				format: "json",
+				api_key: ajax.flickr.key,
+			}
+		})
 
+		.done(function(response) {
+			console.log("success");
+			// Removes the function wrapping and creates a JavaScript object
+			// from the JSON recieved from Flickr.
+			var responseJson = JSON.parse(response.slice(14, response.length - 1));
+			console.log(responseJson);
+
+			var newUrl = 'https://www.flickr.com/services/rest/?' + '&?callback=?';
+			$.ajax({
+				url: newUrl,
+				dataType: 'text',
+				data: {
+					method: 'flickr.photos.getSizes',
+					photo_id: responseJson.photos.photo[0].id,
+					format: 'json',
+					api_key: ajax.flickr.key,
+				}
+			})
+
+			.done(function(response2) {
+				console.log("success2");
+
+				// Removes the function wrapping and creates a JavaScript object
+				// from the JSON recieved from Flickr.
+				var response2Json = JSON.parse(response2.slice(14, response2.length - 1));
+				
+				// console.log(response2Json.sizes.size[5].source + " === " + locations()[i].title);
+				
+				locations()[i].flickr.img[0] = response2Json.sizes.size[5].source;
+			})
+
+			.fail(function(jqxhr, textStatus, error) {
+				// console.log(jqxhr + ", " + textStatus + ", " + error);
+				console.log("fail2");
+				console.log(jqxhr);
+			});
+		})
+
+		.fail(function( xhr, status, errorThrown ) {
+			console.log( "Error: " + errorThrown );
+			console.log( "Status: " + status );
+			console.dir( xhr );
+		});
+	})(i);
 }
 var imgCount = 0;
 function jsonFlickrApi(data) {
-	// If photo the photo ID object is returned; fire a new ajax request
-	// asking for image url's for that photo ID.
-	if(data.photos) {
-		console.log(data.photos.photo[0].id);
-		var newUrl = 'https://www.flickr.com/services/rest/?method=flickr.photos.getSizes&api_key=e896b44b17e42a28558673f7db2b3504' + '&?callback=?';
+	// // If photo the photo ID object is returned; fire a new ajax request
+	// // asking for image url's for that photo ID.
+	// // console.log(data);
+	// if(data.photos) {
+	// 	// console.log(data.photos.photo[0].id);
+	// 	var newUrl = 'https://www.flickr.com/services/rest/?method=flickr.photos.getSizes' + '&?callback=?';
 
-		$.getJSON( newUrl, {
-			photo_id: data.photos.photo[0].id,
-			format: "json"
-		}).done(function( data2 ) {
+	// 	$.ajax({
+	// 		url: newUrl,
+	// 		dataType: 'jsonp',
+	// 		data: {
+	// 			photo_id: data.photos.photo[0].id,
+	// 			format: 'json',
+	// 			api_key: 'e896b44b17e42a28558673f7db2b3504',
+	// 			request_id: 0
+	// 		}
+	// 	}).done(function(response) {
+	// 		// console.log(response);
+	// 	}).fail(function(jqxhr, textStatus, error) {
+	// 		// console.log(jqxhr + ", " + textStatus + ", " + error);
+	// 		// console.log(jqxhr);
+	// 	});
 
-		});
-
-	// Else if images is returned; add them to locations()
-	} else if(data.sizes) {
-		// console.log(data.sizes.size[5].source);
-		locations()[imgCount].flickr.img[0] = data.sizes.size[5].source;
-		imgCount++;
-	}
+	// // Else if images is returned; add them to locations()
+	// } else if(data.sizes) {
+	// 	// console.log(data.sizes.size[5].source);
+	// 	locations()[imgCount].flickr.img[0] = data.sizes.size[5].source;
+	// 	imgCount++;
+	// }
 }
 
 var wikipediaErrorHandling = setTimeout(function() {
@@ -280,6 +341,7 @@ function clearFeatured(featuredIndex) {
 function readMore(locationIndex) {
 	console.log(locationIndex);
 	displayAvailableFeaturedContainer(locationIndex);
+	infoWindow.closeAll();
 }
 
 function scroll(index) {
@@ -342,10 +404,15 @@ var infoWindow = {
 	closeAll: function(exception) {
 		var markerLength = markers().length;
 		for (var i = 0; i < markerLength; i++) {
-			if(markers()[i].title !== exception.title && markers()[i].infoWindow) {
-				if(markers()[i].infoWindow.anchor !== null) {
-					markers()[i].infoWindow.close();
+			// If there is an exception and it has an infoWindow; don't close that one
+			if(exception) {
+				if(markers()[i].title !== exception.title && markers()[i].infoWindow) {
+					if(markers()[i].infoWindow.anchor !== null) {
+						markers()[i].infoWindow.close();
+					}
 				}
+			} else if(markers()[i].infoWindow) {
+				markers()[i].infoWindow.close();
 			}
 		}
 	}

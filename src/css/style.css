@@ -140,7 +140,7 @@ Featured
 	max-width: 500px;
 	background-color: #fff;
 	height: calc(100vh - 160px);
-	overflow-y: auto;
+	overflow-y: scroll;
 	left: 80px;
 	top: 80px;
 	border-radius: 3px;
