@@ -26,13 +26,10 @@ function getKeywords(type) {
 	}
 }
 
-function concatType() {
-}
-
 var favoriteLocations = [
 	{
 		title: 'Sverd i fjell',
-		type: getKeywords('hike'),
+		type: getKeywords('landmark'),
 
 		location: {
 			lat: 58.9413738,
@@ -157,6 +154,7 @@ function sendItemsToSearch(searchString) {
 			// 	console.log("Ignoring " + locations()[i].title + ", keyword = " + locations()[i].type.keywords[0]);
 			// }
 		} else {
+			locations()[i].visible(true);
 			console.log("filter().active() = " + filter().active() + ", pushing: " + locations()[i].title);
 			itemsToSearch.push({title: locations()[i].title.toLowerCase(), index: i});
 		}
