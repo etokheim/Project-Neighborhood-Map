@@ -60,27 +60,30 @@
 			<div class="location_switcher_list_container">
 				<input type="text" placeholder="Filter" class="location_switcher_search_field">
 				<div class="location_switcher_type_filter">
-					<div class="location_switcher_type_filter_instance" data-bind="click: filter().type.toggleHike()">
+					<!-- The data-bind is wrapped within a function to prevent it from being called on load -->
+					<div class="location_switcher_type_filter_instance" data-bind="click: function() { click: filter().type.toggleHike() }">
 						<p>
 							<i class="fa fa-compass fa-lg"></i>
 						</p>
-						<p class="side_text">
+						<p class="side_text" data-bind="if: filter().type.hike()">
 							Gåtur
 						</p>
 					</div>
-					<div class="location_switcher_type_filter_instance">
+					<!-- The data-bind is wrapped within a function to prevent it from being called on load -->
+					<div class="location_switcher_type_filter_instance" data-bind="click: function() { click: filter().type.toggleRestaurant() }">
 						<p>
 							<i class="fa fa-cutlery fa-lg"></i>
 						</p>
-						<p class="side_text">
+						<p class="side_text" data-bind="if: filter().type.restaurant()">
 							Spisesteder
 						</p>
 					</div>
-					<div class="location_switcher_type_filter_instance">
+					<!-- The data-bind is wrapped within a function to prevent it from being called on load -->
+					<div class="location_switcher_type_filter_instance" data-bind="click: function() { click: filter().type.toggleLandmark() }">
 						<p>
 							<i class="fa fa-map-marker fa-lg"></i>
 						</p>
-						<p class="side_text">
+						<p class="side_text" data-bind="if: filter().type.landmark()">
 							Severdigheter
 						</p>
 					</div>

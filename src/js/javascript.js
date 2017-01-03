@@ -13,6 +13,16 @@ function getKeywords(type) {
 			keywords: ['Fjelltur', 'Tur'],
 			icon: 'fa fa-compass fa-lg'
 		};
+	} else if(type === 'restaurant') {
+		return {
+			keywords: ['Restaurant'],
+			icon: 'fa fa-compass fa-lg'
+		};
+	} else if(type === 'landmark') {
+		return {
+			keywords: ['Severdighet'],
+			icon: 'fa fa-map-marker fa-lg'
+		};
 	}
 }
 
@@ -32,7 +42,7 @@ var favoriteLocations = [
 
 	{
 		title: 'Stavanger domkirke',
-		type: getKeywords('hike'),
+		type: getKeywords('landmark'),
 
 		location: {
 			lat: 58.9696008,
@@ -114,20 +124,50 @@ function Location(title, type, location) {
 locations = ko.observableArray([]);
 
 $('.location_switcher_search_field').on('input', function() {
+	sendItemsToSearch(this.value);
+});
+
+function sendItemsToSearch(searchString) {
 	var itemsToSearch = [];
 	for (var i = 0; i < locations().length; i++) {
-		// If a type filter is applied; only pass along the not filtered
-		if(filter().active) {
+		// If a type filter is applied; only pass along the not filtered instances
+		if(filter().active()) {
+			// Make item invisible
+			locations()[i].visible(false);
+
+			// If filtering hikes; make item visible and push it to itemsToSearch
+			// if(filter().type.hike()) {
+				if(locations()[i].type.keywords[0] == 'Fjelltur' && filter().type.hike()) {
+					locations()[i].visible(true);
+					console.log("Pushing " + locations()[i].title);
+					itemsToSearch.push({title: locations()[i].title.toLowerCase(), index: i});
+				
+				} else if(locations()[i].type.keywords[0] == 'Restaurant' && filter().type.restaurant()) {
+					locations()[i].visible(true);
+					console.log("Pushing " + locations()[i].title);
+					itemsToSearch.push({title: locations()[i].title.toLowerCase(), index: i});
+
+				} else if(locations()[i].type.keywords[0] == 'Severdighet' && filter().type.landmark()) {
+					locations()[i].visible(true);
+					console.log("Pushing " + locations()[i].title);
+					itemsToSearch.push({title: locations()[i].title.toLowerCase(), index: i});
+
+				}
+			// } else {
+			// 	console.log("Ignoring " + locations()[i].title + ", keyword = " + locations()[i].type.keywords[0]);
+			// }
+		} else {
+			console.log("filter().active() = " + filter().active() + ", pushing: " + locations()[i].title);
 			itemsToSearch.push({title: locations()[i].title.toLowerCase(), index: i});
 		}
 	}
 
-	// locations()[i].visible(search(this.value, itemsToSearch));
-	// console.log(search(this.value, itemsToSearch));
-	search(this.value, itemsToSearch);
+	console.log(searchString);
+	console.log(itemsToSearch);
+	search(searchString, itemsToSearch);
+}
 
-
-});
+sendItemsToSearch($('.location_switcher_search_field').val());
 
 // function compare(searchString, searchItems) {
 
@@ -210,20 +250,35 @@ for (var i = 0; i < favoriteLocationsLength; i++) {
 
 var filter = ko.observable({
 	type: {
-		hike: false,
-		eat: false,
-		watch: false,
+		hike: ko.observable(false),
+		restaurant: ko.observable(false),
+		landmark: ko.observable(false),
 
 		toggleHike: function() {
-			this.hike = !this.hike;
-			console.log("toggling hike " + this.hike);
+			this.hike(!this.hike());
+			console.log("toggling hike() " + this.hike());
+			sendItemsToSearch($('.location_switcher_search_field').val());
+		},
+		
+		toggleRestaurant: function() {
+			this.restaurant(!this.restaurant());
+			console.log("toggling restaurant() " + this.restaurant());
+			sendItemsToSearch($('.location_switcher_search_field').val());
+		},
+
+		toggleLandmark: function() {
+			this.landmark(!this.landmark());
+			console.log("toggling landmark() " + this.landmark());
+			sendItemsToSearch($('.location_switcher_search_field').val());
 		}
 	},
 
 	active: function() {
-		if(this.hike || this.eat || this.watch) {
+		if(this.type.hike() || this.type.restaurant() || this.type.landmark()) {
+			console.log("Checked filters and some are active!!!");
 			return true;
 		} else {
+			console.log("Checked filters and none are active");
 			return false;
 		}
 	},
