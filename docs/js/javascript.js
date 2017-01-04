@@ -40,6 +40,10 @@ var ViewModel = function() {
 		// Create a new blank array for all the listing markers.
 		markers = ko.observableArray();
 
+		markers.subscribe(function(newValue) {
+			console.log("Markers() got a new value! = " + markers());
+		});
+
 		// This global polygon variable is to ensure only ONE polygon is rendered.
 		polygon = null;
 
@@ -55,10 +59,6 @@ var ViewModel = function() {
 
 		$('#location_switcher_center').click(function() {
 			toggleLocationSwitcherList();
-		});
-
-		markers.subscribe(function(newValue) {
-			console.log("Markers() got a new value! = " + markers());
 		});
 };
 
@@ -234,15 +234,15 @@ function search(search, strings) {
 			var searchItem = search[i];
 			if (searchItem == ' ') continue;     // ignore spaces
 			
-			posOfLastFound = item.koTitle().indexOf(searchItem, posOfLastFound+1);     // search for character & update position
+			posOfLastFound = item.title.indexOf(searchItem, posOfLastFound+1);     // search for character & update position
 			if (posOfLastFound == -1) {
 
-				console.log("NOT FOUND: searchItem = " + searchItem + ", posOfLastFound = " + posOfLastFound + ", item = " + item.koTitle());
-				markers()[item.index].visible2(false);
+				console.log("NOT FOUND: searchItem = " + searchItem + ", posOfLastFound = " + posOfLastFound + ", item = " + item.title);
+				markerVisibillity(markers()[item.index], false);
 				return false;  // if it's not found, exclude this item
 			} else {
-				console.log("FOUND    : searchItem = " + searchItem + ", posOfLastFound = " + posOfLastFound + ", item = " + item.koTitle() + " ===== " + markers()[item.index].koTitle());
-				markers()[item.index].visible2(true);
+				console.log("FOUND    : searchItem = " + searchItem + ", posOfLastFound = " + posOfLastFound + ", item = " + item.title + " ===== " + markers()[item.index].koTitle());
+				markerVisibillity(markers()[item.index], true);
 			}
 		}
 		return true;
@@ -363,7 +363,9 @@ function getExternalResources() {
 					// from the JSON recieved from Flickr.
 					var response2Json = JSON.parse(response2.slice(14, response2.length - 1));
 					
-					markers()[i].flickr.img[0] = response2Json.sizes.size[5].source;
+					markers()[i].flickr.img.push(response2Json.sizes.size[5].source);
+					markers()[i].flickr.img.push(response2Json.sizes.size[6].source);
+					markers()[i].flickr.img.push(response2Json.sizes.size[7].source);
 				})
 
 				.fail(function(jqxhr, textStatus, error) {
@@ -527,14 +529,14 @@ function scroll(index) {
 
 function swipeLeft() {
 	// If there is more to scroll to; scroll
-	if(focusedMarker() - 1 >= 0 && focusedMarker() - 1 < Locations().length) {
+	if(focusedMarker() - 1 >= 0 && focusedMarker() - 1 < markers().length) {
 			scroll(focusedMarker() - 1);
 	}
 }
 
 function swipeRight() {
 	// If there is more to scroll to; scroll
-	if(focusedMarker() + 1 >= 0 && focusedMarker() + 1 < Locations().length) {
+	if(focusedMarker() + 1 >= 0 && focusedMarker() + 1 < markers().length) {
 			scroll(focusedMarker() + 1);
 	}
 }
@@ -710,7 +712,7 @@ function initMap() {
 		}
 
 		// Push the marker to our array of markers.
-		markers().push(marker);
+		markers.push(marker);
 	}
 
 	// Add markers to the map

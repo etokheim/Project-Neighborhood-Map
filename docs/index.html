@@ -88,8 +88,8 @@
 						</p>
 					</div>
 				</div>
-				<ul id="location_switcher_list" data-bind="foreach: markers()">
-					<!-- ko if: visible -->
+				<ul id="location_switcher_list" data-bind="foreach: markers">
+					<!-- ko if: visible2 -->
 						<li data-bind="click: $root.test">
 							<h2 class="location_switcher_list_title" data-bind="text: koTitle()"></h2>
 							<p class="location_switcher_list_type" data-bind="click: $root.test">
