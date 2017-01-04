@@ -1,3 +1,69 @@
+var map, markers, polygon, locations, focusedMarker, test;
+
+var filter = ko.observable({
+	type: {
+		hike: ko.observable(false),
+		restaurant: ko.observable(false),
+		landmark: ko.observable(false),
+
+		toggleHike: function() {
+			this.hike(!this.hike());
+			console.log("toggling hike() " + this.hike());
+			sendItemsToSearch($('.location_switcher_search_field').val());
+		},
+		
+		toggleRestaurant: function() {
+			this.restaurant(!this.restaurant());
+			console.log("toggling restaurant() " + this.restaurant());
+			sendItemsToSearch($('.location_switcher_search_field').val());
+		},
+
+		toggleLandmark: function() {
+			this.landmark(!this.landmark());
+			console.log("toggling landmark() " + this.landmark());
+			sendItemsToSearch($('.location_switcher_search_field').val());
+		}
+	},
+
+	active: function() {
+		if(this.type.hike() || this.type.restaurant() || this.type.landmark()) {
+			console.log("Checked filters and some are active!!!");
+			return true;
+		} else {
+			console.log("Checked filters and none are active");
+			return false;
+		}
+	},
+});
+
+var ViewModel = function() {
+		// Create a new blank array for all the listing markers.
+		markers = ko.observableArray();
+
+		// This global polygon variable is to ensure only ONE polygon is rendered.
+		polygon = null;
+
+		focusedMarker = ko.observable(0);
+
+		// console.dir(markers());
+		// console.dir(locations());
+
+		this.test = function() {
+			scroll(this.index);
+			toggleLocationSwitcherList();
+		};
+
+		$('#location_switcher_center').click(function() {
+			toggleLocationSwitcherList();
+		});
+
+		markers.subscribe(function(newValue) {
+			console.log("Markers() got a new value! = " + markers());
+		});
+};
+
+ko.applyBindings(new ViewModel());
+
 // map.setMapTypeId('terrain');
 
 window.onload = function() {
@@ -98,27 +164,6 @@ var favoriteLocations = [
 	},
 ];
 
-// Location constructor
-// Takes the favorite locations and puts them in the locations array.
-// The constructor creates some extra objects.
-function Location(title, type, location) {
-	this.title = title;
-	this.type = type;
-	this.location = location;
-	this.visible = ko.observable(true);
-
-	// Wikipedia:
-	this.wikipedia = {};
-	this.wikipedia.url = {};
-	this.wikipedia.ingress = {};
-	this.wikipedia.bodyText = {};
-
-	// Flickr:
-	this.flickr = {};
-	this.flickr.img = [];
-}
-
-locations = ko.observableArray([]);
 
 $('.location_switcher_search_field').on('input', function() {
 	sendItemsToSearch(this.value);
@@ -126,43 +171,50 @@ $('.location_switcher_search_field').on('input', function() {
 
 function sendItemsToSearch(searchString) {
 	var itemsToSearch = [];
-	for (var i = 0; i < locations().length; i++) {
+	for (var i = 0; i < markers().length; i++) {
 		// If a type filter is applied; only pass along the not filtered instances
 		if(filter().active()) {
 			// Make item invisible
-			locations()[i].visible(false);
+			// console.log("HIDIIIIIIIIIIIIIIIIIIIIIIING");
+			hideMarker(markers()[i]);
 
 			// If filtering hikes; make item visible and push it to itemsToSearch
 			// if(filter().type.hike()) {
-				if(locations()[i].type.keywords[0] == 'Fjelltur' && filter().type.hike()) {
-					locations()[i].visible(true);
-					console.log("Pushing " + locations()[i].title);
-					itemsToSearch.push({title: locations()[i].title.toLowerCase(), index: i});
+				if(markers()[i].type.keywords[0] == 'Fjelltur' && filter().type.hike()) {
+					markers()[i].visible2(true);
+					console.log("Pushing " + markers()[i].koTitle());
+					itemsToSearch.push({title: markers()[i].koTitle().toLowerCase(), index: i});
 				
-				} else if(locations()[i].type.keywords[0] == 'Restaurant' && filter().type.restaurant()) {
-					locations()[i].visible(true);
-					console.log("Pushing " + locations()[i].title);
-					itemsToSearch.push({title: locations()[i].title.toLowerCase(), index: i});
+				} else if(markers()[i].type.keywords[0] == 'Restaurant' && filter().type.restaurant()) {
+					markers()[i].visible2(true);
+					console.log("Pushing " + markers()[i].koTitle());
+					itemsToSearch.push({title: markers()[i].koTitle().toLowerCase(), index: i});
 
-				} else if(locations()[i].type.keywords[0] == 'Severdighet' && filter().type.landmark()) {
-					locations()[i].visible(true);
-					console.log("Pushing " + locations()[i].title);
-					itemsToSearch.push({title: locations()[i].title.toLowerCase(), index: i});
+				} else if(markers()[i].type.keywords[0] == 'Severdighet' && filter().type.landmark()) {
+					markers()[i].visible2(true);
+					console.log("Pushing " + markers()[i].koTitle());
+					itemsToSearch.push({title: markers()[i].koTitle().toLowerCase(), index: i});
 
 				}
 			// } else {
-			// 	console.log("Ignoring " + locations()[i].title + ", keyword = " + locations()[i].type.keywords[0]);
+			// 	console.log("Ignoring " + markers()[i].koTitle() + ", keyword = " + markers()[i].type.keywords[0]);
 			// }
 		} else {
-			locations()[i].visible(true);
-			console.log("filter().active() = " + filter().active() + ", pushing: " + locations()[i].title);
-			itemsToSearch.push({title: locations()[i].title.toLowerCase(), index: i});
+			markers()[i].visible2(true);
+			console.log("filter().active() = " + filter().active() + ", pushing: " + markers()[i].koTitle());
+			itemsToSearch.push({title: markers()[i].koTitle().toLowerCase(), index: i});
 		}
 	}
 
 	console.log(searchString);
 	console.log(itemsToSearch);
 	search(searchString, itemsToSearch);
+}
+
+function hideMarker(object) {
+	console.log("HIDIIIIIIIIIIIIIIIIIIIIIIING " + object.koTitle());
+	object.visible2(false);
+	object.setVisible(false);
 }
 
 sendItemsToSearch($('.location_switcher_search_field').val());
@@ -182,15 +234,15 @@ function search(search, strings) {
 			var searchItem = search[i];
 			if (searchItem == ' ') continue;     // ignore spaces
 			
-			posOfLastFound = item.title.indexOf(searchItem, posOfLastFound+1);     // search for character & update position
+			posOfLastFound = item.koTitle().indexOf(searchItem, posOfLastFound+1);     // search for character & update position
 			if (posOfLastFound == -1) {
 
-				console.log("NOT FOUND: searchItem = " + searchItem + ", posOfLastFound = " + posOfLastFound + ", item = " + item.title);
-				locations()[item.index].visible(false);
+				console.log("NOT FOUND: searchItem = " + searchItem + ", posOfLastFound = " + posOfLastFound + ", item = " + item.koTitle());
+				markers()[item.index].visible2(false);
 				return false;  // if it's not found, exclude this item
 			} else {
-				console.log("FOUND    : searchItem = " + searchItem + ", posOfLastFound = " + posOfLastFound + ", item = " + item.title + " ===== " + locations()[item.index].title);
-				locations()[item.index].visible(true);
+				console.log("FOUND    : searchItem = " + searchItem + ", posOfLastFound = " + posOfLastFound + ", item = " + item.koTitle() + " ===== " + markers()[item.index].koTitle());
+				markers()[item.index].visible2(true);
 			}
 		}
 		return true;
@@ -198,80 +250,7 @@ function search(search, strings) {
 	console.log(matches);
 }
 
-
-var favoriteLocationsLength = favoriteLocations.length;
-console.log(favoriteLocations);
-for (var i = 0; i < favoriteLocationsLength; i++) {
-	locations().push(new Location(favoriteLocations[i].title, favoriteLocations[i].type, favoriteLocations[i].location));
-}
-
-var filter = ko.observable({
-	type: {
-		hike: ko.observable(false),
-		restaurant: ko.observable(false),
-		landmark: ko.observable(false),
-
-		toggleHike: function() {
-			this.hike(!this.hike());
-			console.log("toggling hike() " + this.hike());
-			sendItemsToSearch($('.location_switcher_search_field').val());
-		},
-		
-		toggleRestaurant: function() {
-			this.restaurant(!this.restaurant());
-			console.log("toggling restaurant() " + this.restaurant());
-			sendItemsToSearch($('.location_switcher_search_field').val());
-		},
-
-		toggleLandmark: function() {
-			this.landmark(!this.landmark());
-			console.log("toggling landmark() " + this.landmark());
-			sendItemsToSearch($('.location_switcher_search_field').val());
-		}
-	},
-
-	active: function() {
-		if(this.type.hike() || this.type.restaurant() || this.type.landmark()) {
-			console.log("Checked filters and some are active!!!");
-			return true;
-		} else {
-			console.log("Checked filters and none are active");
-			return false;
-		}
-	},
-});
-
-var map, markers, polygon, locations, focusedMarker, test;
-var ViewModel = function() {
-		// Create a new blank array for all the listing markers.
-		markers = ko.observableArray();
-
-		// This global polygon variable is to ensure only ONE polygon is rendered.
-		polygon = null;
-
-		// Gives the location instances an index
-		for (var i = 0; i < locations().length; i++) {
-			locations()[i].index = i;
-		}
-
-		focusedMarker = ko.observable(0);
-
-		// console.dir(markers());
-		// console.dir(locations());
-
-		this.test = function() {
-				scroll(this.index);
-				toggleLocationSwitcherList();
-		};
-
-		$('#location_switcher_center').click(function() {
-				toggleLocationSwitcherList();
-		});
-};
-
-ko.applyBindings(new ViewModel());
-
-var locationsLength = locations().length;
+var markersLength = markers().length;
 var ajaxRunTimes = 0;
 var ajax = {
 	title: '',
@@ -287,143 +266,146 @@ var ajax = {
 	}
 };
 
-for (var i = 0; i < locationsLength; i++) {
-	// Sets the title to work with
-	ajax.title = locations()[i].title;
+function getExternalResources() {
+	markersLength = markers().length;
+	for (var i = 0; i < markersLength; i++) {
+		// Sets the title to work with
+		ajax.title = markers()[i].koTitle();
 
-	// Flickr Ajax calls
-	$.ajax({
-		url: 'https://no.wikipedia.org/w/api.php?prop=info%7Cextracts',
-		dataType: 'jsonp',
-		data: {
-			titles: ajax.title,
-			action: 'query',
-			// prop: ['info', 'extracts'], --> moved to url since it does't work
-			inprop: "url",
-			format: 'json',
-			requestid: i,
-		},
-		success: function(response) {
-			clearTimeout(wikipediaErrorHandling);
-			// Gets the name of the first property name of the object (Since we don't have the
-			// page ID - which is the name of the property)
-			var firstPropertyName = Object.getOwnPropertyNames(response.query.pages)[0];
-			// console.log("firstPropertyName = " + firstPropertyName);
-
-			// Gets the object we want the first property of
-			var canDo = locations()[response.requestid].wikipedia.ingress = response.query.pages;
-			var extract = canDo[firstPropertyName].extract;
-			var articleText = extract.split("</p>");
-			var bodyText = '';
-
-			// If first paragraph is empty; use the second one.
-			// Else use the first one.
-			// Some articles has an empty <p></p> at the beginning.
-			if(articleText[0].length <= 3) {
-				var ingress = articleText[1];
-
-				// Adds the rest of the article to the bodyText variable
-				var articleTextLength = articleText.length;
-				for (var i = 2; i < articleTextLength; i++) {
-					bodyText += articleText[i];
-				}
-			} else {
-				var ingress = articleText[0];
-
-				// Adds the rest of the article to the bodyText variable
-				var articleTextLength = articleText.length;
-				for (var i = 1; i < articleTextLength; i++) {
-					bodyText += articleText[i];
-				}
-			}
-
-			locations()[response.requestid].wikipedia.ingress = ingress;
-			locations()[response.requestid].wikipedia.bodyText = bodyText;
-
-			locations()[response.requestid].wikipedia.url = canDo[firstPropertyName].fullurl;
-			response.requestid++;
-		}
-	});
-
-	// Flickr Ajax calls
-	// Store the current i value
-	(function(i) {
+		// Flickr Ajax calls
 		$.ajax({
-			url: ajax.flickr.url,
-			type: 'GET',
-			dataType: 'text',
+			url: 'https://no.wikipedia.org/w/api.php?prop=info%7Cextracts',
+			dataType: 'jsonp',
 			data: {
-				method: 'flickr.photos.search',
-				text: locations()[i].title,
-				format: "json",
-				api_key: ajax.flickr.key,
+				titles: ajax.title,
+				action: 'query',
+				// prop: ['info', 'extracts'], --> moved to url since it does't work
+				inprop: "url",
+				format: 'json',
+				requestid: i,
+			},
+			success: function(response) {
+				clearTimeout(wikipediaErrorHandling);
+				// Gets the name of the first property name of the object (Since we don't have the
+				// page ID - which is the name of the property)
+				var firstPropertyName = Object.getOwnPropertyNames(response.query.pages)[0];
+				// console.log("firstPropertyName = " + firstPropertyName);
+
+				// Gets the object we want the first property of
+				var canDo = markers()[response.requestid].wikipedia.ingress = response.query.pages;
+				var extract = canDo[firstPropertyName].extract;
+				var articleText = extract.split("</p>");
+				var bodyText = '';
+
+				// If first paragraph is empty; use the second one.
+				// Else use the first one.
+				// Some articles has an empty <p></p> at the beginning.
+				if(articleText[0].length <= 3) {
+					var ingress = articleText[1];
+
+					// Adds the rest of the article to the bodyText variable
+					var articleTextLength = articleText.length;
+					for (var i = 2; i < articleTextLength; i++) {
+						bodyText += articleText[i];
+					}
+				} else {
+					var ingress = articleText[0];
+
+					// Adds the rest of the article to the bodyText variable
+					var articleTextLength = articleText.length;
+					for (var i = 1; i < articleTextLength; i++) {
+						bodyText += articleText[i];
+					}
+				}
+
+				markers()[response.requestid].wikipedia.ingress = ingress;
+				markers()[response.requestid].wikipedia.bodyText = bodyText;
+
+				markers()[response.requestid].wikipedia.url = canDo[firstPropertyName].fullurl;
+				response.requestid++;
 			}
-		})
+		});
 
-		.done(function(response) {
-			// Removes the function wrapping and creates a JavaScript object
-			// from the JSON recieved from Flickr.
-			var responseJson = JSON.parse(response.slice(14, response.length - 1));
-
-			var newUrl = 'https://www.flickr.com/services/rest/?' + '&?callback=?';
+		// Flickr Ajax calls
+		// Store the current i value
+		(function(i) {
 			$.ajax({
-				url: newUrl,
+				url: ajax.flickr.url,
+				type: 'GET',
 				dataType: 'text',
 				data: {
-					method: 'flickr.photos.getSizes',
-					photo_id: responseJson.photos.photo[0].id,
-					format: 'json',
+					method: 'flickr.photos.search',
+					text: markers()[i].koTitle(),
+					format: "json",
 					api_key: ajax.flickr.key,
 				}
 			})
 
-			.done(function(response2) {
+			.done(function(response) {
 				// Removes the function wrapping and creates a JavaScript object
 				// from the JSON recieved from Flickr.
-				var response2Json = JSON.parse(response2.slice(14, response2.length - 1));
-				
-				locations()[i].flickr.img[0] = response2Json.sizes.size[5].source;
+				var responseJson = JSON.parse(response.slice(14, response.length - 1));
+
+				var newUrl = 'https://www.flickr.com/services/rest/?' + '&?callback=?';
+				$.ajax({
+					url: newUrl,
+					dataType: 'text',
+					data: {
+						method: 'flickr.photos.getSizes',
+						photo_id: responseJson.photos.photo[0].id,
+						format: 'json',
+						api_key: ajax.flickr.key,
+					}
+				})
+
+				.done(function(response2) {
+					// Removes the function wrapping and creates a JavaScript object
+					// from the JSON recieved from Flickr.
+					var response2Json = JSON.parse(response2.slice(14, response2.length - 1));
+					
+					markers()[i].flickr.img[0] = response2Json.sizes.size[5].source;
+				})
+
+				.fail(function(jqxhr, textStatus, error) {
+					// console.log(jqxhr + ", " + textStatus + ", " + error);
+					console.log("fail2");
+					console.log(jqxhr);
+				});
 			})
 
-			.fail(function(jqxhr, textStatus, error) {
-				// console.log(jqxhr + ", " + textStatus + ", " + error);
-				console.log("fail2");
-				console.log(jqxhr);
+			.fail(function( xhr, status, errorThrown ) {
+				console.log( "Error: " + errorThrown );
+				console.log( "Status: " + status );
+				console.dir( xhr );
 			});
-		})
+		})(i);
 
-		.fail(function( xhr, status, errorThrown ) {
-			console.log( "Error: " + errorThrown );
-			console.log( "Status: " + status );
-			console.dir( xhr );
-		});
-	})(i);
+		// Nasjonal turbase ajax calls
+		// Store the current i value
+		// (function(i) {
+		// 	$.ajax({
+		// 		url: ajax.nasjonalturbase.url,
+		// 		type: 'GET',
+		// 		dataType: 'text',
+		// 		data: {
+		// 			// method: 'flickr.photos.search',
+		// 			// text: markers()[i].koTitle(),
+		// 			format: "json",
+		// 			api_key: ajax.nasjonalturbase.key,
+		// 		}
+		// 	})
 
-	// Nasjonal turbase ajax calls
-	// Store the current i value
-	// (function(i) {
-	// 	$.ajax({
-	// 		url: ajax.nasjonalturbase.url,
-	// 		type: 'GET',
-	// 		dataType: 'text',
-	// 		data: {
-	// 			// method: 'flickr.photos.search',
-	// 			// text: locations()[i].title,
-	// 			format: "json",
-	// 			api_key: ajax.nasjonalturbase.key,
-	// 		}
-	// 	})
+		// 	.done(function(response) {
 
-	// 	.done(function(response) {
+		// 	})
 
-	// 	})
-
-	// 	.fail(function( xhr, status, errorThrown ) {
-	// 		console.log( "Error: " + errorThrown );
-	// 		console.log( "Status: " + status );
-	// 		console.dir( xhr );
-	// 	});
-	// })(i);
+		// 	.fail(function( xhr, status, errorThrown ) {
+		// 		console.log( "Error: " + errorThrown );
+		// 		console.log( "Status: " + status );
+		// 		console.dir( xhr );
+		// 	});
+		// })(i);
+	}
 }
 
 function jsonFlickrApi(data) {
@@ -504,7 +486,7 @@ function displayBodyText(index) {
 // Populates the featured view with appropriate content.
 // Requires index of marker and the index of which featured container to populate.
 function populateFeatured(featuredIndex, locationIndex) {
-	var location = locations()[locationIndex];
+	var location = markers()[locationIndex];
 	clearFeatured(featuredIndex);
 	$('.featured_container').eq(featuredIndex).find('.featured_image_container').append('<img class="" alt="' + location.title + '" src="' + location.flickr.img + '">');
 	$('.featured_container').eq(featuredIndex).find('.article_heading').text(location.title);
@@ -545,14 +527,14 @@ function scroll(index) {
 
 function swipeLeft() {
 	// If there is more to scroll to; scroll
-	if(focusedMarker() - 1 >= 0 && focusedMarker() - 1 < locations().length) {
+	if(focusedMarker() - 1 >= 0 && focusedMarker() - 1 < Locations().length) {
 			scroll(focusedMarker() - 1);
 	}
 }
 
 function swipeRight() {
 	// If there is more to scroll to; scroll
-	if(focusedMarker() + 1 >= 0 && focusedMarker() + 1 < locations().length) {
+	if(focusedMarker() + 1 >= 0 && focusedMarker() + 1 < Locations().length) {
 			scroll(focusedMarker() + 1);
 	}
 }
@@ -575,7 +557,7 @@ var infoWindow = {
 		}
 
 		// Set infoWindow content
-		marker.infoWindow.setContent('<div style="width: 200px;"><h5>' + marker.title + '</h5><p>' + locations()[marker.index].wikipedia.ingress + '</p><p><a onclick="readMore(' + marker.index + ')">Les meir</a></p></div>');
+		marker.infoWindow.setContent('<div style="width: 200px;"><h5>' + marker.title + '</h5><p>' + markers()[marker.index].wikipedia.ingress + '</p><p><a onclick="readMore(' + marker.index + ')">Les meir</a></p></div>');
 
 		// Close the infoWindow on "x" click
 		marker.infoWindow.addListener('closeclick', function() {
@@ -591,7 +573,7 @@ var infoWindow = {
 		for (var i = 0; i < markerLength; i++) {
 			// If there is an exception and it has an infoWindow; don't close that one
 			if(exception) {
-				if(markers()[i].title !== exception.title && markers()[i].infoWindow) {
+				if(markers()[i].koTitle() !== exception.koTitle() && markers()[i].infoWindow) {
 					if(markers()[i].infoWindow.anchor !== null) {
 						markers()[i].infoWindow.close();
 					}
@@ -682,17 +664,29 @@ function initMap() {
 		mapTypeControl: false
 	});
 
-	for (var i = 0; i < locations().length; i++) {
-		// Get the position from the location array.
-		var position = locations()[i].location;
-		var title = locations()[i].title;
+	for (var i = 0; i < favoriteLocations.length; i++) {
 		// Create a marker per location, and put into markers array.
 		var marker = new google.maps.Marker({
-			position: position,
-			title: title,
+			position: favoriteLocations[i].location,
+			title: favoriteLocations[i].title,
+			koTitle: ko.observable(favoriteLocations[i].title),
 			// animation: google.maps.Animation.DROP,
 			// icon: pin,
-			index: i
+			index: i,
+			type: favoriteLocations[i].type,
+			visible2: ko.observable(true),
+
+			// Wikipedia
+			wikipedia: {
+				url: '',
+				ingress: '',
+				bodyText: ''
+			},
+
+			// Flickr
+			flickr: {
+				img: []
+			},
 		});
 
 		marker.addListener('click', function() {
@@ -731,4 +725,5 @@ function initMap() {
 	}
 
 	displayMarkers();
+	getExternalResources();
 }

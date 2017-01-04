@@ -88,10 +88,10 @@
 						</p>
 					</div>
 				</div>
-				<ul id="location_switcher_list" data-bind="foreach: locations">
+				<ul id="location_switcher_list" data-bind="foreach: markers()">
 					<!-- ko if: visible -->
 						<li data-bind="click: $root.test">
-							<h2 class="location_switcher_list_title" data-bind="text: title"></h2>
+							<h2 class="location_switcher_list_title" data-bind="text: koTitle()"></h2>
 							<p class="location_switcher_list_type" data-bind="click: $root.test">
 								<i data-bind="attr: { class: type.icon }"></i>
 								<!-- ko text: type.keywords[0] --><!-- /ko -->
@@ -106,8 +106,8 @@
 				<div id="location_switcher_center">
 					<!-- Please enable JavaScript! -->
 					<div class="">
-						<ul id="swipe_list" class="location_switcher_swipe_list list-unstyled" data-bind="foreach: locations">
-							<li class="location_switcher_swipe_list_item" data-bind="text: title"></li>
+						<ul id="swipe_list" class="location_switcher_swipe_list list-unstyled" data-bind="foreach: markers">
+							<li class="location_switcher_swipe_list_item" data-bind="text: koTitle"></li>
 						</ul>
 					</div>
 
