@@ -176,22 +176,22 @@ function sendItemsToSearch(searchString) {
 		if(filter().active()) {
 			// Make item invisible
 			// console.log("HIDIIIIIIIIIIIIIIIIIIIIIIING");
-			hideMarker(markers()[i]);
+			markerVisibillity(markers()[i], false);
 
 			// If filtering hikes; make item visible and push it to itemsToSearch
 			// if(filter().type.hike()) {
 				if(markers()[i].type.keywords[0] == 'Fjelltur' && filter().type.hike()) {
-					markers()[i].visible2(true);
+					markerVisibillity(markers()[i], true);
 					console.log("Pushing " + markers()[i].koTitle());
 					itemsToSearch.push({title: markers()[i].koTitle().toLowerCase(), index: i});
 				
 				} else if(markers()[i].type.keywords[0] == 'Restaurant' && filter().type.restaurant()) {
-					markers()[i].visible2(true);
+					markerVisibillity(markers()[i], true);
 					console.log("Pushing " + markers()[i].koTitle());
 					itemsToSearch.push({title: markers()[i].koTitle().toLowerCase(), index: i});
 
 				} else if(markers()[i].type.keywords[0] == 'Severdighet' && filter().type.landmark()) {
-					markers()[i].visible2(true);
+					markerVisibillity(markers()[i], true);
 					console.log("Pushing " + markers()[i].koTitle());
 					itemsToSearch.push({title: markers()[i].koTitle().toLowerCase(), index: i});
 
@@ -200,7 +200,7 @@ function sendItemsToSearch(searchString) {
 			// 	console.log("Ignoring " + markers()[i].koTitle() + ", keyword = " + markers()[i].type.keywords[0]);
 			// }
 		} else {
-			markers()[i].visible2(true);
+			markerVisibillity(markers()[i], true);
 			console.log("filter().active() = " + filter().active() + ", pushing: " + markers()[i].koTitle());
 			itemsToSearch.push({title: markers()[i].koTitle().toLowerCase(), index: i});
 		}
@@ -211,10 +211,10 @@ function sendItemsToSearch(searchString) {
 	search(searchString, itemsToSearch);
 }
 
-function hideMarker(object) {
+function markerVisibillity(object, visibillity) {
 	console.log("HIDIIIIIIIIIIIIIIIIIIIIIIING " + object.koTitle());
-	object.visible2(false);
-	object.setVisible(false);
+	object.visible2(visibillity);
+	object.setVisible(visibillity);
 }
 
 sendItemsToSearch($('.location_switcher_search_field').val());
