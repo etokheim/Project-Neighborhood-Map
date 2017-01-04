@@ -167,30 +167,6 @@ function sendItemsToSearch(searchString) {
 
 sendItemsToSearch($('.location_switcher_search_field').val());
 
-// function compare(searchString, searchItems) {
-
-// 	for (var i = 0; i < searchItems.length; i++) {
-	
-// 		var item = {
-// 			name: searchItems[i],
-// 			matching: true
-// 		};
-
-// 		for (var j = 0; j < item.name.length; j++) {
-
-// 			var notMatching = 0;
-// 			for (var k = 0; k < searchString.length; k++) {
-
-// 				console.log(searchString[0].search(item.name));
-
-// 			}
-
-// 		}
-
-// 	}
-
-// }
-
 function search(search, strings) {
 	search = search.toLowerCase();
 	// string = string.toLowerCase();
@@ -223,26 +199,9 @@ function search(search, strings) {
 }
 
 
-	// var search = $(this).val();
-	
-	// /* Matching logic */
-	// /* End matching logic */
-	
-	// $('#results').empty();
-	// matches.forEach(function(match) {
-	// 	$('#results').append($('<li>').text(match));
-	// });
-
-
-
-
-
-
-
 var favoriteLocationsLength = favoriteLocations.length;
 console.log(favoriteLocations);
 for (var i = 0; i < favoriteLocationsLength; i++) {
-// for (var i = 0; i < 1; i++) {
 	locations().push(new Location(favoriteLocations[i].title, favoriteLocations[i].type, favoriteLocations[i].location));
 }
 
@@ -303,32 +262,36 @@ var ViewModel = function() {
 		this.test = function() {
 				scroll(this.index);
 				toggleLocationSwitcherList();
-		}
+		};
 
 		$('#location_switcher_center').click(function() {
 				toggleLocationSwitcherList();
 		});
-}
+};
 
 ko.applyBindings(new ViewModel());
 
 var locationsLength = locations().length;
 var ajaxRunTimes = 0;
+var ajax = {
+	title: '',
+
+	flickr: {
+		key: 'e896b44b17e42a28558673f7db2b3504',
+		url: 'https://www.flickr.com/services/rest/'
+	},
+
+	nasjonalturbase: {
+		key: '9718dda12c871525b0c2d976e02986c68de29abe',
+		url: 'http://api.nasjonalturbase.no/v0/turer/'
+	}
+};
+
 for (var i = 0; i < locationsLength; i++) {
-	// console.log("Running for the " + i + ". time.");
-	var response;
+	// Sets the title to work with
+	ajax.title = locations()[i].title;
 
-	var ajax = {
-		title: locations()[i].title,
-
-		flickr: {
-			key: 'e896b44b17e42a28558673f7db2b3504'
-		}
-	};
-
-	ajax.flickr.url = 'https://www.flickr.com/services/rest/';
-
-
+	// Flickr Ajax calls
 	$.ajax({
 		url: 'https://no.wikipedia.org/w/api.php?prop=info%7Cextracts',
 		dataType: 'jsonp',
@@ -341,54 +304,48 @@ for (var i = 0; i < locationsLength; i++) {
 			requestid: i,
 		},
 		success: function(response) {
-			// console.log(response);
 			clearTimeout(wikipediaErrorHandling);
-			// for (var j = 0; j < locationsLength; j++) {
-				// console.dir(i);
+			// Gets the name of the first property name of the object (Since we don't have the
+			// page ID - which is the name of the property)
+			var firstPropertyName = Object.getOwnPropertyNames(response.query.pages)[0];
+			// console.log("firstPropertyName = " + firstPropertyName);
 
-				// Gets the name of the first property name of the object (Since we don't have the
-				// page ID - which is the name of the property)
-				var firstPropertyName = Object.getOwnPropertyNames(response.query.pages)[0];
-				// console.log("firstPropertyName = " + firstPropertyName);
+			// Gets the object we want the first property of
+			var canDo = locations()[response.requestid].wikipedia.ingress = response.query.pages;
+			var extract = canDo[firstPropertyName].extract;
+			var articleText = extract.split("</p>");
+			var bodyText = '';
 
-				// Gets the object we want the first property of
-				var canDo = locations()[response.requestid].wikipedia.ingress = response.query.pages;
-				var extract = canDo[firstPropertyName].extract;
-				var articleText = extract.split("</p>");
-				var bodyText = '';
+			// If first paragraph is empty; use the second one.
+			// Else use the first one.
+			// Some articles has an empty <p></p> at the beginning.
+			if(articleText[0].length <= 3) {
+				var ingress = articleText[1];
 
-				// If first paragraph is empty; use the second one.
-				// Else use the first one.
-				// Some articles has an empty <p></p> at the beginning.
-				if(articleText[0].length <= 3) {
-					var ingress = articleText[1];
-
-					// Adds the rest of the article to the bodyText variable
-					var articleTextLength = articleText.length;
-					for (var i = 2; i < articleTextLength; i++) {
-						bodyText += articleText[i];
-					}
-				} else {
-					var ingress = articleText[0];
-
-					// Adds the rest of the article to the bodyText variable
-					var articleTextLength = articleText.length;
-					for (var i = 1; i < articleTextLength; i++) {
-						bodyText += articleText[i];
-					}
+				// Adds the rest of the article to the bodyText variable
+				var articleTextLength = articleText.length;
+				for (var i = 2; i < articleTextLength; i++) {
+					bodyText += articleText[i];
 				}
+			} else {
+				var ingress = articleText[0];
 
-				locations()[response.requestid].wikipedia.ingress = ingress;
-				locations()[response.requestid].wikipedia.bodyText = bodyText;
+				// Adds the rest of the article to the bodyText variable
+				var articleTextLength = articleText.length;
+				for (var i = 1; i < articleTextLength; i++) {
+					bodyText += articleText[i];
+				}
+			}
 
-				locations()[response.requestid].wikipedia.url = canDo[firstPropertyName].fullurl;
-				response.requestid++;
-				// response[1][i];
-				// $wikiElem.append('<li><a href="' + response[3][i] + '">' + response[1][i] + '</a></li>');
-			// }
+			locations()[response.requestid].wikipedia.ingress = ingress;
+			locations()[response.requestid].wikipedia.bodyText = bodyText;
+
+			locations()[response.requestid].wikipedia.url = canDo[firstPropertyName].fullurl;
+			response.requestid++;
 		}
 	});
 
+	// Flickr Ajax calls
 	// Store the current i value
 	(function(i) {
 		$.ajax({
@@ -404,11 +361,9 @@ for (var i = 0; i < locationsLength; i++) {
 		})
 
 		.done(function(response) {
-			console.log("success");
 			// Removes the function wrapping and creates a JavaScript object
 			// from the JSON recieved from Flickr.
 			var responseJson = JSON.parse(response.slice(14, response.length - 1));
-			console.log(responseJson);
 
 			var newUrl = 'https://www.flickr.com/services/rest/?' + '&?callback=?';
 			$.ajax({
@@ -423,13 +378,9 @@ for (var i = 0; i < locationsLength; i++) {
 			})
 
 			.done(function(response2) {
-				console.log("success2");
-
 				// Removes the function wrapping and creates a JavaScript object
 				// from the JSON recieved from Flickr.
 				var response2Json = JSON.parse(response2.slice(14, response2.length - 1));
-				
-				// console.log(response2Json.sizes.size[5].source + " === " + locations()[i].title);
 				
 				locations()[i].flickr.img[0] = response2Json.sizes.size[5].source;
 			})
@@ -447,44 +398,39 @@ for (var i = 0; i < locationsLength; i++) {
 			console.dir( xhr );
 		});
 	})(i);
+
+	// Nasjonal turbase ajax calls
+	// Store the current i value
+	// (function(i) {
+	// 	$.ajax({
+	// 		url: ajax.nasjonalturbase.url,
+	// 		type: 'GET',
+	// 		dataType: 'text',
+	// 		data: {
+	// 			// method: 'flickr.photos.search',
+	// 			// text: locations()[i].title,
+	// 			format: "json",
+	// 			api_key: ajax.nasjonalturbase.key,
+	// 		}
+	// 	})
+
+	// 	.done(function(response) {
+
+	// 	})
+
+	// 	.fail(function( xhr, status, errorThrown ) {
+	// 		console.log( "Error: " + errorThrown );
+	// 		console.log( "Status: " + status );
+	// 		console.dir( xhr );
+	// 	});
+	// })(i);
 }
-var imgCount = 0;
+
 function jsonFlickrApi(data) {
-	// // If photo the photo ID object is returned; fire a new ajax request
-	// // asking for image url's for that photo ID.
-	// // console.log(data);
-	// if(data.photos) {
-	//  // console.log(data.photos.photo[0].id);
-	//  var newUrl = 'https://www.flickr.com/services/rest/?method=flickr.photos.getSizes' + '&?callback=?';
-
-	//  $.ajax({
-	//      url: newUrl,
-	//      dataType: 'jsonp',
-	//      data: {
-	//          photo_id: data.photos.photo[0].id,
-	//          format: 'json',
-	//          api_key: 'e896b44b17e42a28558673f7db2b3504',
-	//          request_id: 0
-	//      }
-	//  }).done(function(response) {
-	//      // console.log(response);
-	//  }).fail(function(jqxhr, textStatus, error) {
-	//      // console.log(jqxhr + ", " + textStatus + ", " + error);
-	//      // console.log(jqxhr);
-	//  });
-
-	// // Else if images is returned; add them to locations()
-	// } else if(data.sizes) {
-	//  // console.log(data.sizes.size[5].source);
-	//  locations()[imgCount].flickr.img[0] = data.sizes.size[5].source;
-	//  imgCount++;
-	// }
 }
 
 var wikipediaErrorHandling = setTimeout(function() {
-	console.log("timeout");
-	// $("#wikipedia-header").text('Unable to connect to Wikipedia.');
-	// $("#wikipedia-links").append('<li>Please try again later.</li>');
+	console.log("Wikipedia Ajax calls timed out!");
 }, 5000);
 
 var featured = {
@@ -598,26 +544,26 @@ function scroll(index) {
 }
 
 function swipeLeft() {
-		// If there is more to scroll to; scroll
-		if(focusedMarker() - 1 >= 0 && focusedMarker() - 1 < locations().length) {
-				scroll(focusedMarker() - 1);
-		}
+	// If there is more to scroll to; scroll
+	if(focusedMarker() - 1 >= 0 && focusedMarker() - 1 < locations().length) {
+			scroll(focusedMarker() - 1);
+	}
 }
 
 function swipeRight() {
-		// If there is more to scroll to; scroll
-		if(focusedMarker() + 1 >= 0 && focusedMarker() + 1 < locations().length) {
-				scroll(focusedMarker() + 1);
-		}
+	// If there is more to scroll to; scroll
+	if(focusedMarker() + 1 >= 0 && focusedMarker() + 1 < locations().length) {
+			scroll(focusedMarker() + 1);
+	}
 }
 
 function moveToMarker(marker) {
-		var coordinates = {
-				lat: marker.position.lat(),
-				lng: marker.position.lng()
-		};
+	var coordinates = {
+			lat: marker.position.lat(),
+			lng: marker.position.lng()
+	};
 
-		map.panTo(coordinates);
+	map.panTo(coordinates);
 }
 
 var infoWindow = {
@@ -658,10 +604,10 @@ var infoWindow = {
 };
 
 function initMap() {
-		console.log("creating map");
+	console.log("creating map");
 
-		// Create a styles array to use with the map.
-		var styles = [
+	// Styles which will be applied to the map.
+	var styles = [
 				{
 						featureType: 'water',
 						stylers: [
@@ -726,63 +672,63 @@ function initMap() {
 								{ lightness: -25 }
 						]
 				}
-		];
+	];
 
-		// Constructor creates a new map - only center and zoom are required.
-		map = new google.maps.Map(document.getElementById('map'), {
-				center: {lat: 40.7413549, lng: -73.9980244},
-				zoom: 13,
-				styles: styles,
-				mapTypeControl: false
+	// Constructor creates a new map - only center and zoom are required.
+	map = new google.maps.Map(document.getElementById('map'), {
+		center: {lat: 40.7413549, lng: -73.9980244},
+		zoom: 13,
+		styles: styles,
+		mapTypeControl: false
+	});
+
+	for (var i = 0; i < locations().length; i++) {
+		// Get the position from the location array.
+		var position = locations()[i].location;
+		var title = locations()[i].title;
+		// Create a marker per location, and put into markers array.
+		var marker = new google.maps.Marker({
+			position: position,
+			title: title,
+			// animation: google.maps.Animation.DROP,
+			// icon: pin,
+			index: i
 		});
 
-		for (var i = 0; i < locations().length; i++) {
-				// Get the position from the location array.
-				var position = locations()[i].location;
-				var title = locations()[i].title;
-				// Create a marker per location, and put into markers array.
-				var marker = new google.maps.Marker({
-						position: position,
-						title: title,
-						// animation: google.maps.Animation.DROP,
-						// icon: pin,
-						index: i
-				});
+		marker.addListener('click', function() {
+			// console.log("clicked " + marker);
+			infoWindow.closeAll(this);
+			infoWindow.populate(this, new google.maps.InfoWindow());
 
-				marker.addListener('click', function() {
-					console.log("clicked " + marker);
-					infoWindow.closeAll(this);
-					infoWindow.populate(this, new google.maps.InfoWindow());
+			// console.log(markers()[i-1]); Is always the last marker?!
+			toggleBounce(markers()[i-1]);
+		});
 
-					// console.log(markers()[i-1]); Is always the last marker?!
-					toggleBounce(markers()[i-1]);
-				});
+		// marker.toggleBounce = toggleBounce(markers()[i]);
 
-				// marker.toggleBounce = toggleBounce(markers()[i]);
-
-				function toggleBounce(obj) {
-					console.log(obj);
-					if(obj.getAnimation() !== null) {
-						obj.setAnimation(null);
-					} else {
-						obj.setAnimation(google.maps.Animation.BOUNCE);
-					}
-				}
-
-				// Push the marker to our array of markers.
-				markers().push(marker);
+		function toggleBounce(obj) {
+			console.log(obj);
+			if(obj.getAnimation() !== null) {
+				obj.setAnimation(null);
+			} else {
+				obj.setAnimation(google.maps.Animation.BOUNCE);
+			}
 		}
 
-		// Add markers to the map
-		function displayMarkers() {
-				var bounds = new google.maps.LatLngBounds();
-				// Extend the boundaries of the map for each marker and display the marker
-				for (var i = 0; i < markers().length; i++) {
-						markers()[i].setMap(map);
-						bounds.extend(markers()[i].position);
-				}
-				map.fitBounds(bounds);
-		}
+		// Push the marker to our array of markers.
+		markers().push(marker);
+	}
 
-		displayMarkers();
+	// Add markers to the map
+	function displayMarkers() {
+		var bounds = new google.maps.LatLngBounds();
+		// Extend the boundaries of the map for each marker and display the marker
+		for (var i = 0; i < markers().length; i++) {
+				markers()[i].setMap(map);
+				bounds.extend(markers()[i].position);
+		}
+		map.fitBounds(bounds);
+	}
+
+	displayMarkers();
 }
