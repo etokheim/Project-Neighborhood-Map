@@ -1,5 +1,20 @@
 var map, markers, polygon, locations, focusedMarker, test;
 
+var featuredContent = ko.observable({
+	first: {
+		title: ko.observable(),
+		wikipedia: ko.observable({
+			ingress: ko.observable(),
+			bodyText: ko.observable(),
+			url: ko.observable(),
+		}),
+
+		flickr: ko.observable({
+			img: ko.observableArray([]),
+		}),
+	},
+});
+
 var filter = ko.observable({
 	type: {
 		hike: ko.observable(false),
@@ -292,36 +307,37 @@ function getExternalResources() {
 				// console.log("firstPropertyName = " + firstPropertyName);
 
 				// Gets the object we want the first property of
-				var canDo = markers()[response.requestid].wikipedia.ingress = response.query.pages;
+				var canDo = response.query.pages;
 				var extract = canDo[firstPropertyName].extract;
 				var articleText = extract.split("</p>");
 				var bodyText = '';
+				var ingress = '';
 
 				// If first paragraph is empty; use the second one.
 				// Else use the first one.
 				// Some articles has an empty <p></p> at the beginning.
 				if(articleText[0].length <= 3) {
-					var ingress = articleText[1];
+					ingress = articleText[1];
 
 					// Adds the rest of the article to the bodyText variable
-					var articleTextLength = articleText.length;
+					articleTextLength = articleText.length;
 					for (var i = 2; i < articleTextLength; i++) {
 						bodyText += articleText[i];
 					}
 				} else {
-					var ingress = articleText[0];
+					ingress = articleText[0];
 
 					// Adds the rest of the article to the bodyText variable
-					var articleTextLength = articleText.length;
+					articleTextLength = articleText.length;
 					for (var i = 1; i < articleTextLength; i++) {
 						bodyText += articleText[i];
 					}
 				}
 
-				markers()[response.requestid].wikipedia.ingress = ingress;
-				markers()[response.requestid].wikipedia.bodyText = bodyText;
+				markers()[response.requestid].wikipedia.ingress(ingress);
+				markers()[response.requestid].wikipedia.bodyText(bodyText);
 
-				markers()[response.requestid].wikipedia.url = canDo[firstPropertyName].fullurl;
+				markers()[response.requestid].wikipedia.url(canDo[firstPropertyName].fullurl);
 				response.requestid++;
 			}
 		});
@@ -363,9 +379,9 @@ function getExternalResources() {
 					// from the JSON recieved from Flickr.
 					var response2Json = JSON.parse(response2.slice(14, response2.length - 1));
 					
-					markers()[i].flickr.img.push(response2Json.sizes.size[5].source);
-					markers()[i].flickr.img.push(response2Json.sizes.size[6].source);
-					markers()[i].flickr.img.push(response2Json.sizes.size[7].source);
+					markers()[i].flickr.img().push(response2Json.sizes.size[5].source);
+					markers()[i].flickr.img().push(response2Json.sizes.size[6].source);
+					markers()[i].flickr.img().push(response2Json.sizes.size[7].source);
 				})
 
 				.fail(function(jqxhr, textStatus, error) {
@@ -487,23 +503,36 @@ function displayBodyText(index) {
 
 // Populates the featured view with appropriate content.
 // Requires index of marker and the index of which featured container to populate.
-function populateFeatured(featuredIndex, locationIndex) {
-	var location = markers()[locationIndex];
-	clearFeatured(featuredIndex);
-	$('.featured_container').eq(featuredIndex).find('.featured_image_container').append('<img class="" alt="' + location.title + '" src="' + location.flickr.img + '">');
-	$('.featured_container').eq(featuredIndex).find('.article_heading').text(location.title);
-	$('.featured_container').eq(featuredIndex).find('.ingress').html(location.wikipedia.ingress);
-	$('.featured_container').eq(featuredIndex).find('.body_text').html(location.wikipedia.bodyText);
-	$('.featured_container').eq(featuredIndex).find('cite>a').attr('href', location.wikipedia.url);
+function populateFeatured(featuredIndex, markerIndex) {
+	featuredContent().first.title(markers()[markerIndex].koTitle());
+	
+	// Wikipedia:
+	var ingress = markers()[markerIndex].wikipedia.ingress();
+	var url = markers()[markerIndex].wikipedia.url();
+	var img = markers()[markerIndex].flickr.img();
+	featuredContent().first.wikipedia().ingress(ingress);
+	featuredContent().first.wikipedia().bodyText(markers()[markerIndex].wikipedia.bodyText());
+	featuredContent().first.wikipedia().url(url);
+	
+	// Flickr:
+	featuredContent().first.flickr().img(img);
+
+	// var location = markers()[locationIndex];
+	// clearFeatured(featuredIndex);
+	// $('.featured_container').eq(featuredIndex).find('.featured_image_container').append('<img class="" alt="' + location.title + '" src="' + location.flickr.img + '">');
+	// $('.featured_container').eq(featuredIndex).find('.article_heading').text(location.title);
+	// $('.featured_container').eq(featuredIndex).find('.ingress').html(location.wikipedia.ingress());
+	// $('.featured_container').eq(featuredIndex).find('.body_text').html(location.wikipedia.bodyText());
+	// $('.featured_container').eq(featuredIndex).find('cite>a').attr('href', location.wikipedia.url());
 }
 
 // Clears the content of the featured view.
 // Requires the index of which featured to clear.
 function clearFeatured(featuredIndex) {
-	$('.featured_container').eq(featuredIndex).find('.featured_image_container').html("");
-	$('.featured_container').eq(featuredIndex).find('.article_heading').html("");
-	$('.featured_container').eq(featuredIndex).find('.ingress').html("");
-	$('.featured_container').eq(featuredIndex).find('.body_text').html("");
+	// $('.featured_container').eq(featuredIndex).find('.featured_image_container').html("");
+	// $('.featured_container').eq(featuredIndex).find('.article_heading').html("");
+	// $('.featured_container').eq(featuredIndex).find('.ingress').html("");
+	// $('.featured_container').eq(featuredIndex).find('.body_text').html("");
 
 }
 
@@ -559,7 +588,7 @@ var infoWindow = {
 		}
 
 		// Set infoWindow content
-		marker.infoWindow.setContent('<div style="width: 200px;"><h5>' + marker.title + '</h5><p>' + markers()[marker.index].wikipedia.ingress + '</p><p><a onclick="readMore(' + marker.index + ')">Les meir</a></p></div>');
+		marker.infoWindow.setContent('<div style="width: 200px;"><h5>' + marker.title + '</h5><p>' + markers()[marker.index].wikipedia.ingress() + '</p><p><a onclick="readMore(' + marker.index + ')">Les meir</a></p></div>');
 
 		// Close the infoWindow on "x" click
 		marker.infoWindow.addListener('closeclick', function() {
@@ -680,14 +709,14 @@ function initMap() {
 
 			// Wikipedia
 			wikipedia: {
-				url: '',
-				ingress: '',
-				bodyText: ''
+				url: ko.observable(''),
+				ingress: ko.observable(''),
+				bodyText: ko.observable('')
 			},
 
 			// Flickr
 			flickr: {
-				img: []
+				img: ko.observableArray([])
 			},
 		});
 
