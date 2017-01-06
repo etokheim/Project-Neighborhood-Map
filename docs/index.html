@@ -10,7 +10,7 @@
 			<link rel="stylesheet" href="css/plug-ins/font-awesome.css">
 			<link rel="stylesheet" type="text/css" href="css/plug-ins/slick.css"/>
 			<!-- Slick-theme for default styling -->
-			<link rel="stylesheet" type="text/css" href="css/plug-ins/slick-theme.css"/>
+			<!-- <link rel="stylesheet" type="text/css" href="css/plug-ins/slick-theme.css"/> -->
 		<!-- /Plug-in styles -->
 		
 		<!-- Custom styles -->
@@ -27,15 +27,15 @@
 			<header>
 				<div class="featured_close" onclick="hideFeaturedContainer()"><i class="fa fa-times fa-lg"></i></div>
 				<div class="featured_image_container" data-bind="foreach: featuredContent().first.flickr().img()">
-					<img src="" alt="" data-bind="attr: { src: $data }">
+					<img src="" alt="" data-bind="attr: { src: $data, alt: 'Bilete av ' + featuredContent().first.title() }">
 				</div>
 
 				<h1 class="article_heading" data-bind="text: featuredContent().first.title"></h1>
 			</header>
 			<div class="article_body article_body_hidden">
 				<div class="article_body_read_more"></div>
-				<p class="ingress" data-bind="text: featuredContent().first.wikipedia().ingress"></p>
-				<p class="body_text" data-bind="text: featuredContent().first.wikipedia().bodyText"></p>
+				<p class="ingress" data-bind="html: featuredContent().first.wikipedia().ingress()"></p>
+				<p class="body_text" data-bind="html: featuredContent().first.wikipedia().bodyText()"></p>
 				<p>
 					<cite>Henta frå <a href="" data-bind="attr: { href: featuredContent().first.wikipedia().url }">Wikipedia</a></cite>
 				</p>

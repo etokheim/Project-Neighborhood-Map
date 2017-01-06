@@ -13,6 +13,16 @@ var featuredContent = ko.observable({
 			img: ko.observableArray([]),
 		}),
 	},
+
+	slick: {
+		infinite: true,
+		slidesToShow: 1,
+		autoplay: true,
+		autoplaySpeed: 5000,
+		draggable: true,
+		arrows: true,
+		// appendArrows: $(".featured_image_container"),
+	}
 });
 
 var filter = ko.observable({
@@ -87,14 +97,12 @@ ko.applyBindings(new ViewModel());
 
 window.onload = function() {
 	// Initialize slick
-	console.log("TEEEEEEEEEEEEEEEST");
-	$(".featured_image_container").slick({
-		infinite: true,
-		slidesToShow: 1
-	});
+	console.log('Initialize slick carousels');
+	$(".featured_image_container").slick(featuredContent().slick);
 
 	// Hides the list after the user has seen it
 	setTimeout(function() {
+		console.log('Hide location list');
 		toggleLocationSwitcherList();
 	}, 500);
 };
@@ -200,10 +208,7 @@ $('.location_switcher_search_field').on('input', function() {
 function reslickFeatured() {
 	console.log('Reslicking!');
 	$(".featured_image_container").slick('unslick');
-	$(".featured_image_container").slick({
-		infinite: true,
-		slidesToShow: 1
-	});
+	$(".featured_image_container").slick(featuredContent().slick);
 }
 
 function sendItemsToSearch(searchString) {
@@ -294,7 +299,8 @@ var ajax = {
 
 	flickr: {
 		key: 'e896b44b17e42a28558673f7db2b3504',
-		url: 'https://www.flickr.com/services/rest/'
+		url: 'https://www.flickr.com/services/rest/',
+		imgCount: 3
 	},
 
 	nasjonalturbase: {
@@ -383,34 +389,39 @@ function getExternalResources() {
 				// Removes the function wrapping and creates a JavaScript object
 				// from the JSON recieved from Flickr.
 				var responseJson = JSON.parse(response.slice(14, response.length - 1));
+				console.log(responseJson);
 
-				var newUrl = 'https://www.flickr.com/services/rest/?' + '&?callback=?';
-				$.ajax({
-					url: newUrl,
-					dataType: 'text',
-					data: {
-						method: 'flickr.photos.getSizes',
-						photo_id: responseJson.photos.photo[0].id,
-						format: 'json',
-						api_key: ajax.flickr.key,
-					}
-				})
+				for (var j = 0; j < ajax.flickr.imgCount; j++) {
+					(function(j) {
+						console.log("running!");
+						$.ajax({
+							url: ajax.flickr.url + '?&?callback=?',
+							dataType: 'text',
+							data: {
+								method: 'flickr.photos.getSizes',
+								photo_id: responseJson.photos.photo[j].id,
+								format: 'json',
+								api_key: ajax.flickr.key,
+							}
+						})
 
-				.done(function(response2) {
-					// Removes the function wrapping and creates a JavaScript object
-					// from the JSON recieved from Flickr.
-					var response2Json = JSON.parse(response2.slice(14, response2.length - 1));
-					
-					markers()[i].flickr.img().push(response2Json.sizes.size[5].source);
-					markers()[i].flickr.img().push(response2Json.sizes.size[6].source);
-					markers()[i].flickr.img().push(response2Json.sizes.size[7].source);
-				})
+						.done(function(response2) {
+							// Removes the function wrapping and creates a JavaScript object
+							// from the JSON recieved from Flickr.
+							var response2Json = JSON.parse(response2.slice(14, response2.length - 1));
 
-				.fail(function(jqxhr, textStatus, error) {
-					// console.log(jqxhr + ", " + textStatus + ", " + error);
-					console.log("fail2");
-					console.log(jqxhr);
-				});
+							console.log(j);
+							console.log(response2Json);
+							markers()[i].flickr.img().push(response2Json.sizes.size[5].source);
+						})
+
+						.fail(function(jqxhr, textStatus, error) {
+							// console.log(jqxhr + ", " + textStatus + ", " + error);
+							console.log("fail2");
+							console.log(jqxhr);
+						});
+					})(j);
+				}
 			})
 
 			.fail(function( xhr, status, errorThrown ) {
