@@ -12,11 +12,11 @@ var gulp =			require('gulp'),
 
 // Gulp default task
 gulp.task('default', ['clean'], function() {
-	gulp.start('get-slick-carousel', 'get-bootstrap', 'get-font-awesome', 'get-jquery', 'get-knockout', 'minify-scripts', 'minify-css', 'minify-html');
+	gulp.start('get-bootstrap', 'get-slick-carousel', 'get-font-awesome', 'get-jquery', 'get-knockout', 'minify-scripts', 'minify-css', 'minify-html');
 });
 
 gulp.task('minify-scripts', function() {
-	return gulp.src('src/js/**/*.js')
+	return gulp.src('docs/js/**/*.js')
 		.pipe(rename({suffix: '.min'}))
 		.pipe(uglify())
 		.pipe(gulp.dest('dist/js'))
@@ -24,7 +24,7 @@ gulp.task('minify-scripts', function() {
 });
 
 gulp.task('minify-css', function() {
-	return gulp.src('src/css/**/*.css')
+	return gulp.src('docs/css/**/*.css')
 		.pipe(rename({suffix: '.min'}))
 		.pipe(cleanCSS({compatibility: 'ie8'}))
 		.pipe(gulp.dest('dist/css'))
@@ -32,7 +32,7 @@ gulp.task('minify-css', function() {
 });
 
 gulp.task('minify-html', function() {
-	return gulp.src('src/*.html')
+	return gulp.src('docs/*.html')
 		.pipe(rename({suffix: '.min'}))
 		.pipe(htmlmin({collapseWhitespace: true}))
 		.pipe(gulp.dest('dist'))
@@ -71,13 +71,13 @@ gulp.task('get-font-awesome', function() {
 });
 
 gulp.task('get-slick-carousel', function() {
-	gulp.src('./node_modules/slick-carousel/*.css')
+	gulp.src('./node_modules/slick-carousel/slick/*.css')
 		.pipe(gulp.dest('./docs/css/plug-ins/'));
 
-	gulp.src('./node_modules/slick-carousel/*.min.js')
+	gulp.src('./node_modules/slick-carousel/slick/*.min.js')
 		.pipe(gulp.dest('./docs/js/plug-ins/'));
 
-	gulp.src('./node_modules/slick-carousel/*.gif')
+	gulp.src('./node_modules/slick-carousel/slick/*.gif')
 		.pipe(gulp.dest('./docs/img/plug-ins/'));
 });
 
@@ -94,11 +94,11 @@ gulp.task('serve', function() {
 		// Note: this uses an unsigned certificate which on first access
 		//       will present a certificate warning in the browser.
 		// https: true,
-		server: ['.tmp', 'src']
+		server: ['.tmp', 'docs']
 	});
 
-	gulp.watch(['src/*.html'], reload);
-	gulp.watch(['src/css/*.{scss,css}'], reload);
-	gulp.watch(['src/js/*.js'], reload);
-	gulp.watch(['src/images/**/*'], reload);
+	gulp.watch(['docs/*.html'], reload);
+	gulp.watch(['docs/css/*.{scss,css}'], reload);
+	gulp.watch(['docs/js/*.js'], reload);
+	gulp.watch(['docs/images/**/*'], reload);
 });
