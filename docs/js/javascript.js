@@ -22,6 +22,15 @@ var featuredContent = ko.observable({
 		draggable: true,
 		arrows: true,
 		// appendArrows: $(".featured_image_container"),
+	},
+
+	slickLocationSwitcher: {
+		infinite: true,
+		slidesToShow: 1,
+		autoplay: false,
+		draggable: true,
+		arrows: false,
+		// appendArrows: $(".featured_image_container"),
 	}
 });
 
@@ -96,9 +105,14 @@ ko.applyBindings(new ViewModel());
 // map.setMapTypeId('terrain');
 
 window.onload = function() {
-	// Initialize slick
+	// Initialize slick on featured views
 	console.log('Initialize slick carousels');
 	$(".featured_image_container").slick(featuredContent().slick);
+
+	// Initialize Slick on location switcher
+	// setTimeout(function() {
+		$(".location_switcher_swipe_list").slick(featuredContent().slickLocationSwitcher);
+	// }, 1500);
 
 	// Hides the list after the user has seen it
 	setTimeout(function() {
