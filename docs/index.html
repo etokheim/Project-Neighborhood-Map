@@ -5,11 +5,22 @@
 
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
 
-		<link rel="stylesheet" href="css/plug-ins/bootstrap.css">
-		<link rel="stylesheet" href="css/plug-ins/font-awesome.css">
-		<link rel="stylesheet" href="css/style.css">
-		<script src="js/plug-ins/jquery.min.js"></script>
-		<script src="js/plug-ins/knockout-latest.js"></script>
+		<!-- Plug-in styles -->
+			<link rel="stylesheet" href="css/plug-ins/bootstrap.css">
+			<link rel="stylesheet" href="css/plug-ins/font-awesome.css">
+			<link rel="stylesheet" type="text/css" href="css/plug-ins/slick.css"/>
+			<!-- Slick-theme for default styling -->
+			<link rel="stylesheet" type="text/css" href="css/plug-ins/slick-theme.css"/>
+		<!-- /Plug-in styles -->
+		
+		<!-- Custom styles -->
+			<link rel="stylesheet" href="css/style.css">
+		<!-- /Custom styles -->
+		
+		<!-- Plug-in scripts -->
+			<script src="js/plug-ins/jquery.min.js"></script>
+			<script src="js/plug-ins/knockout-latest.js"></script>
+		<!-- /Plug-in scripts -->
 	</head>
 	<body>
 		<article class="featured_container featured_container_hidden">
@@ -120,8 +131,11 @@
 		</div>
 		<div id="map"></div>
 
-
+		<!-- Plug-in scripts -->
+			<script async type="text/javascript" src="js/plug-ins/slick.min.js"></script>
+			<script async defer src="https://maps.googleapis.com/maps/api/js?libraries=geometry,places,drawing&key=AIzaSyBxaRfeTwSjp8rx6Mh-0R_TPNboRa9QRac&v=3&callback=initMap"></script>
+		<!-- /Plug-in scripts -->
+		
 		<script src="js/javascript.js"></script>
-		<script async defer src="https://maps.googleapis.com/maps/api/js?libraries=geometry,places,drawing&key=AIzaSyBxaRfeTwSjp8rx6Mh-0R_TPNboRa9QRac&v=3&callback=initMap"></script>
 	</body>
 </html>

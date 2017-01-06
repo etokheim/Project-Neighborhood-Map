@@ -55,9 +55,13 @@ var ViewModel = function() {
 		// Create a new blank array for all the listing markers.
 		markers = ko.observableArray();
 
-		markers.subscribe(function(newValue) {
-			console.log("Markers() got a new value! = " + markers());
-		});
+		// After the page is loaded, listen for changes in the markers() array
+		window.onload = function() {
+			markers.subscribe(function(newValue) {
+				console.log("Markers() got a new value! = " + markers());
+				reslickFeatured();
+			});
+		};
 
 		// This global polygon variable is to ensure only ONE polygon is rendered.
 		polygon = null;
@@ -82,9 +86,16 @@ ko.applyBindings(new ViewModel());
 // map.setMapTypeId('terrain');
 
 window.onload = function() {
+	// Initialize slick
+	console.log("TEEEEEEEEEEEEEEEST");
+	$(".featured_image_container").slick({
+		infinite: true,
+		slidesToShow: 1
+	});
+
 	// Hides the list after the user has seen it
 	setTimeout(function() {
-			toggleLocationSwitcherList();
+		toggleLocationSwitcherList();
 	}, 500);
 };
 
@@ -183,6 +194,17 @@ var favoriteLocations = [
 $('.location_switcher_search_field').on('input', function() {
 	sendItemsToSearch(this.value);
 });
+
+// Reinitialize slick (needed on content change)
+// Initialized in window.onload function
+function reslickFeatured() {
+	console.log('Reslicking!');
+	$(".featured_image_container").slick('unslick');
+	$(".featured_image_container").slick({
+		infinite: true,
+		slidesToShow: 1
+	});
+}
 
 function sendItemsToSearch(searchString) {
 	var itemsToSearch = [];
@@ -486,6 +508,7 @@ function displayAvailableFeaturedContainer(locationIndex) {
 	}
 
 	populateFeatured(featured.displaying, locationIndex);
+	reslickFeatured();
 }
 
 function hideFeaturedContainer() {
