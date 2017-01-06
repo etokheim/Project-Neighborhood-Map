@@ -284,6 +284,7 @@ Locations switcher
 	border: 4px solid #fff;
 	border-left: none;
 	border-right: none;
+	border-radius: 5px;
 }
 
 #location_switcher_center:hover, #location_switcher_center:focus {
@@ -297,6 +298,7 @@ Locations switcher
 	line-height: calc(4rem - 2px);
 	text-align: center;
 	border: 4px solid #fff;
+	border-radius: 5px;
 }
 
 .location_switcher_arrow:hover, .location_switcher_arrow:focus {
@@ -364,7 +366,7 @@ Plug-ins
 ****************
 Slick carousel
 */
-.slick-arrow {
+button.slick-arrow {
 	width: 50%;
 	height: 100%;
 	position: absolute;
@@ -382,11 +384,11 @@ Slick carousel
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#00ffffff',GradientType=1 ); /* IE6-9 */
 }
 
-.slick-arrow:hover {
+button.slick-arrow:hover {
 	opacity: 1;
 }
 
-.slick-next {
+button.slick-next {
 	top: 0;
 	right: 0;
 	
@@ -398,7 +400,7 @@ Slick carousel
 }
 
 @media screen and (max-width: 1025px) {
-	.slick-arrow {
+	button.slick-arrow {
 		display: none;
 	}
 }

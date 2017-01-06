@@ -25,11 +25,13 @@ var featuredContent = ko.observable({
 	},
 
 	slickLocationSwitcher: {
-		infinite: true,
+		infinite: false,
 		slidesToShow: 1,
 		autoplay: false,
 		draggable: true,
-		arrows: false,
+		arrows: true,
+		nextArrow: $('.location_switcher_arrow_right'),
+		prevArrow: $('.location_switcher_arrow_left'),
 		// appendArrows: $(".featured_image_container"),
 	}
 });
@@ -109,10 +111,12 @@ window.onload = function() {
 	console.log('Initialize slick carousels');
 	$(".featured_image_container").slick(featuredContent().slick);
 
-	// Initialize Slick on location switcher
-	// setTimeout(function() {
-		$(".location_switcher_swipe_list").slick(featuredContent().slickLocationSwitcher);
-	// }, 1500);
+	// Initialize Slick on location switcher and add beforeChange listener
+	$(".location_switcher_swipe_list").slick(featuredContent().slickLocationSwitcher);
+	$('.location_switcher_swipe_list').on('beforeChange', function(event, slick, currentSlide, nextSlide) {
+		console.log(nextSlide);
+		focusMarker(nextSlide);
+	});
 
 	// Hides the list after the user has seen it
 	setTimeout(function() {
@@ -604,6 +608,16 @@ function scroll(index) {
 	}, 200);
 }
 
+function focusMarker(index) {
+	var marker = markers()[index];
+
+	focusedMarker(index);
+	moveToMarker(markers()[index]);
+
+	infoWindow.closeAll(marker);
+	infoWindow.populate(marker, new google.maps.InfoWindow());
+}
+
 function swipeLeft() {
 	// If there is more to scroll to; scroll
 	if(focusedMarker() - 1 >= 0 && focusedMarker() - 1 < markers().length) {
@@ -614,7 +628,7 @@ function swipeLeft() {
 function swipeRight() {
 	// If there is more to scroll to; scroll
 	if(focusedMarker() + 1 >= 0 && focusedMarker() + 1 < markers().length) {
-			scroll(focusedMarker() + 1);
+		scroll(focusedMarker() + 1);
 	}
 }
 
