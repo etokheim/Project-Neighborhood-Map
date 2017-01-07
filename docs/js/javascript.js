@@ -229,6 +229,14 @@ function reslickFeatured() {
 	$(".featured_image_container").slick(featuredContent().slick);
 }
 
+// Reinitialize slick (needed on content change)
+// Initialized in window.onload function
+function reslickSwipeList() {
+	console.log('Reslicking!');
+	$(".location_switcher_swipe_list").slick('unslick');
+	$(".location_switcher_swipe_list").slick(featuredContent().slickLocationSwitcher);
+}
+
 function sendItemsToSearch(searchString) {
 	var itemsToSearch = [];
 	for (var i = 0; i < markers().length; i++) {
@@ -275,6 +283,7 @@ function markerVisibillity(object, visibillity) {
 	console.log("HIDIIIIIIIIIIIIIIIIIIIIIIING " + object.koTitle());
 	object.visible2(visibillity);
 	object.setVisible(visibillity);
+	reslickSwipeList();
 }
 
 sendItemsToSearch($('.location_switcher_search_field').val());
