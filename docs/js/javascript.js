@@ -625,6 +625,8 @@ function focusMarker(index) {
 
 	infoWindow.closeAll(marker);
 	infoWindow.populate(marker, new google.maps.InfoWindow());
+
+	toggleBounce(marker);
 }
 
 function swipeLeft() {
@@ -680,8 +682,14 @@ var infoWindow = {
 						markers()[i].infoWindow.close();
 					}
 				}
+
+				// Stop the animation
+				markers()[i].setAnimation(null);
+				
 			} else if(markers()[i].infoWindow) {
 				markers()[i].infoWindow.close();
+				// Stop the animation
+				markers()[i].setAnimation(null);
 			}
 		}
 	}
@@ -772,7 +780,7 @@ function initMap() {
 			position: favoriteLocations[i].location,
 			title: favoriteLocations[i].title,
 			koTitle: ko.observable(favoriteLocations[i].title),
-			// animation: google.maps.Animation.DROP,
+			animation: null, //google.maps.Animation.DROP,
 			// icon: pin,
 			index: i,
 			type: favoriteLocations[i].type,
@@ -792,24 +800,24 @@ function initMap() {
 		});
 
 		marker.addListener('click', function() {
-			// console.log("clicked " + marker);
-			infoWindow.closeAll(this);
-			infoWindow.populate(this, new google.maps.InfoWindow());
+			if(this.infoWindow) {
+				console.log(this.infoWindow.anchor);
+				if(this.infoWindow.anchor !== null) {
+					this.infoWindow.close();
+				} else {
+					infoWindow.closeAll(this);
+					infoWindow.populate(this, new google.maps.InfoWindow());
+				}
+			} else {
+				infoWindow.closeAll(this);
+				infoWindow.populate(this, new google.maps.InfoWindow());
+			}
 
-			// console.log(markers()[i-1]); Is always the last marker?!
-			toggleBounce(markers()[i-1]);
+			toggleBounce(this);
+
 		});
 
 		// marker.toggleBounce = toggleBounce(markers()[i]);
-
-		function toggleBounce(obj) {
-			console.log(obj);
-			if(obj.getAnimation() !== null) {
-				obj.setAnimation(null);
-			} else {
-				obj.setAnimation(google.maps.Animation.BOUNCE);
-			}
-		}
 
 		// Push the marker to our array of markers.
 		markers.push(marker);
@@ -828,4 +836,12 @@ function initMap() {
 
 	displayMarkers();
 	getExternalResources();
+}
+
+function toggleBounce(obj) {
+	if(obj.getAnimation() !== null) {
+		obj.setAnimation(null);
+	} else {
+		obj.setAnimation(google.maps.Animation.BOUNCE);
+	}
 }
