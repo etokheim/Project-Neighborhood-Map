@@ -666,6 +666,7 @@ var infoWindow = {
 		// Close the infoWindow on "x" click
 		marker.infoWindow.addListener('closeclick', function() {
 			marker.infoWindow.close();
+			toggleBounce(marker);
 		});
 
 		// Open the infoWindow
