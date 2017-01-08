@@ -23,64 +23,92 @@
 		<!-- /Plug-in scripts -->
 	</head>
 	<body>
-		<article class="featured_container featured_container_hidden">
-			<header>
-				<div class="featured_close" onclick="hideFeaturedContainer()"><i class="fa fa-times fa-lg"></i></div>
-				<div class="featured_image_container" data-bind="foreach: featuredContent().first.flickr().img()">
-					<img src="" alt="" data-bind="attr: { src: $data, alt: 'Bilete av ' + featuredContent().first.title() }">
-				</div>
+		<!-- ko with: markers()[featured().content[0].contentIndex()] -->
+			<article class="featured_container featured_container_hidden">
+				<header>
+					<div class="featured_close" onclick="hideFeaturedContainer()"><i class="fa fa-times fa-lg"></i></div>
+					<div class="featured_image_container" data-bind="foreach: flickr.img()">
+						<!-- There is a bug here. It works the first time, but then the alt data get messed up. -->
+						<img src="" alt="" data-bind="attr: { src: $data, alt: 'Bilete av ' + markers()[featured().content[0].contentIndex()].title }">
+					</div>
 
-				<div class="article_container">
-					<h1 class="article_heading" data-bind="text: featuredContent().first.title"></h1>
-					<div class="article_extras">
-						<div class="article_extras_item">
-							<i data-bind="attr: { class: featuredContent().first.type().icon }"></i>
-							<!-- ko text: featuredContent().first.type().keyword --><!-- /ko -->
-						</div>
-						<div class="article_extras_item">
-							<i class="fa fa-star" data-bind=""></i>
-							<i class="fa fa-star" data-bind=""></i>
-							<i class="fa fa-star" data-bind=""></i>
-							<i class="fa fa-star" data-bind=""></i>
-							<i class="fa fa-star-o" data-bind=""></i>
+					<div class="">
+						<h1 class="article_heading" data-bind="text: title"></h1>
+						<div class="article_extras">
+							<div class="article_extras_item">
+								<i data-bind="attr: { class: type.icon }"></i>
+								<!-- ko text: type.keywords[0] --><!-- /ko -->
+							</div>
+							<div class="article_extras_item">
+								<i class="fa fa-star" data-bind=""></i>
+								<i class="fa fa-star" data-bind=""></i>
+								<i class="fa fa-star" data-bind=""></i>
+								<i class="fa fa-star" data-bind=""></i>
+								<i class="fa fa-star-o" data-bind=""></i>
+							</div>
 						</div>
 					</div>
+				</header>
+				<div class="article_body article_body_hidden">
+					<div class="article_body_read_more"></div>
+					<p class="ingress" data-bind="html: wikipedia.ingress()"></p>
+					<p class="body_text" data-bind="html: wikipedia.bodyText()"></p>
+					<p>
+						<cite>Henta frå <a href="" data-bind="attr: { href: wikipedia.url }">Wikipedia</a></cite>
+					</p>
 				</div>
-			</header>
-			<div class="article_container article_body_hidden">
-				<div class="article_body_read_more"></div>
-				<p class="ingress" data-bind="html: featuredContent().first.wikipedia().ingress()"></p>
-				<p class="body_text" data-bind="html: featuredContent().first.wikipedia().bodyText()"></p>
-				<p>
-					<cite>Henta frå <a href="" data-bind="attr: { href: featuredContent().first.wikipedia().url }">Wikipedia</a></cite>
-				</p>
-			</div>
-			<div class="article_body_read_more_button" onclick="displayBodyText(0)">
-				Les meir
-			</div>
-		</article>
-
-		<article class="featured_container featured_container_hidden">
-			<header>
-				<div class="featured_close" onclick="hideFeaturedContainer()"><i class="fa fa-times fa-lg"></i></div>
-				<div class="featured_image_container" data-bind="foreach: featuredContent().first.flickr().img()">
-					<img src="" alt="" data-bind="attr: { src: $data }">
+				<div class="article_body_read_more_button" onclick="displayBodyText(0)">
+					Les meir
 				</div>
 
-				<h1 class="article_heading" data-bind="text: featuredContent().first.title"></h1>
-			</header>
-			<div class="article_body article_body_hidden">
-				<div class="article_body_read_more"></div>
-				<p class="ingress" data-bind="text: featuredContent().first.wikipedia().ingress"></p>
-				<p class="body_text" data-bind="text: featuredContent().first.wikipedia().bodyText"></p>
-				<p>
-					<cite>Henta frå <a href="" data-bind="attr: { href: featuredContent().first.wikipedia().url }">Wikipedia</a></cite>
-				</p>
-			</div>
-			<div class="article_body_read_more_button" onclick="displayBodyText(0)">
-				Les meir
-			</div>
-		</article>
+			</article>
+		<!-- /ko -->
+
+
+
+
+
+
+
+		<!-- ko with: markers()[featured().content[1].contentIndex()] -->
+			<article class="featured_container featured_container_hidden">
+				<header>
+					<div class="featured_close" onclick="hideFeaturedContainer()"><i class="fa fa-times fa-lg"></i></div>
+					<div class="featured_image_container" data-bind="foreach: flickr.img()">
+						<!-- There is a bug here. It works the first time, but then the alt data get messed up. -->
+						<img src="" alt="" data-bind="attr: { src: $data, alt: 'Bilete av ' + markers()[featured().content[1].contentIndex()].title }">
+					</div>
+
+					<div class="article_container">
+						<h1 class="article_heading" data-bind="text: title"></h1>
+						<div class="article_extras">
+							<div class="article_extras_item">
+								<i data-bind="attr: { class: type.icon }"></i>
+								<!-- ko text: type.keywords[0] --><!-- /ko -->
+							</div>
+							<div class="article_extras_item">
+								<i class="fa fa-star" data-bind=""></i>
+								<i class="fa fa-star" data-bind=""></i>
+								<i class="fa fa-star" data-bind=""></i>
+								<i class="fa fa-star" data-bind=""></i>
+								<i class="fa fa-star-o" data-bind=""></i>
+							</div>
+						</div>
+					</div>
+				</header>
+				<div class="article_container article_body article_body_hidden">
+					<div class="article_body_read_more"></div>
+					<p class="ingress" data-bind="html: wikipedia.ingress()"></p>
+					<p class="body_text" data-bind="html: wikipedia.bodyText()"></p>
+					<p>
+						<cite>Henta frå <a href="" data-bind="attr: { href: wikipedia.url }">Wikipedia</a></cite>
+					</p>
+				</div>
+				<div class="article_body_read_more_button" onclick="displayBodyText(0)">
+					Les meir
+				</div>
+			</article>
+		<!-- /ko -->
 
 		</div>
 

@@ -21,6 +21,10 @@ body {
 	height: 100%;
 }
 
+.clear {
+	clear: both;
+}
+
 h1 {
 	font-size: 2.3rem;
 }
@@ -56,9 +60,14 @@ Article
 	position: relative;
 }
 
+.article_body {
+	height: auto;
+}
+
 .article_body_hidden {
 	max-height: 200px;
 	overflow: hidden;
+	position: relative;
 }
 
 .article_body_read_more {
@@ -160,6 +169,7 @@ Featured
 	will-change: transform;
 	position: absolute;
 	z-index: 100;
+	padding: 0 50px;
 
 	transition: all 600ms ease-out, transform 300ms ease-out;
 }
@@ -171,8 +181,9 @@ Featured
 }
 
 .featured_image_container {
-	width: 100%;
+	width: calc(100% + 100px);
 	height: 250px;
+	margin-left: -50px;
 	/*overflow: hidden;*/
 	background-color: #eee;
 }

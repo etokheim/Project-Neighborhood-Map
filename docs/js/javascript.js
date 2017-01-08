@@ -1,19 +1,17 @@
 var map, markers, polygon, locations, focusedMarker, test;
 
-var featuredContent = ko.observable({
-	first: {
-		title: ko.observable(),
-		type: ko.observable({}),
-		wikipedia: ko.observable({
-			ingress: ko.observable(),
-			bodyText: ko.observable(),
-			url: ko.observable(),
-		}),
+var featured = ko.observable({
+	displaying: ko.observable(false),
 
-		flickr: ko.observable({
-			img: ko.observableArray([]),
-		}),
-	},
+	content: [
+		{
+			contentIndex: ko.observable(0),
+		},
+
+		{
+			contentIndex: ko.observable(1),
+		}
+	],
 
 	slick: {
 		infinite: true,
@@ -109,11 +107,12 @@ ko.applyBindings(new ViewModel());
 
 window.onload = function() {
 	// Initialize slick on featured views
-	// console.log('Initialize slick carousels');
-	$(".featured_image_container").slick(featuredContent().slick);
+	console.log('Initialize slick carousels');
+	// $(".featured_image_container").slick(featured().slick);
+	console.log($(".featured_image_container").children().attr('class'));
 
 	// Initialize Slick on location switcher and add beforeChange listener
-	$(".location_switcher_swipe_list").slick(featuredContent().slickLocationSwitcher);
+	$(".location_switcher_swipe_list").slick(featured().slickLocationSwitcher);
 	$('.location_switcher_swipe_list').on('beforeChange', function(event, slick, currentSlide, nextSlide) {
 		// console.log(nextSlide);
 		focusMarker(nextSlide);
@@ -124,6 +123,8 @@ window.onload = function() {
 		// console.log('Hide location list');
 		toggleLocationSwitcherList();
 	}, 500);
+
+	// displayAvailableFeaturedContainer(0);
 };
 
 function getKeywords(type) {
@@ -259,8 +260,11 @@ $('.location_switcher_search_field').on('input', function() {
 // Initialized in window.onload function
 function reslickFeatured() {
 	console.log('Reslicking!');
-	$(".featured_image_container").slick('unslick');
-	$(".featured_image_container").slick(featuredContent().slick);
+	if($(".featured_image_container").attr('class').includes('slick')) {
+		console.log($(".featured_image_container").attr('class') + " includes slick");
+		$(".featured_image_container").eq(0).slick('unslick');
+	}
+	$(".featured_image_container").eq(0).slick(featured().slick);
 }
 
 // Reinitialize slick (needed on content change)
@@ -268,7 +272,7 @@ function reslickFeatured() {
 function reslickSwipeList() {
 	console.log('Reslicking!');
 	$(".location_switcher_swipe_list").slick('unslick');
-	$(".location_switcher_swipe_list").slick(featuredContent().slickLocationSwitcher);
+	$(".location_switcher_swipe_list").slick(featured().slickLocationSwitcher);
 }
 
 function sendItemsToSearch(searchString) {
@@ -521,8 +525,8 @@ function getExternalResources() {
 					// var responseJson = JSON.parse(response.slice(14, response.length - 1));
 					// console.log(responseJson);
 
-					console.log(response);
-					console.log(response.response.venues.length);
+					// console.log(response);
+					// console.log(response.response.venues.length);
 					for (var j = 0; j < response.response.venues.length; j++) {
 						if(response.response.venues[j].name == markers()[i].koTitle()) {
 							var venue = response.response.venues[j];
@@ -553,9 +557,11 @@ function getExternalResources() {
 
 									for (var k = 0; k < tipsLength; k++) {
 										var tip = tips[k];
+										var marker = markers()[i];
 
 										// Saves the tip object in markers
-										markers()[i].foursquare.tips().push(tip);
+										marker.foursquare.tips().push(tip);
+										marker.foursquare.display(true);
 									}
 
 								})
@@ -637,10 +643,6 @@ var wikipediaErrorHandling = setTimeout(function() {
 	console.log("Wikipedia Ajax calls timed out!");
 }, 5000);
 
-var featured = {
-	displaying: false
-};
-
 var locationList = {
 	displaying: true,
 };
@@ -669,37 +671,40 @@ function toggleLocationSwitcherList(option) {
 }
 
 function toggleFeatured(index) {
-	$('.featured_container').eq(index).toggleClass('featured_container_hidden');
+	// I have no idea why it wont work without a setTimeout...?????
+	setTimeout(function() {
+		$('.featured_container').eq(index).toggleClass('featured_container_hidden');
+	}, 1);
 }
 
 function displayAvailableFeaturedContainer(locationIndex) {
-	if(featured.displaying === false) {
+	if(featured().displaying() === false) {
 		toggleFeatured(0);
-		featured.displaying = 0;
+		featured().displaying(0);
 
 		toggleLocationSwitcher();
 		toggleLocationSwitcherList("hide");
-	} else if(featured.displaying === 0) {
+	} else if(featured().displaying() === 0) {
 		toggleFeatured(0);
 		toggleFeatured(1);
-		featured.displaying = 1;
-	} else if(featured.displaying === 1) {
+		featured().displaying(1);
+	} else if(featured().displaying() === 1) {
 		toggleFeatured(1);
 		toggleFeatured(0);
-		featured.displaying = 0;
+		featured().displaying(0);
 	}
 
-	populateFeatured(featured.displaying, locationIndex);
+	populateFeatured(featured().displaying(), locationIndex);
 	reslickFeatured();
 }
 
 function hideFeaturedContainer() {
-	$('.featured_container').eq(featured.displaying).toggleClass('featured_container_hidden');
+	$('.featured_container').eq(featured().displaying()).toggleClass('featured_container_hidden');
 	toggleLocationSwitcher();
 
-	featured.displaying = false;
+	featured().displaying(false);
 }
-
+var getFeaturedIndex = 7;
 function displayBodyText(index) {
 	$('.article_body').eq(index).toggleClass('article_body_hidden');
 	$('.article_body_read_more').eq(index).toggleClass('article_body_read_more_hidden');
@@ -709,24 +714,7 @@ function displayBodyText(index) {
 // Populates the featured view with appropriate content.
 // Requires index of marker and the index of which featured container to populate.
 function populateFeatured(featuredIndex, markerIndex) {
-	featuredContent().first.title(markers()[markerIndex].koTitle());
-	featuredContent().first.type({
-		keyword: markers()[markerIndex].type.keywords[0],
-		icon: markers()[markerIndex].type.icon
-	});
-
-	// Wikipedia:
-	var ingress = markers()[markerIndex].wikipedia.ingress();
-	var url = markers()[markerIndex].wikipedia.url();
-	var img = markers()[markerIndex].flickr.img();
-	featuredContent().first.wikipedia().ingress(ingress);
-	featuredContent().first.wikipedia().bodyText(markers()[markerIndex].wikipedia.bodyText());
-	featuredContent().first.wikipedia().url(url);
-
-
-	// Flickr:
-	featuredContent().first.flickr().img(img);
-
+	featured().content[featuredIndex].contentIndex(markerIndex);
 }
 
 function readMore(locationIndex) {
@@ -928,10 +916,11 @@ function initMap() {
 
 			// Flickr
 			flickr: {
-				img: ko.observableArray([])
+				img: ko.observableArray([]),
 			},
 
 			foursquare: {
+				display: ko.observable(false),
 				id: ko.observable(''),
 				tips: ko.observableArray([]),
 			}
