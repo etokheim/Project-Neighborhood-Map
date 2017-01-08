@@ -44,29 +44,29 @@ var filter = ko.observable({
 
 		toggleHike: function() {
 			this.hike(!this.hike());
-			console.log("toggling hike() " + this.hike());
+			// console.log("toggling hike() " + this.hike());
 			sendItemsToSearch($('.location_switcher_search_field').val());
 		},
 		
 		toggleRestaurant: function() {
 			this.restaurant(!this.restaurant());
-			console.log("toggling restaurant() " + this.restaurant());
+			// console.log("toggling restaurant() " + this.restaurant());
 			sendItemsToSearch($('.location_switcher_search_field').val());
 		},
 
 		toggleLandmark: function() {
 			this.landmark(!this.landmark());
-			console.log("toggling landmark() " + this.landmark());
+			// console.log("toggling landmark() " + this.landmark());
 			sendItemsToSearch($('.location_switcher_search_field').val());
 		}
 	},
 
 	active: function() {
 		if(this.type.hike() || this.type.restaurant() || this.type.landmark()) {
-			console.log("Checked filters and some are active!!!");
+			// console.log("Checked filters and some are active!!!");
 			return true;
 		} else {
-			console.log("Checked filters and none are active");
+			// console.log("Checked filters and none are active");
 			return false;
 		}
 	},
@@ -79,7 +79,7 @@ var ViewModel = function() {
 		// After the page is loaded, listen for changes in the markers() array
 		window.onload = function() {
 			markers.subscribe(function(newValue) {
-				console.log("Markers() got a new value! = " + markers());
+				// console.log("Markers() got a new value! = " + markers());
 				reslickFeatured();
 			});
 		};
@@ -108,19 +108,19 @@ ko.applyBindings(new ViewModel());
 
 window.onload = function() {
 	// Initialize slick on featured views
-	console.log('Initialize slick carousels');
+	// console.log('Initialize slick carousels');
 	$(".featured_image_container").slick(featuredContent().slick);
 
 	// Initialize Slick on location switcher and add beforeChange listener
 	$(".location_switcher_swipe_list").slick(featuredContent().slickLocationSwitcher);
 	$('.location_switcher_swipe_list').on('beforeChange', function(event, slick, currentSlide, nextSlide) {
-		console.log(nextSlide);
+		// console.log(nextSlide);
 		focusMarker(nextSlide);
 	});
 
 	// Hides the list after the user has seen it
 	setTimeout(function() {
-		console.log('Hide location list');
+		// console.log('Hide location list');
 		toggleLocationSwitcherList();
 	}, 500);
 };
@@ -250,17 +250,17 @@ function sendItemsToSearch(searchString) {
 			// if(filter().type.hike()) {
 				if(markers()[i].type.keywords[0] == 'Fjelltur' && filter().type.hike()) {
 					markerVisibillity(markers()[i], true);
-					console.log("Pushing " + markers()[i].koTitle());
+					// console.log("Pushing " + markers()[i].koTitle());
 					itemsToSearch.push({title: markers()[i].koTitle().toLowerCase(), index: i});
 				
 				} else if(markers()[i].type.keywords[0] == 'Restaurant' && filter().type.restaurant()) {
 					markerVisibillity(markers()[i], true);
-					console.log("Pushing " + markers()[i].koTitle());
+					// console.log("Pushing " + markers()[i].koTitle());
 					itemsToSearch.push({title: markers()[i].koTitle().toLowerCase(), index: i});
 
 				} else if(markers()[i].type.keywords[0] == 'Severdighet' && filter().type.landmark()) {
 					markerVisibillity(markers()[i], true);
-					console.log("Pushing " + markers()[i].koTitle());
+					// console.log("Pushing " + markers()[i].koTitle());
 					itemsToSearch.push({title: markers()[i].koTitle().toLowerCase(), index: i});
 
 				}
@@ -269,7 +269,7 @@ function sendItemsToSearch(searchString) {
 			// }
 		} else {
 			markerVisibillity(markers()[i], true);
-			console.log("filter().active() = " + filter().active() + ", pushing: " + markers()[i].koTitle());
+			// console.log("filter().active() = " + filter().active() + ", pushing: " + markers()[i].koTitle());
 			itemsToSearch.push({title: markers()[i].koTitle().toLowerCase(), index: i});
 		}
 	}
@@ -280,7 +280,7 @@ function sendItemsToSearch(searchString) {
 }
 
 function markerVisibillity(object, visibillity) {
-	console.log("HIDIIIIIIIIIIIIIIIIIIIIIIING " + object.koTitle());
+	// console.log("HIDIIIIIIIIIIIIIIIIIIIIIIING " + object.koTitle());
 	object.visible2(visibillity);
 	object.setVisible(visibillity);
 	reslickSwipeList();
@@ -292,7 +292,7 @@ function search(search, strings) {
 	search = search.toLowerCase();
 	// string = string.toLowerCase();
 
-	console.log(search + strings.title);
+	// console.log(search + strings.title);
 
 	
 	var matches = strings.filter(function(item) {
@@ -306,17 +306,17 @@ function search(search, strings) {
 			posOfLastFound = item.title.indexOf(searchItem, posOfLastFound+1);     // search for character & update position
 			if (posOfLastFound == -1) {
 
-				console.log("NOT FOUND: searchItem = " + searchItem + ", posOfLastFound = " + posOfLastFound + ", item = " + item.title);
+				// console.log("NOT FOUND: searchItem = " + searchItem + ", posOfLastFound = " + posOfLastFound + ", item = " + item.title);
 				markerVisibillity(markers()[item.index], false);
 				return false;  // if it's not found, exclude this item
 			} else {
-				console.log("FOUND    : searchItem = " + searchItem + ", posOfLastFound = " + posOfLastFound + ", item = " + item.title + " ===== " + markers()[item.index].koTitle());
+				// console.log("FOUND    : searchItem = " + searchItem + ", posOfLastFound = " + posOfLastFound + ", item = " + item.title + " ===== " + markers()[item.index].koTitle());
 				markerVisibillity(markers()[item.index], true);
 			}
 		}
 		return true;
 	});
-	console.log(matches);
+	// console.log(matches);
 }
 
 var markersLength = markers().length;
@@ -416,11 +416,11 @@ function getExternalResources() {
 				// Removes the function wrapping and creates a JavaScript object
 				// from the JSON recieved from Flickr.
 				var responseJson = JSON.parse(response.slice(14, response.length - 1));
-				console.log(responseJson);
+				// console.log(responseJson);
 
 				for (var j = 0; j < ajax.flickr.imgCount; j++) {
 					(function(j) {
-						console.log("running!");
+						// console.log("running!");
 						$.ajax({
 							url: ajax.flickr.url + '?&?callback=?',
 							dataType: 'text',
@@ -437,8 +437,8 @@ function getExternalResources() {
 							// from the JSON recieved from Flickr.
 							var response2Json = JSON.parse(response2.slice(14, response2.length - 1));
 
-							console.log(j);
-							console.log(response2Json);
+							// console.log(j);
+							// console.log(response2Json);
 							markers()[i].flickr.img().push(response2Json.sizes.size[5].source);
 						})
 
@@ -477,12 +477,36 @@ function getExternalResources() {
 
 		// 	})
 
-		// 	.fail(function( xhr, status, errorThrown ) {
+		// 	.fail(function(xhr, status, errorThrown) {
 		// 		console.log( "Error: " + errorThrown );
 		// 		console.log( "Status: " + status );
 		// 		console.dir( xhr );
 		// 	});
 		// })(i);
+
+		// YR.no ajax calls
+		if(markers()[i].type.keywords[0] === 'Fjelltur') {
+			console.log("FJEEEEEEEEEEEEEEEEEELTUR YYYYYYYYYYYYYR!");
+			$.ajax({
+				url: 'http://www.yr.no/sted/Norge/Telemark/Sauherad/Gvarv/varsel_nu.xml',
+				type: 'GET',
+				data: {
+					// s: ajax.title,
+				},
+				dataType: 'jsonp'
+			})
+
+			.done(function(response) {
+				console.log(response);
+				console.log("response");
+			})
+
+			.fail(function(xhr, status, errorThrown) {
+				console.log( "Error: " + errorThrown );
+				console.log( "Status: " + status );
+				console.dir( xhr );
+			});
+		}
 	}
 }
 
@@ -598,7 +622,7 @@ function clearFeatured(featuredIndex) {
 }
 
 function readMore(locationIndex) {
-	console.log(locationIndex);
+	// console.log(locationIndex);
 	displayAvailableFeaturedContainer(locationIndex);
 	infoWindow.closeAll();
 }
@@ -657,7 +681,7 @@ var infoWindow = {
 		// If marker does not have an infoWindow; make one
 		if(!marker.infoWindow) {
 			marker.infoWindow = new google.maps.InfoWindow();
-			console.log("Created new infoWindow (for marker " + marker.index + ") = " + marker.infoWindow);
+			// console.log("Created new infoWindow (for marker " + marker.index + ") = " + marker.infoWindow);
 		}
 
 		// Set infoWindow content
@@ -686,7 +710,7 @@ var infoWindow = {
 
 				// Stop the animation
 				markers()[i].setAnimation(null);
-				
+
 			} else if(markers()[i].infoWindow) {
 				markers()[i].infoWindow.close();
 				// Stop the animation
@@ -802,7 +826,7 @@ function initMap() {
 
 		marker.addListener('click', function() {
 			if(this.infoWindow) {
-				console.log(this.infoWindow.anchor);
+				// console.log(this.infoWindow.anchor);
 				if(this.infoWindow.anchor !== null) {
 					this.infoWindow.close();
 				} else {
