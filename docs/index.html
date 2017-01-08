@@ -32,7 +32,19 @@
 
 				<div class="article_container">
 					<h1 class="article_heading" data-bind="text: featuredContent().first.title"></h1>
-
+					<div class="article_extras">
+						<div class="article_extras_item">
+							<i data-bind="attr: { class: featuredContent().first.type().icon }"></i>
+							<!-- ko text: featuredContent().first.type().keyword --><!-- /ko -->
+						</div>
+						<div class="article_extras_item">
+							<i class="fa fa-star" data-bind=""></i>
+							<i class="fa fa-star" data-bind=""></i>
+							<i class="fa fa-star" data-bind=""></i>
+							<i class="fa fa-star" data-bind=""></i>
+							<i class="fa fa-star-o" data-bind=""></i>
+						</div>
+					</div>
 				</div>
 			</header>
 			<div class="article_container article_body_hidden">

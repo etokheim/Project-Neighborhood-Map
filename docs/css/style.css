@@ -134,6 +134,7 @@ cite a {
 	width: 100%;
 	/*background-color: #eee;*/
 	margin: 0px 0 1rem;
+	display: flex;
 }
 
 .article_extras_item {
