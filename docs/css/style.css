@@ -50,12 +50,10 @@ a {
 Article
 */
 
-.article_heading, .article_body {
+.article_container {
 	width: 80%;
 	margin: 0 auto;
 	position: relative;
-
-	transition: all 600ms ease-out; /* Doesn't work */
 }
 
 .article_body_hidden {
@@ -129,6 +127,18 @@ cite {
 
 cite a {
 	color: #aaa;
+}
+
+.article_extras {
+	height: auto;
+	width: 100%;
+	/*background-color: #eee;*/
+	margin: 0px 0 1rem;
+}
+
+.article_extras_item {
+	border-right: 1px solid #eee;
+	padding: 0 15px;
 }
 
 /*
@@ -392,7 +402,7 @@ button.slick-arrow:hover {
 button.slick-next {
 	top: 0;
 	right: 0;
-	
+
 	/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,000000+100&0+0,0.65+100 */
 	background: -moz-linear-gradient(left,  rgba(0,0,0,0) 0%, rgba(0,0,0,0.65) 100%); /* FF3.6-15 */
 	background: -webkit-linear-gradient(left,  rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 100%); /* Chrome10-25,Safari5.1-6 */

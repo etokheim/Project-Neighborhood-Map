@@ -12,11 +12,11 @@
 			<!-- Slick-theme for default styling -->
 			<!-- <link rel="stylesheet" type="text/css" href="css/plug-ins/slick-theme.css"/> -->
 		<!-- /Plug-in styles -->
-		
+
 		<!-- Custom styles -->
 			<link rel="stylesheet" href="css/style.css">
 		<!-- /Custom styles -->
-		
+
 		<!-- Plug-in scripts -->
 			<script src="js/plug-ins/jquery.min.js"></script>
 			<script src="js/plug-ins/knockout-latest.js"></script>
@@ -30,9 +30,12 @@
 					<img src="" alt="" data-bind="attr: { src: $data, alt: 'Bilete av ' + featuredContent().first.title() }">
 				</div>
 
-				<h1 class="article_heading" data-bind="text: featuredContent().first.title"></h1>
+				<div class="article_container">
+					<h1 class="article_heading" data-bind="text: featuredContent().first.title"></h1>
+
+				</div>
 			</header>
-			<div class="article_body article_body_hidden">
+			<div class="article_container article_body_hidden">
 				<div class="article_body_read_more"></div>
 				<p class="ingress" data-bind="html: featuredContent().first.wikipedia().ingress()"></p>
 				<p class="body_text" data-bind="html: featuredContent().first.wikipedia().bodyText()"></p>
@@ -120,8 +123,14 @@
 					<!-- Please enable JavaScript! -->
 					<div class="">
 						<div id="swipe_list" class="location_switcher_swipe_list list-unstyled" data-bind="foreach: markers">
+							<!-- ko ifnot: visible2 -->
+								<!-- <div class="location_switcher_swipe_list_item invisible">test</div> -->
+							<!-- /ko -->
 							<!-- ko if: visible2 -->
-								<div class="location_switcher_swipe_list_item" data-bind="text: koTitle()"></div>
+								<div class="location_switcher_swipe_list_item">
+									<!-- <i data-bind="attr: { class: type.icon }"></i> -->
+									<!-- ko text: koTitle() --><!-- /ko -->
+								</div>
 							<!-- /ko -->
 						</div>
 					</div>
@@ -137,7 +146,7 @@
 			<script async type="text/javascript" src="js/plug-ins/slick.min.js"></script>
 			<script async defer src="https://maps.googleapis.com/maps/api/js?libraries=geometry,places,drawing&key=AIzaSyBxaRfeTwSjp8rx6Mh-0R_TPNboRa9QRac&v=3&callback=initMap"></script>
 		<!-- /Plug-in scripts -->
-		
+
 		<script src="js/javascript.js"></script>
 	</body>
 </html>

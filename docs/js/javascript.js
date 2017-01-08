@@ -3,6 +3,7 @@ var map, markers, polygon, locations, focusedMarker, test;
 var featuredContent = ko.observable({
 	first: {
 		title: ko.observable(),
+		type: ko.observable({}),
 		wikipedia: ko.observable({
 			ingress: ko.observable(),
 			bodyText: ko.observable(),
@@ -47,7 +48,7 @@ var filter = ko.observable({
 			// console.log("toggling hike() " + this.hike());
 			sendItemsToSearch($('.location_switcher_search_field').val());
 		},
-		
+
 		toggleRestaurant: function() {
 			this.restaurant(!this.restaurant());
 			// console.log("toggling restaurant() " + this.restaurant());
@@ -134,7 +135,7 @@ function getKeywords(type) {
 	} else if(type === 'restaurant') {
 		return {
 			keywords: ['Restaurant'],
-			icon: 'fa fa-compass fa-lg'
+			icon: 'fa fa-cutlery fa-lg'
 		};
 	} else if(type === 'landmark') {
 		return {
@@ -214,6 +215,39 @@ var favoriteLocations = [
 			lng: 5.3847581
 		}
 	},
+
+	{
+		title: 'Big Horn Steak House',
+		type: getKeywords('restaurant'),
+
+		location: {
+			title: 'Haugesund',
+			lat: 59.411882825000006,
+			lng: 5.26830164
+		}
+	},
+
+	{
+		title: 'Døgnvill Burger',
+		type: getKeywords('restaurant'),
+
+		location: {
+			title: 'Stavanger',
+			lat: 58.9709181,
+			lng: 5.7297705
+		}
+	},
+
+	{
+		title: 'Godt Brød',
+		type: getKeywords('restaurant'),
+
+		location: {
+			title: 'Fløyen',
+			lat: 60.3961465,
+			lng: 5.327662
+		}
+	},
 ];
 
 
@@ -252,7 +286,7 @@ function sendItemsToSearch(searchString) {
 					markerVisibillity(markers()[i], true);
 					// console.log("Pushing " + markers()[i].koTitle());
 					itemsToSearch.push({title: markers()[i].koTitle().toLowerCase(), index: i});
-				
+
 				} else if(markers()[i].type.keywords[0] == 'Restaurant' && filter().type.restaurant()) {
 					markerVisibillity(markers()[i], true);
 					// console.log("Pushing " + markers()[i].koTitle());
@@ -283,7 +317,7 @@ function markerVisibillity(object, visibillity) {
 	// console.log("HIDIIIIIIIIIIIIIIIIIIIIIIING " + object.koTitle());
 	object.visible2(visibillity);
 	object.setVisible(visibillity);
-	reslickSwipeList();
+	// reslickSwipeList();
 }
 
 sendItemsToSearch($('.location_switcher_search_field').val());
@@ -294,15 +328,15 @@ function search(search, strings) {
 
 	// console.log(search + strings.title);
 
-	
+
 	var matches = strings.filter(function(item) {
 		var posOfLastFound = -1; // remembers position of last found character
-		
+
 		// consider each search character one at a time
 		for (var i = 0; i < search.length; i++) {
 			var searchItem = search[i];
 			if (searchItem == ' ') continue;     // ignore spaces
-			
+
 			posOfLastFound = item.title.indexOf(searchItem, posOfLastFound+1);     // search for character & update position
 			if (posOfLastFound == -1) {
 
@@ -333,6 +367,12 @@ var ajax = {
 	nasjonalturbase: {
 		key: '9718dda12c871525b0c2d976e02986c68de29abe',
 		url: 'http://api.nasjonalturbase.no/v0/turer/'
+	},
+
+	foursquare: {
+		client_id: '4XOTGB0SVZCNGUSLZU3NKHLFIYDCGDETYBIGDU3MIGU22APY',
+		client_secret: 'SYACHZ3AU3X35J0LN40N1JZ3R2SBVZO0SI33BLCY4VVXNAKO',
+		url: 'https://api.foursquare.com/v2/'
 	}
 };
 
@@ -458,6 +498,86 @@ function getExternalResources() {
 			});
 		})(i);
 
+		// Foursquare Ajax calls
+		// Store the current i value
+		if (markers()[i].type.keywords == 'Restaurant') {
+			(function(i) {
+				$.ajax({
+					url: ajax.foursquare.url + 'venues/search',
+					type: 'GET',
+					dataType: 'json',
+					data: {
+						v: Date.now(),
+						ll: markers()[7].position.lat() + ',' + markers()[7].position.lng(),
+						format: "json",
+						client_id: ajax.foursquare.client_id,
+						client_secret: ajax.foursquare.client_secret,
+					}
+				})
+
+				.done(function(response) {
+					// Removes the function wrapping and creates a JavaScript object
+					// from the JSON recieved from Flickr.
+					// var responseJson = JSON.parse(response.slice(14, response.length - 1));
+					// console.log(responseJson);
+
+					console.log(response);
+					console.log(response.response.venues.length);
+					for (var j = 0; j < response.response.venues.length; j++) {
+						if(response.response.venues[j].name == markers()[i].koTitle()) {
+							var venue = response.response.venues[j];
+							console.log(venue.name + " == " + markers()[i].koTitle());
+							console.log(venue);
+							markers()[i].foursquare.id(venue.id);
+
+							// Get tips from venue id
+							(function(j) {
+								// console.log("running!");
+								$.ajax({
+									url: ajax.foursquare.url + 'venues/' + venue.id + '/tips',
+									dataType: 'json',
+									data: {
+										v: Date.now(),
+										ll: markers()[i].position.lat() + ',' + markers()[i].position.lng(),
+										format: 'json',
+										sort: 'popular',
+										client_id: ajax.foursquare.client_id,
+										client_secret: ajax.foursquare.client_secret,
+									}
+								})
+
+								.done(function(response2) {
+									console.log(response2);
+									var tips = response2.response.tips.items;
+									var tipsLength = tips.length;
+
+									for (var k = 0; k < tipsLength; k++) {
+										var tip = tips[k];
+
+										// Saves the tip object in markers
+										markers()[i].foursquare.tips().push(tip);
+									}
+
+								})
+
+								.fail(function(jqxhr, textStatus, error) {
+									// console.log(jqxhr + ", " + textStatus + ", " + error);
+									console.log("fail2");
+									console.log(jqxhr);
+								});
+							})(j);
+						}
+					}
+				})
+
+				.fail(function( xhr, status, errorThrown ) {
+					console.log( "Error: " + errorThrown );
+					console.log( "Status: " + status );
+					console.dir( xhr );
+				});
+			})(i);
+		}
+
 		// Nasjonal turbase ajax calls
 		// Store the current i value
 		// (function(i) {
@@ -485,28 +605,28 @@ function getExternalResources() {
 		// })(i);
 
 		// YR.no ajax calls
-		if(markers()[i].type.keywords[0] === 'Fjelltur') {
-			console.log("FJEEEEEEEEEEEEEEEEEELTUR YYYYYYYYYYYYYR!");
-			$.ajax({
-				url: 'http://www.yr.no/sted/Norge/Telemark/Sauherad/Gvarv/varsel_nu.xml',
-				type: 'GET',
-				data: {
-					// s: ajax.title,
-				},
-				dataType: 'jsonp'
-			})
+		// if(markers()[i].type.keywords[0] === 'Fjelltur') {
+		// 	console.log("FJEEEEEEEEEEEEEEEEEELTUR YYYYYYYYYYYYYR!");
+		// 	$.ajax({
+		// 		url: 'http://www.yr.no/sted/Norge/Telemark/Sauherad/Gvarv/varsel_nu.xml',
+		// 		type: 'GET',
+		// 		data: {
+		// 			// s: ajax.title,
+		// 		},
+		// 		dataType: 'jsonp'
+		// 	})
 
-			.done(function(response) {
-				console.log(response);
-				console.log("response");
-			})
+		// 	.done(function(response) {
+		// 		console.log(response);
+		// 		console.log("response");
+		// 	})
 
-			.fail(function(xhr, status, errorThrown) {
-				console.log( "Error: " + errorThrown );
-				console.log( "Status: " + status );
-				console.dir( xhr );
-			});
-		}
+		// 	.fail(function(xhr, status, errorThrown) {
+		// 		console.log( "Error: " + errorThrown );
+		// 		console.log( "Status: " + status );
+		// 		console.dir( xhr );
+		// 	});
+		// }
 	}
 }
 
@@ -590,7 +710,11 @@ function displayBodyText(index) {
 // Requires index of marker and the index of which featured container to populate.
 function populateFeatured(featuredIndex, markerIndex) {
 	featuredContent().first.title(markers()[markerIndex].koTitle());
-	
+	featuredContent().first.type({
+		keyword: markers()[markerIndex].type.keywords[0],
+		icon: markers()[markerIndex].type.icon
+	});
+
 	// Wikipedia:
 	var ingress = markers()[markerIndex].wikipedia.ingress();
 	var url = markers()[markerIndex].wikipedia.url();
@@ -598,26 +722,10 @@ function populateFeatured(featuredIndex, markerIndex) {
 	featuredContent().first.wikipedia().ingress(ingress);
 	featuredContent().first.wikipedia().bodyText(markers()[markerIndex].wikipedia.bodyText());
 	featuredContent().first.wikipedia().url(url);
-	
+
+
 	// Flickr:
 	featuredContent().first.flickr().img(img);
-
-	// var location = markers()[locationIndex];
-	// clearFeatured(featuredIndex);
-	// $('.featured_container').eq(featuredIndex).find('.featured_image_container').append('<img class="" alt="' + location.title + '" src="' + location.flickr.img + '">');
-	// $('.featured_container').eq(featuredIndex).find('.article_heading').text(location.title);
-	// $('.featured_container').eq(featuredIndex).find('.ingress').html(location.wikipedia.ingress());
-	// $('.featured_container').eq(featuredIndex).find('.body_text').html(location.wikipedia.bodyText());
-	// $('.featured_container').eq(featuredIndex).find('cite>a').attr('href', location.wikipedia.url());
-}
-
-// Clears the content of the featured view.
-// Requires the index of which featured to clear.
-function clearFeatured(featuredIndex) {
-	// $('.featured_container').eq(featuredIndex).find('.featured_image_container').html("");
-	// $('.featured_container').eq(featuredIndex).find('.article_heading').html("");
-	// $('.featured_container').eq(featuredIndex).find('.ingress').html("");
-	// $('.featured_container').eq(featuredIndex).find('.body_text').html("");
 
 }
 
@@ -822,6 +930,11 @@ function initMap() {
 			flickr: {
 				img: ko.observableArray([])
 			},
+
+			foursquare: {
+				id: ko.observable(''),
+				tips: ko.observableArray([]),
+			}
 		});
 
 		marker.addListener('click', function() {
