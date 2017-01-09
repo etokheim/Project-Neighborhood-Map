@@ -27,9 +27,9 @@
 			<article class="featured_container featured_container_hidden">
 				<header>
 					<div class="featured_close" onclick="hideFeaturedContainer()"><i class="fa fa-times fa-lg"></i></div>
-					<div class="featured_image_container" data-bind="foreach: flickr.img()">
+					<div class="featured_image_container" data-bind="foreach: getImages()">
 						<!-- There is a bug here. It works the first time, but then the alt data get messed up. -->
-						<img src="" alt="" data-bind="attr: { src: $data, alt: 'Bilete av ' + markers()[featured().content[0].contentIndex()].title }">
+						<img src="" alt="" data-bind="attr: { src: url, alt: 'Bilete av ' + markers()[featured().content[0].contentIndex()].title }">
 					</div>
 
 					<div class="">

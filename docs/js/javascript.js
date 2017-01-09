@@ -493,7 +493,7 @@ function getExternalResources() {
 
 							// console.log(j);
 							// console.log(response2Json);
-							markers()[i].flickr.img().push(response2Json.sizes.size[5].source);
+							markers()[i].flickr.img().push({url: response2Json.sizes.size[5].source});
 						})
 
 						.fail(function(jqxhr, textStatus, error) {
@@ -656,10 +656,26 @@ function getExternalResources() {
 								client_secret: ajax.foursquare.client_secret,
 							}
 						})
+
 						.done(function(response2) {
-							console.log("Getting venue photos! " + id + " i = " + storedI);
-							console.log(response2);
+							// console.log("Getting venue photos! " + id + " i = " + storedI);
+							// console.log(response2);
+							var marker = markers()[storedI];
+							var imgUrl;
+							var imgCredit;
+
+							for (var i = 0; i < response2.response.photos.items.length; i++) {
+								var photoObject = response2.response.photos.items[i];
+								imgUrl = photoObject.prefix + "483x250" + photoObject.suffix;
+								imgCredit = {name: photoObject.user.firstName + ' ' + photoObject.user.lastName};
+
+								marker.foursquare.img().push({
+									url: imgUrl,
+									credit: imgCredit
+								});
+							}
 						})
+
 						.fail(function(jqxhr, textStatus, error) {
 							// console.log(jqxhr + ", " + textStatus + ", " + error);
 							console.log("fail2");
@@ -1007,6 +1023,17 @@ function initMap() {
 				hasContent: ko.observable(false),
 				id: ko.observable(''),
 				tips: ko.observableArray([]),
+				img: ko.observableArray([]),
+			},
+
+			getImages: function() {
+				if(this.foursquare.hasContent()) {
+					console.log(this.foursquare.img())
+					return this.foursquare.img();
+				} else {
+					console.log(this.flickr.img())
+					return this.flickr.img();
+				}
 			}
 		});
 
