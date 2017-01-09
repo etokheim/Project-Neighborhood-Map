@@ -242,11 +242,12 @@ var favoriteLocations = [
 	{
 		title: 'Godt Brød',
 		type: getKeywords('restaurant'),
+		foursquareID: '5437ab1a498eaaadad1694b3',
 
 		location: {
 			title: 'Fløyen',
-			lat: 60.3961465,
-			lng: 5.327662
+			lat: 60.392535236019825,
+			lng: 5.329849650529285
 		}
 	},
 ];
@@ -408,28 +409,37 @@ function getExternalResources() {
 				// Gets the object we want the first property of
 				var canDo = response.query.pages;
 				var extract = canDo[firstPropertyName].extract;
-				var articleText = extract.split("</p>");
+
+				// If Wikipedia has an article about it; separate the paragraphs
+				if(extract) {
+					var articleText = extract.split("</p>");
+				}
 				var bodyText = '';
 				var ingress = '';
 
-				// If first paragraph is empty; use the second one.
-				// Else use the first one.
-				// Some articles has an empty <p></p> at the beginning.
-				if(articleText[0].length <= 3) {
-					ingress = articleText[1];
+				// If Wikipedia had an article about it
+				if(articleText) {
+					markers()[response.requestid].wikipedia.hasContent(true);
 
-					// Adds the rest of the article to the bodyText variable
-					articleTextLength = articleText.length;
-					for (var i = 2; i < articleTextLength; i++) {
-						bodyText += articleText[i];
-					}
-				} else {
-					ingress = articleText[0];
+					// If first paragraph is empty; use the second one.
+					// Else use the first one.
+					// Some articles has an empty <p></p> at the beginning.
+					if(articleText[0].length <= 3) {
+						ingress = articleText[1];
 
-					// Adds the rest of the article to the bodyText variable
-					articleTextLength = articleText.length;
-					for (var i = 1; i < articleTextLength; i++) {
-						bodyText += articleText[i];
+						// Adds the rest of the article to the bodyText variable
+						articleTextLength = articleText.length;
+						for (var i = 2; i < articleTextLength; i++) {
+							bodyText += articleText[i];
+						}
+					} else {
+						ingress = articleText[0];
+
+						// Adds the rest of the article to the bodyText variable
+						articleTextLength = articleText.length;
+						for (var i = 1; i < articleTextLength; i++) {
+							bodyText += articleText[i];
+						}
 					}
 				}
 
@@ -505,83 +515,159 @@ function getExternalResources() {
 		// Foursquare Ajax calls
 		// Store the current i value
 		if (markers()[i].type.keywords == 'Restaurant') {
-			(function(i) {
-				$.ajax({
-					url: ajax.foursquare.url + 'venues/search',
-					type: 'GET',
-					dataType: 'json',
-					data: {
-						v: Date.now(),
-						ll: markers()[7].position.lat() + ',' + markers()[7].position.lng(),
-						format: "json",
-						client_id: ajax.foursquare.client_id,
-						client_secret: ajax.foursquare.client_secret,
-					}
-				})
+			// If marker got a foursquareID; get info from ID
+			// Else, get a foursquareID based on position (if possible)
+			if(markers()[i].foursquareID) {
+				// Get venue photos
+				getVenuePhotos(markers()[i].foursquareID, i);
 
-				.done(function(response) {
-					// Removes the function wrapping and creates a JavaScript object
-					// from the JSON recieved from Flickr.
-					// var responseJson = JSON.parse(response.slice(14, response.length - 1));
-					// console.log(responseJson);
-
-					// console.log(response);
-					// console.log(response.response.venues.length);
-					for (var j = 0; j < response.response.venues.length; j++) {
-						if(response.response.venues[j].name == markers()[i].koTitle()) {
-							var venue = response.response.venues[j];
-							console.log(venue.name + " == " + markers()[i].koTitle());
-							console.log(venue);
-							markers()[i].foursquare.id(venue.id);
-
-							// Get tips from venue id
-							(function(j) {
-								// console.log("running!");
-								$.ajax({
-									url: ajax.foursquare.url + 'venues/' + venue.id + '/tips',
-									dataType: 'json',
-									data: {
-										v: Date.now(),
-										ll: markers()[i].position.lat() + ',' + markers()[i].position.lng(),
-										format: 'json',
-										sort: 'popular',
-										client_id: ajax.foursquare.client_id,
-										client_secret: ajax.foursquare.client_secret,
-									}
-								})
-
-								.done(function(response2) {
-									console.log(response2);
-									var tips = response2.response.tips.items;
-									var tipsLength = tips.length;
-
-									for (var k = 0; k < tipsLength; k++) {
-										var tip = tips[k];
-										var marker = markers()[i];
-
-										// Saves the tip object in markers
-										marker.foursquare.tips().push(tip);
-										marker.foursquare.display(true);
-									}
-
-								})
-
-								.fail(function(jqxhr, textStatus, error) {
-									// console.log(jqxhr + ", " + textStatus + ", " + error);
-									console.log("fail2");
-									console.log(jqxhr);
-								});
-							})(j);
+				(function(i) {
+					$.ajax({
+						url: ajax.foursquare.url + 'venues/' + markers()[i].foursquareID + '/tips',
+						dataType: 'json',
+						data: {
+							v: Date.now(),
+							ll: markers()[i].position.lat() + ',' + markers()[i].position.lng(),
+							format: 'json',
+							sort: 'popular',
+							client_id: ajax.foursquare.client_id,
+							client_secret: ajax.foursquare.client_secret,
 						}
-					}
-				})
+					})
 
-				.fail(function( xhr, status, errorThrown ) {
-					console.log( "Error: " + errorThrown );
-					console.log( "Status: " + status );
-					console.dir( xhr );
-				});
-			})(i);
+					.done(function(response) {
+						console.log(response);
+						var tips = response.response.tips.items;
+						var tipsLength = tips.length;
+
+						for (var k = 0; k < tipsLength; k++) {
+							var tip = tips[k];
+							var marker = markers()[i];
+
+							// Saves the tip object in markers
+							marker.foursquare.tips().push(tip);
+							marker.foursquare.hasContent(true);
+						}
+
+					})
+
+					.fail(function(jqxhr, textStatus, error) {
+						// console.log(jqxhr + ", " + textStatus + ", " + error);
+						console.log("fail2");
+						console.log(jqxhr);
+					});
+				})(i);
+			} else {
+				(function(i) {
+					$.ajax({
+						url: ajax.foursquare.url + 'venues/search',
+						type: 'GET',
+						dataType: 'json',
+						data: {
+							v: Date.now(),
+							ll: markers()[7].position.lat() + ',' + markers()[7].position.lng(),
+							format: "json",
+							client_id: ajax.foursquare.client_id,
+							client_secret: ajax.foursquare.client_secret,
+						}
+					})
+
+					.done(function(response) {
+						// Removes the function wrapping and creates a JavaScript object
+						// from the JSON recieved from Flickr.
+						// var responseJson = JSON.parse(response.slice(14, response.length - 1));
+						// console.log(responseJson);
+
+						// console.log(response);
+						// console.log(response.response.venues.length);
+						for (var j = 0; j < response.response.venues.length; j++) {
+							if(response.response.venues[j].name == markers()[i].koTitle()) {
+								var venue = response.response.venues[j];
+
+								// Get venue photos
+								getVenuePhotos(venue.id, i);
+
+								// console.log(venue.name + " == " + markers()[i].koTitle());
+								// console.log(venue);
+								markers()[i].foursquare.id(venue.id);
+
+								// Get tips from venue id
+								(function(j) {
+									// console.log("running!");
+									$.ajax({
+										url: ajax.foursquare.url + 'venues/' + venue.id + '/tips',
+										dataType: 'json',
+										data: {
+											v: Date.now(),
+											ll: markers()[i].position.lat() + ',' + markers()[i].position.lng(),
+											format: 'json',
+											sort: 'popular',
+											client_id: ajax.foursquare.client_id,
+											client_secret: ajax.foursquare.client_secret,
+										}
+									})
+
+									.done(function(response2) {
+										console.log(response2);
+										var tips = response2.response.tips.items;
+										var tipsLength = tips.length;
+
+										for (var k = 0; k < tipsLength; k++) {
+											var tip = tips[k];
+											var marker = markers()[i];
+
+											// Saves the tip object in markers
+											marker.foursquare.tips().push(tip);
+											marker.foursquare.hasContent(true);
+										}
+
+									})
+
+									.fail(function(jqxhr, textStatus, error) {
+										// console.log(jqxhr + ", " + textStatus + ", " + error);
+										console.log("fail2");
+										console.log(jqxhr);
+									});
+								})(j);
+							}
+						}
+					})
+
+					.fail(function( xhr, status, errorThrown ) {
+						console.log( "Error: " + errorThrown );
+						console.log( "Status: " + status );
+						console.dir( xhr );
+					});
+				})(i);
+
+				// Get venue photos
+				function getVenuePhotos(id, storedI) {
+					(function(storedI) {
+						console.log("running!" + id + ", " + storedI);
+						$.ajax({
+							url: ajax.foursquare.url + 'venues/' + id + '/photos',
+							dataType: 'json',
+							data: {
+								v: Date.now(),
+								ll: markers()[storedI].position.lat() + ',' + markers()[storedI].position.lng(),
+								format: 'json',
+								sort: 'popular',
+								client_id: ajax.foursquare.client_id,
+								client_secret: ajax.foursquare.client_secret,
+							}
+						})
+						.done(function(response2) {
+							console.log("Getting venue photos! " + id + " i = " + storedI);
+							console.log(response2);
+						})
+						.fail(function(jqxhr, textStatus, error) {
+							// console.log(jqxhr + ", " + textStatus + ", " + error);
+							console.log("fail2");
+							console.log(jqxhr);
+						});
+					})(storedI);
+				}
+			}
 		}
 
 		// Nasjonal turbase ajax calls
@@ -731,10 +817,6 @@ function scroll(index) {
 
 	infoWindow.closeAll(marker);
 	infoWindow.populate(marker, new google.maps.InfoWindow());
-
-	$('#swipe_list').animate({
-		scrollLeft: $(".location_switcher_swipe_list_item")[index].offsetLeft - $(".location_switcher_swipe_list_item").eq(index).width() / 2
-	}, 200);
 }
 
 function focusMarker(index) {
@@ -906,9 +988,11 @@ function initMap() {
 			index: i,
 			type: favoriteLocations[i].type,
 			visible2: ko.observable(true),
+			foursquareID: favoriteLocations[i].foursquareID,
 
 			// Wikipedia
 			wikipedia: {
+				hasContent: ko.observable(false),
 				url: ko.observable(''),
 				ingress: ko.observable(''),
 				bodyText: ko.observable('')
@@ -920,7 +1004,7 @@ function initMap() {
 			},
 
 			foursquare: {
-				display: ko.observable(false),
+				hasContent: ko.observable(false),
 				id: ko.observable(''),
 				tips: ko.observableArray([]),
 			}

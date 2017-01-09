@@ -49,18 +49,42 @@
 						</div>
 					</div>
 				</header>
-				<div class="article_body article_body_hidden">
-					<div class="article_body_read_more"></div>
-					<p class="ingress" data-bind="html: wikipedia.ingress()"></p>
-					<p class="body_text" data-bind="html: wikipedia.bodyText()"></p>
-					<p>
-						<cite>Henta frå <a href="" data-bind="attr: { href: wikipedia.url }">Wikipedia</a></cite>
-					</p>
-				</div>
-				<div class="article_body_read_more_button" onclick="displayBodyText(0)">
-					Les meir
-				</div>
-
+				<!-- ko if: wikipedia.hasContent() -->
+					<div class="article_body article_body_hidden">
+						<div class="article_body_read_more"></div>
+						<p class="ingress" data-bind="html: wikipedia.ingress()"></p>
+						<p class="body_text" data-bind="html: wikipedia.bodyText()"></p>
+						<p>
+							<cite>Henta frå <a href="" data-bind="attr: { href: wikipedia.url }">Wikipedia</a></cite>
+						</p>
+					</div>
+					<div class="article_body_read_more_button" onclick="displayBodyText(0)">
+						Les meir
+					</div>
+				<!-- /ko -->
+				<!-- ko if: foursquare.hasContent() -->
+					<div class="foursquare_container" data-bind="">
+						<h2>Tips frå Foursquare:</h2>
+						<!-- ko foreach: foursquare.tips -->
+							<div class="foursquare_tip">
+								<div class="foursquare_tip_left">
+									<div class="foursquare_tip_profile_picture">
+										<img src="" alt="" data-bind="attr: { src: user.photo.prefix + '100x100' + user.photo.suffix, alt: 'Bilete av ' + user.firstName + ' ' + user.lastName }">
+									</div>
+								</div>
+								<div class="foursquare_tip_right">
+									<h4 class="foursquare_tip_heading" data-bind="text: user.firstName + ' ' + user.lastName">
+										Navn Navnesen
+									</h4>
+									<div class="foursquare_tip_body_text" data-bind="text: text">
+										Her kommer et lite tips.
+									</div>
+								</div>
+							</div>
+							<div class="clear"></div>
+						<!-- /ko -->
+					</div>
+				<!-- /ko -->
 			</article>
 		<!-- /ko -->
 

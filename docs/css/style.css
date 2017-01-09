@@ -39,6 +39,8 @@ h3 {
 
 h4 {
 	font-size: 1rem;
+	font-weight: bold;
+	margin: .2em 0;
 }
 
 p {
@@ -206,7 +208,36 @@ Featured
 	text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
+.foursquare_container {
+	height: auto;
+	overflow: hidden;
+	margin: 3rem 0;
+}
 
+.foursquare_tip {
+	margin-top: 2rem;
+}
+
+.foursquare_tip_left {
+	float: left;
+	width: 50px;
+}
+
+.foursquare_tip_right {
+	float: right;
+	width: calc(100% - 65px);
+}
+
+.foursquare_tip_profile_picture {
+	width: 50px;
+	height: 50px;
+	border-radius: 50%;
+	overflow: hidden;
+}
+
+.foursquare_tip_profile_picture img {
+	width: 100%;
+}
 
 
 
