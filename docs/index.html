@@ -39,12 +39,9 @@
 								<i data-bind="attr: { class: type.icon }"></i>
 								<!-- ko text: type.keywords[0] --><!-- /ko -->
 							</div>
-							<div class="article_extras_item">
-								<i class="fa fa-star" data-bind=""></i>
-								<i class="fa fa-star" data-bind=""></i>
-								<i class="fa fa-star" data-bind=""></i>
-								<i class="fa fa-star" data-bind=""></i>
-								<i class="fa fa-star-o" data-bind=""></i>
+							<div class="article_extras_item" data-bind="html: foursquare.rating">
+								<i data-bind="text: foursquare.rating"></i>
+
 							</div>
 						</div>
 					</div>
@@ -80,15 +77,15 @@
 										Her kommer et lite tips.
 									</div>
 									<div class="foursquare_tip_extras">
-										<!-- ko if: $parent.likedOnFoursquare -->
-										<span class="foursquare_tip_interaction_type" title="Positiv tilbakemelding">
-											Positiv tilbakemelding <i class="fa fa-thumbs-o-up" aria-hidden="true"></i>
-										</span>
+										<!-- ko if: $parent.tipIsPositive -->
+											<span class="foursquare_tip_interaction_type" title="Positiv tilbakemelding">
+												Positiv tilbakemelding <i class="fa fa-thumbs-o-up" aria-hidden="true"></i>
+											</span>
 										<!-- /ko -->
-										<!-- ko if: !$parent.likedOnFoursquare -->
-										<span class="foursquare_tip_interaction_type" title="Negativ tilbakemelding">
-											Negativ tilbakemelding <i class="fa fa-thumbs-o-down" aria-hidden="true"></i>
-										</span>
+										<!-- ko if: !$parent.tipIsPositive -->
+											<span class="foursquare_tip_interaction_type" title="Negativ tilbakemelding">
+												Negativ tilbakemelding <i class="fa fa-thumbs-o-down" aria-hidden="true"></i>
+											</span>
 										<!-- /ko -->
 										<span> • </span>
 										<span data-bind="text: agreeCount"></span>

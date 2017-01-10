@@ -536,13 +536,7 @@ function getExternalResources() {
 					})
 
 					.done(function(response) {
-						// Removes the function wrapping and creates a JavaScript object
-						// from the JSON recieved from Flickr.
-						// var responseJson = JSON.parse(response.slice(14, response.length - 1));
-						// console.log(responseJson);
-
-						// console.log(response);
-						// console.log(response.response.venues.length);
+						// If the response contains a venue name equal to the markers title; use that
 						for (var j = 0; j < response.response.venues.length; j++) {
 							if(response.response.venues[j].name == markers()[i].koTitle()) {
 								var venue = response.response.venues[j];
@@ -598,6 +592,8 @@ function getExternalResources() {
 								credit: imgCredit
 							});
 						}
+
+						marker.foursquare.getRating();
 					})
 
 					.fail(function(jqxhr, textStatus, error) {
@@ -990,19 +986,39 @@ function initMap() {
 				hasContent: ko.observable(false),
 				venue: ko.observable(),
 				img: ko.observableArray([]),
+				rating: ko.observable(),
+				starCount: 5,
+
+				getRating: function() {
+					// Reset the array first (in case the needs to re-evaluate)
+					this.rating('');
+
+					// Get the foursquare rating (10 stars)
+					var tenRating = this.venue().rating;
+
+					// Converts the ten star rating to five stars
+					var fiveRating = Math.round(tenRating / 2);
+					console.log(tenRating + ", " + fiveRating);
+
+					for (var i = 0; i < 5; i++) {
+						if(fiveRating > i) {
+							this.rating(this.rating() + '<i class="fa fa-star" data-bind=""></i>');
+						} else {
+							this.rating(this.rating() + '<i class="fa fa-star-o" data-bind=""></i>');
+						}
+					}
+				}
 			},
 
 			getImages: function() {
 				if(this.foursquare.hasContent()) {
-					console.log(this.foursquare.img())
 					return this.foursquare.img();
 				} else {
-					console.log(this.flickr.img())
 					return this.flickr.img();
 				}
 			},
 
-			likedOnFoursquare: function() {
+			tipIsPositive: function() {
 				if(this.authorInteractionType == 'disliked') {
 					return false;
 				} else {
