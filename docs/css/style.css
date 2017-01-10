@@ -153,6 +153,14 @@ cite a {
 	padding: 0 15px;
 }
 
+h2 > span#Bilder {
+	display: none;
+}
+
+ul.mw-gallery-traditional {
+	display: none;
+}
+
 /*
 ********************************
 Featured
@@ -208,7 +216,7 @@ Featured
 	text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
-.foursquare_container {
+.foursquare_container, .weather_container {
 	height: auto;
 	margin: 3rem 0;
 }

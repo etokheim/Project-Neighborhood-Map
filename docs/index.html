@@ -108,6 +108,25 @@
 						<!-- /ko -->
 					</div>
 				<!-- /ko -->
+
+				<!-- ko if: openweathermap.hasContent() -->
+					<div class="weather_container">
+						<h2>
+							Vêrmeldingane for <!-- ko text: openweathermap.data().city.name --><!-- /ko -->:
+						</h2>
+						<div class="weather_forecast">
+							<div class="weather_forecast_title">
+								<span data-bind="attr: { title: openweathermap.data().list[0].dt_txt }">
+									No er det meldt <strong><!-- ko text: openweathermap.data().list[0].weather[0].description --><!-- /ko --></strong>
+								</span>
+								<br />
+								<span data-bind="attr: { title: openweathermap.data().list[8].dt_txt }">
+									I morgon er det meldt <strong><!-- ko text: openweathermap.data().list[8].weather[0].description --><!-- /ko --></strong>
+								</span>
+							</div>
+						</div>
+					</div>
+				<!-- /ko -->
 			</article>
 		<!-- /ko -->
 

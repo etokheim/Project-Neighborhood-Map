@@ -686,7 +686,7 @@ function getExternalResources() {
 		if (markers()[i].type.keywords[0] == 'Fjelltur') {
 			(function(i) {
 				$.ajax({
-					url: ajax.openweathermap.url + 'data/2.5/weather?',
+					url: ajax.openweathermap.url + 'data/2.5/forecast?',
 					type: 'GET',
 					dataType: 'json',
 					data: {
