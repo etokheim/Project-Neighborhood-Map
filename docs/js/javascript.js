@@ -1035,6 +1035,15 @@ function initMap() {
 					console.log(this.flickr.img())
 					return this.flickr.img();
 				}
+			},
+
+			likedOnFoursquare: function() {
+					console.log(this.authorInteractionType);
+				if(this.authorInteractionType == 'liked') {
+					console.log(true);
+				} else {
+					console.log(false);
+				}
 			}
 		});
 

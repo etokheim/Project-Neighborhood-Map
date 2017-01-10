@@ -69,7 +69,7 @@
 							<div class="foursquare_tip">
 								<div class="foursquare_tip_left">
 									<div class="foursquare_tip_profile_picture">
-										<img src="" alt="" data-bind="attr: { src: user.photo.prefix + '100x100' + user.photo.suffix, alt: 'Bilete av ' + user.firstName + ' ' + user.lastName }">
+										<img data-bind="attr: { src: user.photo.prefix + '100x100' + user.photo.suffix, alt: 'Bilete av ' + user.firstName + ' ' + user.lastName }">
 									</div>
 								</div>
 								<div class="foursquare_tip_right">
@@ -79,9 +79,27 @@
 									<div class="foursquare_tip_body_text" data-bind="text: text">
 										Her kommer et lite tips.
 									</div>
+									<div class="foursquare_tip_extras">
+										<!-- ko if: $parent.likedOnFoursquare -->
+										<span class="foursquare_tip_interaction_type" title="Positiv tilbakemelding">
+											Positiv tilbakemelding <i class="fa fa-thumbs-o-up" aria-hidden="true"></i>
+										</span>
+										<!-- /ko -->
+										<!-- ko if: !$parent.likedOnFoursquare -->
+										<span class="foursquare_tip_interaction_type" title="Negativ tilbakemelding">
+											Negativ tilbakemelding <i class="fa fa-thumbs-o-down" aria-hidden="true"></i>
+										</span>
+										<!-- /ko -->
+										<span> • </span>
+										<span data-bind="text: agreeCount"></span>
+										<span> enige • </span>
+										<span data-bind="text: disagreeCount"></span>
+										<span> uenige </span>
+									</div>
+									<div class="clear"></div>
 								</div>
+								<div class="clear"></div>
 							</div>
-							<div class="clear"></div>
 						<!-- /ko -->
 					</div>
 				<!-- /ko -->

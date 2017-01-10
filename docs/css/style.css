@@ -210,12 +210,16 @@ Featured
 
 .foursquare_container {
 	height: auto;
-	overflow: hidden;
 	margin: 3rem 0;
 }
 
 .foursquare_tip {
-	margin-top: 2rem;
+	margin-top: 1rem;
+	background-color: #fff;
+	padding: 1rem;
+	/*box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);*/
+	border: 1px solid #eee;
+	border-radius: 3px;
 }
 
 .foursquare_tip_left {
@@ -226,6 +230,27 @@ Featured
 .foursquare_tip_right {
 	float: right;
 	width: calc(100% - 65px);
+	height: auto;
+}
+
+.foursquare_tip_right_left {
+	float: left;
+	width: 100%;
+	padding: 0 15px 0 0;
+}
+
+.foursquare_tip_right_right {
+	float: left;
+	width: 80px;
+	min-height: 60px;
+	height: auto;
+	padding-top: 5px;
+	color: #000;
+	font-size: 1.5rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: green;
 }
 
 .foursquare_tip_profile_picture {
@@ -237,6 +262,12 @@ Featured
 
 .foursquare_tip_profile_picture img {
 	width: 100%;
+}
+
+.foursquare_tip_extras {
+	color: #aaa;
+	font-size: .75rem;
+	margin-top: 5px;
 }
 
 
