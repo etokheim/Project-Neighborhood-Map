@@ -65,7 +65,7 @@
 				<!-- ko if: foursquare.hasContent() -->
 					<div class="foursquare_container" data-bind="">
 						<h2>Tips frå Foursquare:</h2>
-						<!-- ko foreach: foursquare.tips -->
+						<!-- ko foreach: foursquare.venue().tips.groups[0].items -->
 							<div class="foursquare_tip">
 								<div class="foursquare_tip_left">
 									<div class="foursquare_tip_profile_picture">

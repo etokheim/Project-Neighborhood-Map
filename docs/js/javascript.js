@@ -516,48 +516,10 @@ function getExternalResources() {
 		// Foursquare Ajax calls
 		// Store the current i value
 		if (markers()[i].type.keywords == 'Restaurant') {
-			// If marker got a foursquareID; get info from ID
-			// Else, get a foursquareID based on position (if possible)
+			// If marker got a foursquareID; get info from that
+			// Else, get a foursquareID based on position and name (if possible)
 			if(markers()[i].foursquareID) {
-				// Get venue photos
-				getVenuePhotos(markers()[i].foursquareID, i);
-
-				(function(i) {
-					$.ajax({
-						url: ajax.foursquare.url + 'venues/' + markers()[i].foursquareID + '/tips',
-						dataType: 'json',
-						data: {
-							v: Date.now(),
-							ll: markers()[i].position.lat() + ',' + markers()[i].position.lng(),
-							format: 'json',
-							sort: 'popular',
-							client_id: ajax.foursquare.client_id,
-							client_secret: ajax.foursquare.client_secret,
-						}
-					})
-
-					.done(function(response) {
-						console.log(response);
-						var tips = response.response.tips.items;
-						var tipsLength = tips.length;
-
-						for (var k = 0; k < tipsLength; k++) {
-							var tip = tips[k];
-							var marker = markers()[i];
-
-							// Saves the tip object in markers
-							marker.foursquare.tips().push(tip);
-							marker.foursquare.hasContent(true);
-						}
-
-					})
-
-					.fail(function(jqxhr, textStatus, error) {
-						// console.log(jqxhr + ", " + textStatus + ", " + error);
-						console.log("fail2");
-						console.log(jqxhr);
-					});
-				})(i);
+				setMarkerVenue(markers()[i].foursquareID, i);
 			} else {
 				(function(i) {
 					$.ajax({
@@ -585,51 +547,9 @@ function getExternalResources() {
 							if(response.response.venues[j].name == markers()[i].koTitle()) {
 								var venue = response.response.venues[j];
 
-								// Get venue photos
-								getVenuePhotos(venue.id, i);
+								markers()[i].foursquareID = venue.id;
 
-								// console.log(venue.name + " == " + markers()[i].koTitle());
-								// console.log(venue);
-								markers()[i].foursquare.id(venue.id);
-
-								// Get tips from venue id
-								(function(j) {
-									// console.log("running!");
-									$.ajax({
-										url: ajax.foursquare.url + 'venues/' + venue.id + '/tips',
-										dataType: 'json',
-										data: {
-											v: Date.now(),
-											ll: markers()[i].position.lat() + ',' + markers()[i].position.lng(),
-											format: 'json',
-											sort: 'popular',
-											client_id: ajax.foursquare.client_id,
-											client_secret: ajax.foursquare.client_secret,
-										}
-									})
-
-									.done(function(response2) {
-										console.log(response2);
-										var tips = response2.response.tips.items;
-										var tipsLength = tips.length;
-
-										for (var k = 0; k < tipsLength; k++) {
-											var tip = tips[k];
-											var marker = markers()[i];
-
-											// Saves the tip object in markers
-											marker.foursquare.tips().push(tip);
-											marker.foursquare.hasContent(true);
-										}
-
-									})
-
-									.fail(function(jqxhr, textStatus, error) {
-										// console.log(jqxhr + ", " + textStatus + ", " + error);
-										console.log("fail2");
-										console.log(jqxhr);
-									});
-								})(j);
+								setMarkerVenue(venue.id, i);
 							}
 						}
 					})
@@ -640,6 +560,52 @@ function getExternalResources() {
 						console.dir( xhr );
 					});
 				})(i);
+
+				function setMarkerVenue(foursquareID, i) {
+					$.ajax({
+						url: ajax.foursquare.url + 'venues/' + foursquareID,
+						dataType: 'json',
+						data: {
+							v: Date.now(),
+							ll: markers()[i].position.lat() + ',' + markers()[i].position.lng(),
+							format: 'json',
+							sort: 'popular',
+							client_id: ajax.foursquare.client_id,
+							client_secret: ajax.foursquare.client_secret,
+						}
+					})
+
+					.done(function(response) {
+						console.log(response);
+						var marker = markers()[i];
+						var venue = response.response.venue;
+						var venuePhotos = venue.photos.groups[0].items;
+						var imgUrl;
+						var imgCredit;
+
+						// Give the current marker the venue
+						marker.foursquare.venue(response.response.venue);
+						marker.foursquare.hasContent(true);
+
+						// Build the marker's img array (contains an object with url and credit)
+						for (var j = 0; j < venuePhotos.length; j++) {
+							var photoObject = venuePhotos[j];
+							imgUrl = photoObject.prefix + "483x250" + photoObject.suffix;
+							imgCredit = {name: photoObject.user.firstName + ' ' + photoObject.user.lastName};
+
+							marker.foursquare.img().push({
+								url: imgUrl,
+								credit: imgCredit
+							});
+						}
+					})
+
+					.fail(function(jqxhr, textStatus, error) {
+						// console.log(jqxhr + ", " + textStatus + ", " + error);
+						console.log("fail2");
+						console.log(jqxhr);
+					});
+				};
 
 				// Get venue photos
 				function getVenuePhotos(id, storedI) {
@@ -1022,8 +988,7 @@ function initMap() {
 
 			foursquare: {
 				hasContent: ko.observable(false),
-				id: ko.observable(''),
-				tips: ko.observableArray([]),
+				venue: ko.observable(),
 				img: ko.observableArray([]),
 			},
 
@@ -1038,11 +1003,10 @@ function initMap() {
 			},
 
 			likedOnFoursquare: function() {
-					console.log(this.authorInteractionType);
-				if(this.authorInteractionType == 'liked') {
-					console.log(true);
+				if(this.authorInteractionType == 'disliked') {
+					return false;
 				} else {
-					console.log(false);
+					return true;
 				}
 			}
 		});
