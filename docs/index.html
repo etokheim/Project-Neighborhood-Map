@@ -37,12 +37,20 @@
 						<div class="article_extras">
 							<div class="article_extras_item">
 								<i data-bind="attr: { class: type.icon }"></i>
-								<!-- ko text: type.keywords[0] --><!-- /ko -->
-							</div>
-							<div class="article_extras_item" data-bind="html: foursquare.rating">
-								<i data-bind="text: foursquare.rating"></i>
+								<!-- ko if: !foursquare.hasContent() -->
+									<!-- ko text: type.keywords[0] --><!-- /ko -->
+								<!-- /ko -->
+								<!-- ko if: foursquare.hasContent() -->
+									<!-- ko text: foursquare.venue().categories[0].name --><!-- /ko -->
+								<!-- /ko -->
 
 							</div>
+							<!-- ko if: foursquare.hasContent() -->
+								<div title="Prisrangeringa er henta frå Foursquare" class="article_extras_item">
+									<p data-bind="text: foursquare.price()"></p>
+								</div>
+								<div title="Rangeringa er henta frå Foursquare" class="article_extras_item" data-bind="html: foursquare.rating"></div>
+							<!-- /ko -->
 						</div>
 					</div>
 				</header>

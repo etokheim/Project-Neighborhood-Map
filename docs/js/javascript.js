@@ -593,7 +593,8 @@ function getExternalResources() {
 							});
 						}
 
-						marker.foursquare.getRating();
+						// And finally calculate price and rating
+						marker.foursquare.calculate();
 					})
 
 					.fail(function(jqxhr, textStatus, error) {
@@ -988,6 +989,7 @@ function initMap() {
 				img: ko.observableArray([]),
 				rating: ko.observable(),
 				starCount: 5,
+				price: ko.observable(''),
 
 				getRating: function() {
 					// Reset the array first (in case the needs to re-evaluate)
@@ -1007,6 +1009,26 @@ function initMap() {
 							this.rating(this.rating() + '<i class="fa fa-star-o" data-bind=""></i>');
 						}
 					}
+				},
+
+				getPrice: function() {
+					var priceTier = this.venue().price.tier;
+					console.log(priceTier);
+
+					if(priceTier == 1) {
+						this.price('Billig');
+					} else if(priceTier == 2) {
+						this.price('Ganske billig');
+					} else if(priceTier == 3) {
+						this.price('Dyrt');
+					} else if(priceTier == 4) {
+						this.price('Veldig dyrt');
+					}
+				},
+
+				calculate: function() {
+					this.getRating();
+					this.getPrice();
 				}
 			},
 
