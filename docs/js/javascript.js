@@ -379,6 +379,11 @@ var ajax = {
 		client_id: '4XOTGB0SVZCNGUSLZU3NKHLFIYDCGDETYBIGDU3MIGU22APY',
 		client_secret: 'SYACHZ3AU3X35J0LN40N1JZ3R2SBVZO0SI33BLCY4VVXNAKO',
 		url: 'https://api.foursquare.com/v2/'
+	},
+
+	openweathermap: {
+		appid: '515c3aceb83a67504fa48539d20aff3a',
+		url: 'http://api.openweathermap.org/',
 	}
 };
 
@@ -515,7 +520,7 @@ function getExternalResources() {
 
 		// Foursquare Ajax calls
 		// Store the current i value
-		if (markers()[i].type.keywords == 'Restaurant') {
+		if(markers()[i].type.keywords[0] == 'Restaurant') {
 			// If marker got a foursquareID; get info from that
 			// Else, get a foursquareID based on position and name (if possible)
 			if(markers()[i].foursquareID) {
@@ -676,29 +681,34 @@ function getExternalResources() {
 		// 	});
 		// })(i);
 
-		// YR.no ajax calls
-		// if(markers()[i].type.keywords[0] === 'Fjelltur') {
-		// 	console.log("FJEEEEEEEEEEEEEEEEEELTUR YYYYYYYYYYYYYR!");
-		// 	$.ajax({
-		// 		url: 'http://www.yr.no/sted/Norge/Telemark/Sauherad/Gvarv/varsel_nu.xml',
-		// 		type: 'GET',
-		// 		data: {
-		// 			// s: ajax.title,
-		// 		},
-		// 		dataType: 'jsonp'
-		// 	})
+		// Openweathermap ajax calls
 
-		// 	.done(function(response) {
-		// 		console.log(response);
-		// 		console.log("response");
-		// 	})
+		if (markers()[i].type.keywords[0] == 'Fjelltur') {
+			(function(i) {
+				$.ajax({
+					url: ajax.openweathermap.url + 'data/2.5/weather?',
+					type: 'GET',
+					dataType: 'json',
+					data: {
+						lat: markers()[i].position.lat(),
+						lon: markers()[i].position.lng(),
+						format: "json",
+						appid: ajax.openweathermap.appid,
+					}
+				})
 
-		// 	.fail(function(xhr, status, errorThrown) {
-		// 		console.log( "Error: " + errorThrown );
-		// 		console.log( "Status: " + status );
-		// 		console.dir( xhr );
-		// 	});
-		// }
+				.done(function(response) {
+					markers()[i].openweathermap.data(response);
+					markers()[i].openweathermap.hasContent(true);
+				})
+
+				.fail(function( xhr, status, errorThrown ) {
+					console.log( "Error: " + errorThrown );
+					console.log( "Status: " + status );
+					console.dir( xhr );
+				});
+			})(i);
+		}
 	}
 }
 
@@ -1030,6 +1040,11 @@ function initMap() {
 					this.getRating();
 					this.getPrice();
 				}
+			},
+
+			openweathermap: {
+				hasContent: ko.observable(false),
+				data: ko.observable()
 			},
 
 			getImages: function() {
