@@ -231,11 +231,12 @@ var favoriteLocations = [
 	{
 		title: 'Døgnvill Burger',
 		type: getKeywords('restaurant'),
+		foursquareID: '52d679b111d25266c4e5516a',
 
 		location: {
 			title: 'Stavanger',
-			lat: 58.9709181,
-			lng: 5.7297705
+			lat: 58.97089746248487,
+			lng: 5.731971859931946
 		}
 	},
 
