@@ -363,7 +363,7 @@ var ajax = {
 	title: '',
 
 	wikipedia: {
-		url: 'ahttps://no.wikipedia.org/w/api.php',
+		url: 'https://no.wikipedia.org/w/api.php',
 		error: {
 			message: 'Wikipedia svarar ikkje, prøv igjen seinare'
 		}
@@ -371,7 +371,7 @@ var ajax = {
 
 	flickr: {
 		key: 'e896b44b17e42a28558673f7db2b3504',
-		url: 'ahttps://www.flickr.com/services/rest/',
+		url: 'https://www.flickr.com/services/rest/',
 		imgCount: 15,
 		error: {
 			img: {
@@ -389,7 +389,7 @@ var ajax = {
 	foursquare: {
 		client_id: '4XOTGB0SVZCNGUSLZU3NKHLFIYDCGDETYBIGDU3MIGU22APY',
 		client_secret: 'SYACHZ3AU3X35J0LN40N1JZ3R2SBVZO0SI33BLCY4VVXNAKO',
-		url: 'ahttps://api.foursquare.com/v2/',
+		url: 'https://api.foursquare.com/v2/',
 		error: {
 			message: ko.observable('Foursquare svarar ikkje!'),
 
@@ -456,16 +456,16 @@ function getExternalResources() {
 
 						// Adds the rest of the article to the bodyText variable
 						articleTextLength = articleText.length;
-						for (var i = 2; i < articleTextLength; i++) {
-							bodyText += articleText[i];
+						for (var j = 2; j < articleTextLength; j++) {
+							bodyText += articleText[j];
 						}
 					} else {
 						ingress = articleText[0];
 
 						// Adds the rest of the article to the bodyText variable
 						articleTextLength = articleText.length;
-						for (var i = 1; i < articleTextLength; i++) {
-							bodyText += articleText[i];
+						for (var j = 1; j < articleTextLength; j++) {
+							bodyText += articleText[j];
 						}
 					}
 				}
@@ -611,6 +611,8 @@ function getExternalResources() {
 							url: ajax.foursquare.error.img.url,
 							credit: { name: ajax.foursquare.error.img.credit }
 						});
+
+						marker.foursquare.error.hasError(true);
 					});
 				})(i);
 
@@ -677,6 +679,8 @@ function getExternalResources() {
 							url: ajax.foursquare.error.img.url,
 							credit: { name: ajax.foursquare.error.img.credit }
 						});
+
+						marker.foursquare.error.hasError(true);
 					});
 				};
 
@@ -1193,7 +1197,7 @@ function initMap() {
 			foursquare: {
 
 				error: {
-					hasError: ko.observable(true),
+					hasError: ko.observable(false),
 					message: ko.observable()
 				},
 
