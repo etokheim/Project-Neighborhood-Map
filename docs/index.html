@@ -15,6 +15,8 @@
 
 		<!-- Custom styles -->
 			<link rel="stylesheet" href="css/style.css">
+			<link rel="stylesheet" href="css/style-mobile.css" media="(max-width: 800px)">
+			<link rel="stylesheet" href="css/style-tablet.css" media="(max-width: 1200px)">
 		<!-- /Custom styles -->
 
 		<!-- Plug-in scripts -->
@@ -26,7 +28,8 @@
 		<!-- ko with: markers()[featured().content[0].contentIndex()] -->
 			<article class="featured_container featured_container_hidden">
 				<header>
-					<div class="featured_close" onclick="hideFeaturedContainer()"><i class="fa fa-times fa-lg"></i></div>
+					<div class="featured_minimize" data-bind="click: minimizeFeaturedContainer"><i class="fa fa-window-minimize" aria-hidden="true"></i></i></i></div>
+					<div class="featured_close" data-bind="click: hideFeaturedContainer"><i class="fa fa-times fa-lg"></i></div>
 					<div class="featured_image_container" data-bind="foreach: getImages()">
 						<!-- There is a bug here. It works the first time, but then the alt data get messed up. -->
 						<img src="" alt="" data-bind="attr: { src: url, alt: 'Bilete av ' + markers()[featured().content[0].contentIndex()].title }">
@@ -177,6 +180,7 @@
 		<!-- /ko -->
 
 		</div>
+		<div id="map"></div>
 
 		<div class="location_switcher_container">
 			<div class="location_switcher_list_container">
@@ -246,7 +250,6 @@
 				<div class="location_switcher_arrow location_switcher_arrow_right slick-next" data-bind="">&gt;</div>
 			</div>
 		</div>
-		<div id="map"></div>
 
 		<!-- Plug-in scripts -->
 			<script async type="text/javascript" src="js/plug-ins/slick.min.js"></script>

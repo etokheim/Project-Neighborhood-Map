@@ -1,4 +1,4 @@
-var map, markers, polygon, locations, focusedMarker, test;
+var map, markers, polygon, locations, focusedMarker, test, mapSettings;
 
 var featured = ko.observable({
 	displaying: ko.observable(false),
@@ -102,8 +102,6 @@ var ViewModel = function() {
 };
 
 ko.applyBindings(new ViewModel());
-
-// map.setMapTypeId('terrain');
 
 window.onload = function() {
 	// Initialize slick on featured views
@@ -779,7 +777,19 @@ function hideFeaturedContainer() {
 	toggleLocationSwitcher();
 
 	featured().displaying(false);
+
+	resetZoomAndMap();
 }
+
+function minimizeFeaturedContainer() {
+	$('.featured_container').eq(featured().displaying()).toggleClass('featured_container_minimized');
+	// toggleLocationSwitcher();
+
+	// featured().displaying(false);
+
+	// resetZoomAndMap();
+}
+
 var getFeaturedIndex = 7;
 function displayBodyText(index) {
 	$('.article_body').eq(index).toggleClass('article_body_hidden');
@@ -797,6 +807,92 @@ function readMore(locationIndex) {
 	// console.log(locationIndex);
 	displayAvailableFeaturedContainer(locationIndex);
 	infoWindow.closeAll();
+
+	zoomToMarker(locationIndex);
+}
+
+function zmoothZoom(newZoom, latlng, offsetX, offsetY, locationIndex) {
+	var oldZoom = map.zoom;
+	var zoomDifference = Math.abs(oldZoom) - Math.abs(newZoom);
+	var zoomDirection;
+
+	if(oldZoom < newZoom) {
+		zoomDirection = 1;
+	} else {
+		zoomDirection = -1;
+	}
+
+	if(Math.abs(zoomDifference) > 1) {
+		map.panTo(getOffsetCenter(latlng, offsetX, offsetY));
+		setTimeout(function() {
+			zmoothZoom(newZoom, latlng, offsetX, offsetY, locationIndex);
+			map.setZoom(oldZoom + 1 * zoomDirection);
+
+			map.setCenter(getOffsetCenter(latlng, offsetX, offsetY));
+		}, 250);
+	} else {
+		map.setZoom(newZoom);
+		map.setCenter(getOffsetCenter(latlng, offsetX, offsetY));
+
+		setTimeout(function() {
+			if(markers()[locationIndex].type.keywords[0] == 'Fjelltur') {
+				map.setMapTypeId('satellite');
+			} else {
+				map.setMapTypeId('roadmap');
+			}
+		}, 250);
+	}
+}
+
+function zoomToMarker(locationIndex) {
+	// map.setZoom(12);
+
+
+	// Where the center is when a featured container is displayed
+	// 80 = $(".featured_container").offset().left (When it is displayed)
+	var relativeCenter = ($(".featured_container").outerWidth() + 80) / 2;
+	// getOffsetCenter(markers()[locationIndex].position, relativeCenter, 0);
+
+
+	zmoothZoom(12, markers()[locationIndex].position, relativeCenter, 0, locationIndex);
+}
+
+var newCenter;
+
+// Inspired by:
+// http://stackoverflow.com/questions/10656743/how-to-offset-the-center-point-in-google-maps-api-v3
+function getOffsetCenter(latlng, offsetX, offsetY) {
+
+	// latlng is the apparent centre-point
+	// offsetX is the distance you want that point to move to the right, in pixels
+	// offsetY is the distance you want that point to move upwards, in pixels
+	// offset can be negative
+	// offsetX and offsetY are both optional
+
+	var scale = Math.pow(2, map.getZoom());
+
+	var worldCoordinateCenter = map.getProjection().fromLatLngToPoint(latlng);
+	var pixelOffset = new google.maps.Point((offsetX/scale) || 0,(offsetY/scale) ||0);
+
+	var worldCoordinateNewCenter = new google.maps.Point(
+		worldCoordinateCenter.x - pixelOffset.x,
+		worldCoordinateCenter.y + pixelOffset.y
+	);
+
+	newCenter = map.getProjection().fromPointToLatLng(worldCoordinateNewCenter);
+	return newCenter;
+}
+
+function resetZoomAndMap() {
+	var bounds = new google.maps.LatLngBounds();
+	// Extend the boundaries of the map for each marker
+	for (var i = 0; i < markers().length; i++) {
+		bounds.extend(markers()[i].position);
+	}
+
+	map.fitBounds(bounds);
+
+	map.setMapTypeId('roadmap');
 }
 
 function scroll(index) {
@@ -959,13 +1055,15 @@ function initMap() {
 				}
 	];
 
-	// Constructor creates a new map - only center and zoom are required.
-	map = new google.maps.Map(document.getElementById('map'), {
+	mapSettings = {
 		center: {lat: 40.7413549, lng: -73.9980244},
-		zoom: 13,
+		// zoom: 13,
 		styles: styles,
 		mapTypeControl: false
-	});
+	};
+
+	// Constructor creates a new map - only center and zoom are required.
+	map = new google.maps.Map(document.getElementById('map'), mapSettings);
 
 	for (var i = 0; i < favoriteLocations.length; i++) {
 		// Create a marker per location, and put into markers array.
@@ -1065,14 +1163,20 @@ function initMap() {
 		});
 
 		marker.addListener('click', function() {
+			// If this has an infoWindow and ...
 			if(this.infoWindow) {
-				// console.log(this.infoWindow.anchor);
+				// If infoWindow is open, close it
 				if(this.infoWindow.anchor !== null) {
 					this.infoWindow.close();
+
+				// Else close other open infoWindows and display the current
+				// marker's infoWindow
 				} else {
 					infoWindow.closeAll(this);
 					infoWindow.populate(this, new google.maps.InfoWindow());
 				}
+
+			// Else close all other infoWindow and create a new one for this marker.
 			} else {
 				infoWindow.closeAll(this);
 				infoWindow.populate(this, new google.maps.InfoWindow());
@@ -1081,8 +1185,6 @@ function initMap() {
 			toggleBounce(this);
 
 		});
-
-		// marker.toggleBounce = toggleBounce(markers()[i]);
 
 		// Push the marker to our array of markers.
 		markers.push(marker);
@@ -1093,8 +1195,8 @@ function initMap() {
 		var bounds = new google.maps.LatLngBounds();
 		// Extend the boundaries of the map for each marker and display the marker
 		for (var i = 0; i < markers().length; i++) {
-				markers()[i].setMap(map);
-				bounds.extend(markers()[i].position);
+			markers()[i].setMap(map);
+			bounds.extend(markers()[i].position);
 		}
 		map.fitBounds(bounds);
 	}

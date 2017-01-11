@@ -1,0 +1,21 @@
+.featured_container {
+	top: initial;
+	bottom: 2rem;
+}
+
+.featured_container_hidden {
+	left: 2rem;
+	bottom: -100vh;
+}
+
+.featured_container_minimized {
+	bottom: calc(-100vh + 10rem);
+	left: 2rem;
+}
+
+.featured_minimize {
+	right: 3rem;
+	display: initial;
+	/*top: 13px;*/
+	/*font-size: 1.5rem;*/
+}

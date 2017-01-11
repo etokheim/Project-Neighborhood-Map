@@ -19,6 +19,7 @@ body {
 #map {
 	width: 100%;
 	height: 100%;
+	position: absolute !important; /* Google maps has a default position of relative. */
 }
 
 .clear {
@@ -92,7 +93,7 @@ Article
 }
 
 .article_body_read_more_button {
-	width: calc(100% - 100px);
+	width: 100%;
 	height: 3rem;
 	padding: 1rem;
 	line-height: 1rem;
@@ -153,6 +154,8 @@ cite a {
 	padding: 0 15px;
 }
 
+
+/* Hides the pictures included in the Wikipedia article */
 h2 > span#Bilder {
 	display: none;
 }
@@ -167,13 +170,13 @@ Featured
 */
 
 .featured_container {
-	width: calc(100% - 40px);
-	max-width: 500px;
+	max-width: calc(100% - 4rem);
+	width: 500px;
 	background-color: #fff;
-	height: calc(100vh - 160px);
+	height: calc(100vh - 4rem);
 	overflow-y: scroll;
-	left: 80px;
-	top: 80px;
+	left: 2rem;
+	top: 2rem;
 	border-radius: 3px;
 	box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2);
 	will-change: transform;
@@ -204,16 +207,20 @@ Featured
 	height: 250px;
 }
 
-.featured_close {
+.featured_close, .featured_minimize {
 	position: absolute;
 	right: 15px;
 	top: 15px;
 	z-index: 1000;
-	font-size: 1.2em;
+	font-size: 1.2rem;
 	padding: 10px;
 	cursor: pointer;
 	color: #fff;
 	text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.featured_minimize {
+	display: none;
 }
 
 .foursquare_container, .weather_container {
@@ -287,23 +294,22 @@ Locations switcher
 */
 
 .location_switcher_container {
-	width: 90%;
+	width: calc(100% - 4rem);
 	max-width: 500px;
-	width: 100%;
-	position: absolute;
-	bottom: 50px;
+	/*width: 100%;*/
+	margin: 0 auto;
+	position: relative;
+	top: calc(100% - 6rem);
 	height: 4rem;
 	background-color: rgba(255, 255, 255, 0.2);
 	z-index: 100;
-	margin-left: 50%;
-	left: -250px;
 	will-change: transform;
 
 	transition: all 600ms ease-out;
 }
 
 .location_switcher_container_hidden {
-	bottom: -5rem;
+	top: calc(100% + 1rem);
 }
 
 #location_switcher {
@@ -316,6 +322,7 @@ Locations switcher
 	box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2);
 	text-align: center;
 	position: relative;
+	z-index: 10;
 
 	display: flex;
 	flex-direction: row;
@@ -401,8 +408,8 @@ Locations switcher
 .location_switcher_list_container {
 	position: absolute;
 	width: 100%;
-	max-height: 500px;
-	height: 75vh;
+	height: 600px;
+	max-height: calc(100vh - 9rem);
 	border-radius: 3px;
 	box-shadow: inherit;
 	bottom: calc(100% + 1rem);
