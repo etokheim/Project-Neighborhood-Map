@@ -748,20 +748,34 @@ function toggleFeatured(index) {
 	// I have no idea why it wont work without a setTimeout...?????
 	setTimeout(function() {
 		$('.featured_container').eq(index).toggleClass('featured_container_hidden');
+		$('.featured_container').eq(index).removeClass('featured_container_minimized');
+
+		if($('.featured_minimize').css('display') !== 'none') {
+			$('.featured_container').eq(index).toggleClass('featured_container_minimized');
+
+			setTimeout(function() {
+				$('.featured_container').eq(index).removeClass('featured_container_minimized');
+			}, 3000);
+		}
 	}, 1);
 }
 
 function displayAvailableFeaturedContainer(locationIndex) {
+	// If there is no featured container displaying
 	if(featured().displaying() === false) {
 		toggleFeatured(0);
 		featured().displaying(0);
 
 		toggleLocationSwitcher();
 		toggleLocationSwitcherList("hide");
+
+	// Else if featured container 0 is displaying
 	} else if(featured().displaying() === 0) {
 		toggleFeatured(0);
 		toggleFeatured(1);
 		featured().displaying(1);
+
+	// Else if featured container 1 is displaying
 	} else if(featured().displaying() === 1) {
 		toggleFeatured(1);
 		toggleFeatured(0);
@@ -863,24 +877,34 @@ var newCenter;
 // http://stackoverflow.com/questions/10656743/how-to-offset-the-center-point-in-google-maps-api-v3
 function getOffsetCenter(latlng, offsetX, offsetY) {
 
-	// latlng is the apparent centre-point
-	// offsetX is the distance you want that point to move to the right, in pixels
-	// offsetY is the distance you want that point to move upwards, in pixels
-	// offset can be negative
-	// offsetX and offsetY are both optional
+	// If screen is small, use the true center
+	if($('.featured_minimize').css('display') !== 'none') {
 
-	var scale = Math.pow(2, map.getZoom());
+		return latlng;
 
-	var worldCoordinateCenter = map.getProjection().fromLatLngToPoint(latlng);
-	var pixelOffset = new google.maps.Point((offsetX/scale) || 0,(offsetY/scale) ||0);
+	// Else calculate a relative center when the featured container is displayed
+	} else {
 
-	var worldCoordinateNewCenter = new google.maps.Point(
-		worldCoordinateCenter.x - pixelOffset.x,
-		worldCoordinateCenter.y + pixelOffset.y
-	);
+		// latlng is the apparent centre-point
+		// offsetX is the distance you want that point to move to the right, in pixels
+		// offsetY is the distance you want that point to move upwards, in pixels
+		// offset can be negative
+		// offsetX and offsetY are both optional
 
-	newCenter = map.getProjection().fromPointToLatLng(worldCoordinateNewCenter);
-	return newCenter;
+		var scale = Math.pow(2, map.getZoom());
+
+		var worldCoordinateCenter = map.getProjection().fromLatLngToPoint(latlng);
+		var pixelOffset = new google.maps.Point((offsetX/scale) || 0,(offsetY/scale) ||0);
+
+		var worldCoordinateNewCenter = new google.maps.Point(
+			worldCoordinateCenter.x - pixelOffset.x,
+			worldCoordinateCenter.y + pixelOffset.y
+		);
+
+		newCenter = map.getProjection().fromPointToLatLng(worldCoordinateNewCenter);
+		return newCenter;
+
+	}
 }
 
 function resetZoomAndMap() {

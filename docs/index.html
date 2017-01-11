@@ -32,7 +32,7 @@
 					<div class="featured_close" data-bind="click: hideFeaturedContainer"><i class="fa fa-times fa-lg"></i></div>
 					<div class="featured_image_container" data-bind="foreach: getImages()">
 						<!-- There is a bug here. It works the first time, but then the alt data get messed up. -->
-						<img src="" alt="" data-bind="attr: { src: url, alt: 'Bilete av ' + markers()[featured().content[0].contentIndex()].title }">
+						<img src="" alt="" data-bind="attr: { src: url, alt: 'Bilete av ' + $parent.title }">
 					</div>
 
 					<div class="">
