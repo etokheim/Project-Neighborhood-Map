@@ -362,10 +362,23 @@ var ajaxRunTimes = 0;
 var ajax = {
 	title: '',
 
+	wikipedia: {
+		url: 'ahttps://no.wikipedia.org/w/api.php',
+		error: {
+			message: 'Wikipedia svarar ikkje, prøv igjen seinare'
+		}
+	},
+
 	flickr: {
 		key: 'e896b44b17e42a28558673f7db2b3504',
-		url: 'https://www.flickr.com/services/rest/',
-		imgCount: 15
+		url: 'ahttps://www.flickr.com/services/rest/',
+		imgCount: 15,
+		error: {
+			img: {
+				url: 'img/flickr-error.svg',
+				credit: 'Kan ikkje nå Flickr'
+			}
+		}
 	},
 
 	nasjonalturbase: {
@@ -376,7 +389,15 @@ var ajax = {
 	foursquare: {
 		client_id: '4XOTGB0SVZCNGUSLZU3NKHLFIYDCGDETYBIGDU3MIGU22APY',
 		client_secret: 'SYACHZ3AU3X35J0LN40N1JZ3R2SBVZO0SI33BLCY4VVXNAKO',
-		url: 'https://api.foursquare.com/v2/'
+		url: 'ahttps://api.foursquare.com/v2/',
+		error: {
+			message: ko.observable('Foursquare svarar ikkje!'),
+
+			img: {
+				url: 'img/foursquare-error.svg',
+				credit: 'Kan ikkje nå Foursquare'
+			}
+		}
 	},
 
 	openweathermap: {
@@ -392,18 +413,20 @@ function getExternalResources() {
 		ajax.title = markers()[i].koTitle();
 
 		// Flickr Ajax calls
-		$.ajax({
-			url: 'https://no.wikipedia.org/w/api.php?prop=info%7Cextracts',
-			dataType: 'jsonp',
-			data: {
-				titles: ajax.title,
-				action: 'query',
-				// prop: ['info', 'extracts'], --> moved to url since it does't work
-				inprop: "url",
-				format: 'json',
-				requestid: i,
-			},
-			success: function(response) {
+		(function(i) {
+			$.ajax({
+				url: ajax.wikipedia.url + '?prop=info%7Cextracts',
+				dataType: 'jsonp',
+				data: {
+					titles: ajax.title,
+					action: 'query',
+					// prop: ['info', 'extracts'], --> moved to url since it does't work
+					inprop: "url",
+					format: 'json',
+				}
+			})
+
+			.done(function(response) {
 				clearTimeout(wikipediaErrorHandling);
 				// Gets the name of the first property name of the object (Since we don't have the
 				// page ID - which is the name of the property)
@@ -423,7 +446,7 @@ function getExternalResources() {
 
 				// If Wikipedia had an article about it
 				if(articleText) {
-					markers()[response.requestid].wikipedia.hasContent(true);
+					markers()[i].wikipedia.hasContent(true);
 
 					// If first paragraph is empty; use the second one.
 					// Else use the first one.
@@ -447,83 +470,97 @@ function getExternalResources() {
 					}
 				}
 
-				markers()[response.requestid].wikipedia.ingress(ingress);
-				markers()[response.requestid].wikipedia.bodyText(bodyText);
+				markers()[i].wikipedia.ingress(ingress);
+				markers()[i].wikipedia.bodyText(bodyText);
 
-				markers()[response.requestid].wikipedia.url(canDo[firstPropertyName].fullurl);
-				response.requestid++;
-			}
-		});
+				markers()[i].wikipedia.url(canDo[firstPropertyName].fullurl);
 
-		// Flickr Ajax calls
-		// Store the current i value
-		(function(i) {
-			$.ajax({
-				url: ajax.flickr.url,
-				type: 'GET',
-				dataType: 'text',
-				data: {
-					method: 'flickr.photos.search',
-					sort: 'interestingness-desc',
-					extras: 'owner_name',
-					text: markers()[i].koTitle(),
-					format: "json",
-					api_key: ajax.flickr.key,
-				}
-			})
-
-			.done(function(response) {
-				// Removes the function wrapping and creates a JavaScript object
-				// from the JSON recieved from Flickr.
-				var responseJson = JSON.parse(response.slice(14, response.length - 1));
-				// console.log(responseJson);
-
-				for (var j = 0; j < ajax.flickr.imgCount; j++) {
-					(function(j, i) {
-						// console.log("running!");
-						$.ajax({
-							url: ajax.flickr.url + '?&?callback=?',
-							dataType: 'text',
-							data: {
-								method: 'flickr.photos.getSizes',
-								photo_id: responseJson.photos.photo[j].id,
-								format: 'json',
-								api_key: ajax.flickr.key,
-							}
-						})
-
-						.done(function(response2) {
-							// Removes the function wrapping and creates a JavaScript object
-							// from the JSON recieved from Flickr.
-							var response2Json = JSON.parse(response2.slice(14, response2.length - 1));
-
-							// console.log(response2Json);
-							markers()[i].flickr.img().push({url: response2Json.sizes.size[5].source, credit: {name: responseJson.photos.photo[j].ownername}});
-						})
-
-						.fail(function(jqxhr, textStatus, error) {
-							// console.log(jqxhr + ", " + textStatus + ", " + error);
-							console.log("fail2");
-							console.log(jqxhr);
-						});
-					})(j, i);
-				}
 			})
 
 			.fail(function( xhr, status, errorThrown ) {
-				console.log( "Error: " + errorThrown );
-				console.log( "Status: " + status );
-				console.dir( xhr );
+				// console.log( "Error: " + errorThrown );
+				// console.log( "Status: " + status );
+				// console.dir( xhr );
+				console.log( "Wikipedia not responding!" );
+				markers()[i].wikipedia.hasContent(true);
+				markers()[i].wikipedia.ingress(ajax.wikipedia.error.message);
 			});
 		})(i);
+
+		// Flickr Ajax calls
+		// Store the current i value
+		if(markers()[i].type.keywords[0] != 'Restaurant') {
+			(function(i) {
+				$.ajax({
+					url: ajax.flickr.url,
+					type: 'GET',
+					dataType: 'text',
+					data: {
+						method: 'flickr.photos.search',
+						sort: 'interestingness-desc',
+						extras: 'owner_name',
+						text: markers()[i].koTitle(),
+						format: "json",
+						api_key: ajax.flickr.key,
+					}
+				})
+
+				.done(function(response) {
+					// Removes the function wrapping and creates a JavaScript object
+					// from the JSON recieved from Flickr.
+					var responseJson = JSON.parse(response.slice(14, response.length - 1));
+					// console.log(responseJson);
+
+					for (var j = 0; j < ajax.flickr.imgCount; j++) {
+						(function(j, i) {
+							// console.log("running!");
+							$.ajax({
+								url: ajax.flickr.url + '?&?callback=?',
+								dataType: 'text',
+								data: {
+									method: 'flickr.photos.getSizes',
+									photo_id: responseJson.photos.photo[j].id,
+									format: 'json',
+									api_key: ajax.flickr.key,
+								}
+							})
+
+							.done(function(response2) {
+								// Removes the function wrapping and creates a JavaScript object
+								// from the JSON recieved from Flickr.
+								var response2Json = JSON.parse(response2.slice(14, response2.length - 1));
+
+								// console.log(response2Json);
+								markers()[i].flickr.img().push({url: response2Json.sizes.size[5].source, credit: {name: responseJson.photos.photo[j].ownername}});
+							})
+
+							.fail(function(jqxhr, textStatus, error) {
+								// console.log(jqxhr + ", " + textStatus + ", " + error);
+								// console.log("fail2");
+								// console.log(jqxhr);
+							});
+						})(j, i);
+					}
+				})
+
+				.fail(function( xhr, status, errorThrown ) {
+					// console.log( "Error: " + errorThrown );
+					// console.log( "Status: " + status );
+					// console.dir( xhr );
+					console.log( "Flickr not responding!" );
+					markers()[i].flickr.img().push({url: ajax.flickr.error.img.url, credit: {name: ajax.flickr.error.img.credit}});
+				});
+			})(i);
+		}
 
 		// Foursquare Ajax calls
 		// Store the current i value
 		if(markers()[i].type.keywords[0] == 'Restaurant') {
 			// If marker got a foursquareID; get info from that
-			// Else, get a foursquareID based on position and name (if possible)
 			if(markers()[i].foursquareID) {
 				setMarkerVenue(markers()[i].foursquareID, i);
+
+			// Else, get a foursquareID based on position and name (if possible)
 			} else {
 				(function(i) {
 					$.ajax({
@@ -540,9 +577,13 @@ function getExternalResources() {
 					})
 
 					.done(function(response) {
+						var matches = 0;
+
 						// If the response contains a venue name equal to the markers title; use that
 						for (var j = 0; j < response.response.venues.length; j++) {
 							if(response.response.venues[j].name == markers()[i].koTitle()) {
+								matches++;
+
 								var venue = response.response.venues[j];
 
 								markers()[i].foursquareID = venue.id;
@@ -550,12 +591,26 @@ function getExternalResources() {
 								setMarkerVenue(venue.id, i);
 							}
 						}
+
+						// If no matches; set an error text.
+						if(matches < 1) {
+
+						}
 					})
 
 					.fail(function( xhr, status, errorThrown ) {
-						console.log( "Error: " + errorThrown );
-						console.log( "Status: " + status );
-						console.dir( xhr );
+						// console.log( "Error: " + errorThrown );
+						// console.log( "Status: " + status );
+						// console.dir( xhr );
+						markers()[i].foursquare.hasContent(true);
+						console.log( 'Foursquare not responding!' );
+						markers()[i].foursquare.error.message(ajax.foursquare.error.message);
+						var marker = markers()[i];
+
+						marker.foursquare.img().push({
+							url: ajax.foursquare.error.img.url,
+							credit: { name: ajax.foursquare.error.img.credit }
+						});
 					});
 				})(i);
 
@@ -609,8 +664,19 @@ function getExternalResources() {
 
 					.fail(function(jqxhr, textStatus, error) {
 						// console.log(jqxhr + ", " + textStatus + ", " + error);
-						console.log("fail2");
-						console.log(jqxhr);
+						// console.log("fail2");
+						// console.log(jqxhr);
+						// markers()[i].foursquare.hasContent(true);
+						console.log( 'Foursquare not responding!' );
+						markers()[i].foursquare.hasContent(true);
+						markers()[i].foursquare.error.message(ajax.foursquare.error.message);
+
+						var marker = markers()[i];
+
+						marker.foursquare.img().push({
+							url: ajax.foursquare.error.img.url,
+							credit: { name: ajax.foursquare.error.img.credit }
+						});
 					});
 				};
 
@@ -654,6 +720,8 @@ function getExternalResources() {
 							// console.log(jqxhr + ", " + textStatus + ", " + error);
 							console.log("fail2");
 							console.log(jqxhr);
+
+
 						});
 					})(storedI);
 				}
@@ -1123,6 +1191,12 @@ function initMap() {
 			},
 
 			foursquare: {
+
+				error: {
+					hasError: ko.observable(true),
+					message: ko.observable()
+				},
+
 				hasContent: ko.observable(false),
 				venue: ko.observable(),
 				img: ko.observableArray([]),

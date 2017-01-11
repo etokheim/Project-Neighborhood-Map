@@ -237,6 +237,10 @@ Featured
 .featured_image_figure figcaption i {
 	z-index: 10;
 	position: relative;
+	padding: 5px;
+	margin-left: -5px;
+	margin-top: -5px;
+	/*background-color: green;*/
 }
 
 .featured_image_figure figcaption i:hover + .img_credit {
