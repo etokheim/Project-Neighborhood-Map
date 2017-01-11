@@ -31,8 +31,15 @@
 					<div class="featured_minimize" data-bind="click: minimizeFeaturedContainer"><i class="fa fa-window-minimize" aria-hidden="true"></i></i></i></div>
 					<div class="featured_close" data-bind="click: hideFeaturedContainer"><i class="fa fa-times fa-lg"></i></div>
 					<div class="featured_image_container" data-bind="foreach: getImages()">
-						<!-- There is a bug here. It works the first time, but then the alt data get messed up. -->
-						<img src="" alt="" data-bind="attr: { src: url, alt: 'Bilete av ' + $parent.title }">
+						<figure class="featured_image_figure">
+							<img src="" alt="" data-bind="attr: { src: url, alt: 'Bilete av ' + $parent.title }">
+							<figcaption>
+								<i class="fasdf fa fa-info-circle" aria-hidden="true"></i>
+								<div class="img_credit" data-bind="attr: { style: 'width: ' + credit.name.length * 11 + 'px;' }">
+									<i class="fa fa-copyright" aria-hidden="true"></i> <!-- ko text: credit.name -->Namn Namnesen<!-- /ko -->
+								</div>
+							</figcaption>
+						</figure>
 					</div>
 
 					<div class="">
@@ -66,7 +73,7 @@
 							<cite>Henta frå <a href="" data-bind="attr: { href: wikipedia.url }">Wikipedia</a></cite>
 						</p>
 					</div>
-					<div class="article_body_read_more_button" onclick="displayBodyText(0)">
+					<div class="full_width_button article_body_read_more_button" onclick="displayBodyText(0)">
 						Les meir
 					</div>
 				<!-- /ko -->
@@ -117,17 +124,18 @@
 						<h2>
 							Vêrmeldingane for <!-- ko text: openweathermap.data().city.name --><!-- /ko -->:
 						</h2>
-						<div class="weather_forecast">
-							<div class="weather_forecast_title">
-								<span data-bind="attr: { title: openweathermap.data().list[0].dt_txt }">
-									No er det meldt <strong><!-- ko text: openweathermap.data().list[0].weather[0].description --><!-- /ko --></strong>
-								</span>
-								<br />
-								<span data-bind="attr: { title: openweathermap.data().list[8].dt_txt }">
-									I morgon er det meldt <strong><!-- ko text: openweathermap.data().list[8].weather[0].description --><!-- /ko --></strong>
-								</span>
-							</div>
-						</div>
+						<p class="weather_forecast">
+							<span data-bind="attr: { title: openweathermap.data().list[0].dt_txt }">
+								No er det meldt <strong><!-- ko text: openweathermap.data().list[0].weather[0].description --><!-- /ko --></strong>
+							</span>
+							<br>
+							<span data-bind="attr: { title: openweathermap.data().list[8].dt_txt }">
+								I morgon er det meldt <strong><!-- ko text: openweathermap.data().list[8].weather[0].description --><!-- /ko --></strong>
+							</span>
+							<br>
+							<br>
+							<cite>Henta frå <a href="https://openweathermap.org/">OpenWeatherMap</a></cite>
+						</p>
 					</div>
 				<!-- /ko -->
 			</article>

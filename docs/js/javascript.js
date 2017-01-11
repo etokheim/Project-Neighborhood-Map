@@ -365,7 +365,7 @@ var ajax = {
 	flickr: {
 		key: 'e896b44b17e42a28558673f7db2b3504',
 		url: 'https://www.flickr.com/services/rest/',
-		imgCount: 3
+		imgCount: 15
 	},
 
 	nasjonalturbase: {
@@ -464,6 +464,8 @@ function getExternalResources() {
 				dataType: 'text',
 				data: {
 					method: 'flickr.photos.search',
+					sort: 'interestingness-desc',
+					extras: 'owner_name',
 					text: markers()[i].koTitle(),
 					format: "json",
 					api_key: ajax.flickr.key,
@@ -477,7 +479,7 @@ function getExternalResources() {
 				// console.log(responseJson);
 
 				for (var j = 0; j < ajax.flickr.imgCount; j++) {
-					(function(j) {
+					(function(j, i) {
 						// console.log("running!");
 						$.ajax({
 							url: ajax.flickr.url + '?&?callback=?',
@@ -495,9 +497,8 @@ function getExternalResources() {
 							// from the JSON recieved from Flickr.
 							var response2Json = JSON.parse(response2.slice(14, response2.length - 1));
 
-							// console.log(j);
 							// console.log(response2Json);
-							markers()[i].flickr.img().push({url: response2Json.sizes.size[5].source});
+							markers()[i].flickr.img().push({url: response2Json.sizes.size[5].source, credit: {name: responseJson.photos.photo[j].ownername}});
 						})
 
 						.fail(function(jqxhr, textStatus, error) {
@@ -505,7 +506,7 @@ function getExternalResources() {
 							console.log("fail2");
 							console.log(jqxhr);
 						});
-					})(j);
+					})(j, i);
 				}
 			})
 
@@ -586,9 +587,15 @@ function getExternalResources() {
 
 						// Build the marker's img array (contains an object with url and credit)
 						for (var j = 0; j < venuePhotos.length; j++) {
+
 							var photoObject = venuePhotos[j];
+							var firstName = photoObject.user.firstName;
+
+							// If there is no last name, set it to an empty string
+							var lastName = photoObject.user.lastName || '';
+
 							imgUrl = photoObject.prefix + "483x250" + photoObject.suffix;
-							imgCredit = {name: photoObject.user.firstName + ' ' + photoObject.user.lastName};
+							imgCredit = {name: firstName + ' ' + lastName};
 
 							marker.foursquare.img().push({
 								url: imgUrl,
@@ -973,7 +980,7 @@ var infoWindow = {
 		}
 
 		// Set infoWindow content
-		marker.infoWindow.setContent('<div style="width: 200px;"><h5>' + marker.title + '</h5><p>' + markers()[marker.index].wikipedia.ingress() + '</p><p><a onclick="readMore(' + marker.index + ')">Les meir</a></p></div>');
+		marker.infoWindow.setContent('<div style="width: 200px;"><h5>' + marker.title + '</h5><p>' + markers()[marker.index].wikipedia.ingress() + '</p><button class="full_width_button" onclick="readMore(' + marker.index + ')">Les meir</button></div>');
 
 		// Close the infoWindow on "x" click
 		marker.infoWindow.addListener('closeclick', function() {
