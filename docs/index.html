@@ -85,9 +85,11 @@
 					</div>
 				<!-- /ko -->
 				<!-- ko if: foursquare.hasContent() -->
-					<div class="foursquare_container" data-bind="">
+					<div class="foursquare_container">
 						<h2>Tips frå Foursquare:</h2>
-						<!-- ko text: foursquare.error.message() --><!-- /ko -->
+						<!-- ko if: foursquare.error.hasError() -->
+							<!-- ko text: foursquare.error.message() --><!-- /ko -->
+						<!-- /ko -->
 
 						<!-- ko if: !foursquare.error.hasError() -->
 							<!-- ko foreach: foursquare.venue().tips.groups[0].items -->
@@ -133,19 +135,30 @@
 				<!-- ko if: openweathermap.hasContent() -->
 					<div class="weather_container">
 						<h2>
-							Vêrmeldingane for <!-- ko text: openweathermap.data().city.name --><!-- /ko -->:
+							<!-- ko if: openweathermap.error.hasError() -->
+								Vêrmeldingane er ikkje tilgjengelege
+							<!-- /ko -->
+							<!-- ko if: !openweathermap.error.hasError() -->
+								Vêrmeldingane for <!-- ko text: openweathermap.data().city.name --><!-- /ko -->:
+							<!-- /ko -->
 						</h2>
 						<p class="weather_forecast">
-							<span data-bind="attr: { title: openweathermap.data().list[0].dt_txt }">
-								No er det meldt <strong><!-- ko text: openweathermap.data().list[0].weather[0].description --><!-- /ko --></strong>
-							</span>
-							<br>
-							<span data-bind="attr: { title: openweathermap.data().list[8].dt_txt }">
-								I morgon er det meldt <strong><!-- ko text: openweathermap.data().list[8].weather[0].description --><!-- /ko --></strong>
-							</span>
-							<br>
-							<br>
-							<cite>Henta frå <a href="https://openweathermap.org/">OpenWeatherMap</a></cite>
+							<!-- ko if: openweathermap.error.hasError() -->
+								<!-- ko text: openweathermap.error.message() --><!-- /ko -->
+							<!-- /ko -->
+
+							<!-- ko if: !openweathermap.error.hasError() -->
+								<span data-bind="attr: { title: openweathermap.data().list[0].dt_txt }">
+									No er det meldt <strong><!-- ko text: openweathermap.data().list[0].weather[0].description --><!-- /ko --></strong>
+								</span>
+								<br>
+								<span data-bind="attr: { title: openweathermap.data().list[8].dt_txt }">
+									I morgon er det meldt <strong><!-- ko text: openweathermap.data().list[8].weather[0].description --><!-- /ko --></strong>
+								</span>
+								<br>
+								<br>
+								<cite>Henta frå <a href="https://openweathermap.org/">OpenWeatherMap</a></cite>
+							<!-- /ko -->
 						</p>
 					</div>
 				<!-- /ko -->

@@ -17,9 +17,13 @@ var featured = ko.observable({
 		infinite: true,
 		slidesToShow: 1,
 		autoplay: true,
-		autoplaySpeed: 5000,
+		autoplaySpeed: 50000,
 		draggable: true,
 		arrows: true,
+		dots: false,
+		slidesToShow: 1,
+		centerMode: false,
+		variableWidth: false
 		// appendArrows: $(".featured_image_container"),
 	},
 
@@ -29,6 +33,7 @@ var featured = ko.observable({
 		autoplay: false,
 		draggable: true,
 		arrows: true,
+		dots: false,
 		nextArrow: $('.location_switcher_arrow_right'),
 		prevArrow: $('.location_switcher_arrow_left'),
 		// appendArrows: $(".featured_image_container"),
@@ -260,11 +265,14 @@ $('.location_switcher_search_field').on('input', function() {
 // Initialized in window.onload function
 function reslickFeatured() {
 	console.log('Reslicking!');
-	if($(".featured_image_container").attr('class').includes('slick')) {
-		console.log($(".featured_image_container").attr('class') + " includes slick");
-		$(".featured_image_container").eq(0).slick('unslick');
-	}
-	$(".featured_image_container").eq(0).slick(featured().slick);
+	// setTimeout(function() {
+		if($(".featured_image_container").attr('class').includes('slick')) {
+			console.log($(".featured_image_container").attr('class') + " includes slick");
+			$(".featured_image_container").eq(0).slick('unslick');
+		}
+		$(".featured_image_container").eq(0).slick(featured().slick);
+
+	// }, 300);
 }
 
 // Reinitialize slick (needed on content change)
@@ -478,9 +486,6 @@ function getExternalResources() {
 			})
 
 			.fail(function( xhr, status, errorThrown ) {
-				// console.log( "Error: " + errorThrown );
-				// console.log( "Status: " + status );
-				// console.dir( xhr );
 				console.log( "Wikipedia not responding!" );
 				markers()[i].wikipedia.hasContent(true);
 				markers()[i].wikipedia.ingress(ajax.wikipedia.error.message);
@@ -535,18 +540,12 @@ function getExternalResources() {
 							})
 
 							.fail(function(jqxhr, textStatus, error) {
-								// console.log(jqxhr + ", " + textStatus + ", " + error);
-								// console.log("fail2");
-								// console.log(jqxhr);
 							});
 						})(j, i);
 					}
 				})
 
 				.fail(function( xhr, status, errorThrown ) {
-					// console.log( "Error: " + errorThrown );
-					// console.log( "Status: " + status );
-					// console.dir( xhr );
 					console.log( "Flickr not responding!" );
 					markers()[i].flickr.img().push({url: ajax.flickr.error.img.url, credit: {name: ajax.flickr.error.img.credit}});
 				});
@@ -599,9 +598,6 @@ function getExternalResources() {
 					})
 
 					.fail(function( xhr, status, errorThrown ) {
-						// console.log( "Error: " + errorThrown );
-						// console.log( "Status: " + status );
-						// console.dir( xhr );
 						markers()[i].foursquare.hasContent(true);
 						console.log( 'Foursquare not responding!' );
 						markers()[i].foursquare.error.message(ajax.foursquare.error.message);
@@ -759,7 +755,6 @@ function getExternalResources() {
 		// })(i);
 
 		// Openweathermap ajax calls
-
 		if (markers()[i].type.keywords[0] == 'Fjelltur') {
 			(function(i) {
 				$.ajax({
@@ -783,6 +778,9 @@ function getExternalResources() {
 					console.log( "Error: " + errorThrown );
 					console.log( "Status: " + status );
 					console.dir( xhr );
+
+					markers()[i].openweathermap.hasContent(true);
+					markers()[i].openweathermap.error.hasError(true);
 				});
 			})(i);
 		}
@@ -862,7 +860,16 @@ function displayAvailableFeaturedContainer(locationIndex) {
 	}
 
 	populateFeatured(featured().displaying(), locationIndex);
+
 	reslickFeatured();
+
+	// (I think) because the Slick carousel is being initiated while it's not on-screen
+	// causes the slides to have their width set incorrectly. To solve this I just
+	// reslicked once more.
+	setTimeout(function() {
+		reslickFeatured();
+	}, 300);
+
 }
 
 function hideFeaturedContainer() {
@@ -1251,7 +1258,12 @@ function initMap() {
 
 			openweathermap: {
 				hasContent: ko.observable(false),
-				data: ko.observable()
+				data: ko.observable(),
+
+				error: {
+					hasError: ko.observable(false),
+					message: ko.observable('Kunne ikkje nå OpenWeatherMaps. Dersom du trur det er ein feil i programmet; ta kontakt og vis til feilmeldingane i konsollen (f12).'),
+				}
 			},
 
 			getImages: function() {

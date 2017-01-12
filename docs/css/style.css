@@ -244,7 +244,7 @@ Featured
 	width: calc(100% + 100px);
 	height: 250px;
 	margin-left: -50px;
-	/*overflow: hidden;*/
+	overflow: hidden;
 	background-color: #eee;
 }
 
