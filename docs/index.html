@@ -1,7 +1,7 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
-		<title>Neighborhood map</title>
+		<title>Mine favorittstader ☆</title>
 
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
 
@@ -25,7 +25,7 @@
 		<!-- /Plug-in scripts -->
 	</head>
 	<body>
-		<!-- ko with: markers()[featured().content[0].contentIndex()] -->
+		<!-- ko with: markers()[featured().container[0].index()] -->
 			<article class="featured_container featured_container_hidden">
 				<header>
 					<div class="featured_minimize" data-bind="click: minimizeFeaturedContainer">
@@ -171,7 +171,7 @@
 
 
 
-		<!-- ko with: markers()[featured().content[0].contentIndex()] -->
+		<!-- ko with: markers()[featured().container[1].index()] -->
 			<article class="featured_container featured_container_hidden">
 				<header>
 					<div class="featured_minimize" data-bind="click: minimizeFeaturedContainer">
@@ -331,7 +331,7 @@
 					</div>
 				</div>
 				<ul id="location_switcher_list" data-bind="foreach: markers">
-					<!-- ko if: visible2 -->
+					<!-- ko if: koVisible -->
 						<li data-bind="click: $root.test">
 							<h2 class="location_switcher_list_title" data-bind="text: koTitle()"></h2>
 							<p class="location_switcher_list_type" data-bind="click: $root.test">
@@ -343,27 +343,28 @@
 				</ul>
 			</div>
 			<div id="location_switcher">
-				<div class="location_switcher_arrow location_switcher_arrow_left slick-prev" data-bind="click: swipeLeft">&lt;</div>
-				<!-- <div class="location_switcher_center" data-bind="text: focusedMarker() ? focusedMarker().title : 'Click here to display the list'"> -->
-				<div id="location_switcher_center">
-					<!-- Please enable JavaScript! -->
-					<div class="">
-						<div id="swipe_list" class="location_switcher_swipe_list list-unstyled" data-bind="foreach: markers">
-							<!-- ko ifnot: visible2 -->
-								<!-- <div class="location_switcher_swipe_list_item invisible">test</div> -->
-							<!-- /ko -->
-							<!-- ko if: visible2 -->
-								<div class="location_switcher_swipe_list_item">
-									<i data-bind="attr: { class: type.icon }"></i>
-									<!-- ko text: koTitle() --><!-- /ko -->
-								</div>
-							<!-- /ko -->
-						</div>
-					</div>
-
+				<div class="location_switcher_arrow">
+					<i class="fa fa-chevron-left" aria-hidden="true"></i>
 				</div>
 
-				<div class="location_switcher_arrow location_switcher_arrow_right slick-next" data-bind="">&gt;</div>
+				<div id="location_switcher_center">
+					<!-- ko if: 2+2 == 2 -->
+						Skru på JavaScript for å bruke sida!
+					<!-- /ko -->
+
+					<div id="swipe_list" class="location_switcher_swipe_list list-unstyled" data-bind="foreach: markers">
+						<!-- ko if: koVisible -->
+							<div class="location_switcher_swipe_list_item">
+								<i data-bind="attr: { class: type.icon }"></i>
+								<!-- ko text: koTitle --><!-- /ko -->
+							</div>
+						<!-- /ko -->
+					</div>
+				</div>
+
+				<div class="location_switcher_arrow">
+					<i class="fa fa-chevron-right" aria-hidden="true"></i>
+				</div>
 			</div>
 		</div>
 

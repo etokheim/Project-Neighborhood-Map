@@ -1,44 +1,69 @@
-var map, markers, polygon, locations, focusedMarker, test, mapSettings;
+/*
+
+	Author: Erling Tokheim
+	Author URI: https://github.com/etokheim
+
+*/
+
+
+/*--------------------------------------------------------------
+>>> TABLE OF CONTENTS:
+----------------------------------------------------------------
+# Normalize
+# Navigation
+	## Links
+
+--------------------------------------------------------------*/
+
+
+/*--------------------------------------------------------------
+# Defaults
+--------------------------------------------------------------*/
+var map, locations, focusedMarker, mapSettings;
+
+var markers = ko.observableArray();
+var focusedMarker = ko.observable(0);
 
 var featured = ko.observable({
-	displaying: ko.observable(false),
+		displaying: ko.observable(false),
 
-	content: [
-		{
-			contentIndex: ko.observable(0),
-		},
+		container: [
+			{
+				index: ko.observable(0)
+			},
 
-		{
-			contentIndex: ko.observable(1),
-		}
-	],
+			{
+				index: ko.observable(0)
+			}
+		],
+	}
+);
 
+var slickCarousel = {
 	slick: {
 		infinite: true,
 		slidesToShow: 1,
 		autoplay: true,
-		autoplaySpeed: 50000,
+		autoplaySpeed: 5000,
 		draggable: true,
 		arrows: true,
 		dots: false,
 		slidesToShow: 1,
 		centerMode: false,
 		variableWidth: false
-		// appendArrows: $(".featured_image_container"),
 	},
 
 	slickLocationSwitcher: {
-		infinite: false,
+		infinite: true,
 		slidesToShow: 1,
 		autoplay: false,
 		draggable: true,
 		arrows: true,
 		dots: false,
-		nextArrow: $('.location_switcher_arrow_right'),
-		prevArrow: $('.location_switcher_arrow_left'),
-		// appendArrows: $(".featured_image_container"),
+		nextArrow: $('.location_switcher_arrow')[1],
+		prevArrow: $('.location_switcher_arrow')[0],
 	}
-});
+};
 
 var filter = ko.observable({
 	type: {
@@ -48,62 +73,38 @@ var filter = ko.observable({
 
 		toggleHike: function() {
 			this.hike(!this.hike());
-			// console.log("toggling hike() " + this.hike());
 			sendItemsToSearch($('.location_switcher_search_field').val());
 		},
 
 		toggleRestaurant: function() {
 			this.restaurant(!this.restaurant());
-			// console.log("toggling restaurant() " + this.restaurant());
 			sendItemsToSearch($('.location_switcher_search_field').val());
 		},
 
 		toggleLandmark: function() {
 			this.landmark(!this.landmark());
-			// console.log("toggling landmark() " + this.landmark());
 			sendItemsToSearch($('.location_switcher_search_field').val());
 		}
 	},
 
 	active: function() {
 		if(this.type.hike() || this.type.restaurant() || this.type.landmark()) {
-			// console.log("Checked filters and some are active!!!");
 			return true;
 		} else {
-			// console.log("Checked filters and none are active");
 			return false;
 		}
 	},
 });
 
 var ViewModel = function() {
-		// Create a new blank array for all the listing markers.
-		markers = ko.observableArray();
+	this.test = function() {
+		scroll(this.index);
+		toggleLocationSwitcherList();
+	};
 
-		// After the page is loaded, listen for changes in the markers() array
-		window.onload = function() {
-			markers.subscribe(function(newValue) {
-				// console.log("Markers() got a new value! = " + markers());
-				reslickFeatured();
-			});
-		};
-
-		// This global polygon variable is to ensure only ONE polygon is rendered.
-		polygon = null;
-
-		focusedMarker = ko.observable(0);
-
-		// console.dir(markers());
-		// console.dir(locations());
-
-		this.test = function() {
-			scroll(this.index);
-			toggleLocationSwitcherList();
-		};
-
-		$('#location_switcher_center').click(function() {
-			toggleLocationSwitcherList();
-		});
+	$('#location_switcher_center').click(function() {
+		toggleLocationSwitcherList();
+	});
 };
 
 ko.applyBindings(new ViewModel());
@@ -111,11 +112,11 @@ ko.applyBindings(new ViewModel());
 window.onload = function() {
 	// Initialize slick on featured views
 	console.log('Initialize slick carousels');
-	// $(".featured_image_container").slick(featured().slick);
+	// $(".featured_image_container").slick(slickCarousel.slick);
 	console.log($(".featured_image_container").children().attr('class'));
 
 	// Initialize Slick on location switcher and add beforeChange listener
-	$(".location_switcher_swipe_list").slick(featured().slickLocationSwitcher);
+	$(".location_switcher_swipe_list").slick(slickCarousel.slickLocationSwitcher);
 	$('.location_switcher_swipe_list').on('beforeChange', function(event, slick, currentSlide, nextSlide) {
 		// console.log(nextSlide);
 		focusMarker(nextSlide);
@@ -270,7 +271,7 @@ function reslickFeatured() {
 			console.log($(".featured_image_container").attr('class') + " includes slick");
 			$(".featured_image_container").eq(0).slick('unslick');
 		}
-		$(".featured_image_container").eq(0).slick(featured().slick);
+		$(".featured_image_container").eq(0).slick(slickCarousel.slick);
 
 	// }, 300);
 }
@@ -280,7 +281,7 @@ function reslickFeatured() {
 function reslickSwipeList() {
 	console.log('Reslicking!');
 	$(".location_switcher_swipe_list").slick('unslick');
-	$(".location_switcher_swipe_list").slick(featured().slickLocationSwitcher);
+	$(".location_switcher_swipe_list").slick(slickCarousel.slickLocationSwitcher);
 }
 
 function sendItemsToSearch(searchString) {
@@ -327,7 +328,7 @@ function sendItemsToSearch(searchString) {
 
 function markerVisibillity(object, visibillity) {
 	// console.log("HIDIIIIIIIIIIIIIIIIIIIIIIING " + object.koTitle());
-	object.visible2(visibillity);
+	object.koVisible(visibillity);
 	object.setVisible(visibillity);
 	// reslickSwipeList();
 }
@@ -861,11 +862,9 @@ function displayAvailableFeaturedContainer(locationIndex) {
 
 	populateFeatured(featured().displaying(), locationIndex);
 
-	reslickFeatured();
-
-	// (I think) because the Slick carousel is being initiated while it's not on-screen
-	// causes the slides to have their width set incorrectly. To solve this I just
-	// reslicked once more.
+	// (I think) if the Slick carousel is being initiated while it's not on-screen,
+	// the slides to have their width set incorrectly. To solve this I just delay
+	// the reslicking
 	setTimeout(function() {
 		reslickFeatured();
 	}, 300);
@@ -890,7 +889,6 @@ function minimizeFeaturedContainer() {
 	// resetZoomAndMap();
 }
 
-var getFeaturedIndex = 7;
 function displayBodyText(index) {
 	$('.article_body').eq(index).toggleClass('article_body_hidden');
 	$('.article_body_read_more').eq(index).toggleClass('article_body_read_more_hidden');
@@ -900,7 +898,7 @@ function displayBodyText(index) {
 // Populates the featured view with appropriate content.
 // Requires index of marker and the index of which featured container to populate.
 function populateFeatured(featuredIndex, markerIndex) {
-	featured().content[featuredIndex].contentIndex(markerIndex);
+	featured().container[featuredIndex].index(markerIndex);
 }
 
 function readMore(locationIndex) {
@@ -1185,7 +1183,7 @@ function initMap() {
 			// icon: pin,
 			index: i,
 			type: favoriteLocations[i].type,
-			visible2: ko.observable(true),
+			koVisible: ko.observable(true),
 			foursquareID: favoriteLocations[i].foursquareID,
 
 			// Wikipedia
