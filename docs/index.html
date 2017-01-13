@@ -63,7 +63,10 @@
 								</div>
 								<!-- ko if: foursquare.hasContent() -->
 									<div title="Prisrangeringa er henta frå Foursquare" class="article_extras_item">
-										<p data-bind="text: foursquare.price()"></p>
+										<p>
+											<i class="fa fa-credit-card" aria-hidden="true"></i>
+											<!-- ko text: foursquare.price() --><!-- /ko -->
+										</p>
 									</div>
 									<div title="Rangeringa er henta frå Foursquare" class="article_extras_item" data-bind="html: foursquare.rating"></div>
 								<!-- /ko -->
@@ -303,29 +306,29 @@
 				<input type="text" placeholder="Filter" class="location_switcher_search_field">
 				<div class="location_switcher_type_filter">
 					<!-- The data-bind is wrapped within a function to prevent it from being called on load -->
-					<div class="location_switcher_type_filter_instance" data-bind="click: function() { click: filter().type.toggleHike() }">
+					<div class="location_switcher_type_filter_instance" data-bind="click: function() { click: filter.type.toggleHike() }">
 						<p>
 							<i class="fa fa-compass fa-lg"></i>
 						</p>
-						<p class="side_text" data-bind="if: filter().type.hike()">
+						<p class="side_text" data-bind="if: filter.type.hike()">
 							Gåtur
 						</p>
 					</div>
 					<!-- The data-bind is wrapped within a function to prevent it from being called on load -->
-					<div class="location_switcher_type_filter_instance" data-bind="click: function() { click: filter().type.toggleRestaurant() }">
+					<div class="location_switcher_type_filter_instance" data-bind="click: function() { click: filter.type.toggleRestaurant() }">
 						<p>
 							<i class="fa fa-cutlery fa-lg"></i>
 						</p>
-						<p class="side_text" data-bind="if: filter().type.restaurant()">
+						<p class="side_text" data-bind="if: filter.type.restaurant()">
 							Spisesteder
 						</p>
 					</div>
 					<!-- The data-bind is wrapped within a function to prevent it from being called on load -->
-					<div class="location_switcher_type_filter_instance" data-bind="click: function() { click: filter().type.toggleLandmark() }">
+					<div class="location_switcher_type_filter_instance" data-bind="click: function() { click: filter.type.toggleLandmark() }">
 						<p>
 							<i class="fa fa-map-marker fa-lg"></i>
 						</p>
-						<p class="side_text" data-bind="if: filter().type.landmark()">
+						<p class="side_text" data-bind="if: filter.type.landmark()">
 							Severdigheter
 						</p>
 					</div>

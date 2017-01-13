@@ -9,9 +9,8 @@
 /*--------------------------------------------------------------
 >>> TABLE OF CONTENTS:
 ----------------------------------------------------------------
-# Normalize
-# Navigation
-	## Links
+# Defaults
+# On load events
 
 --------------------------------------------------------------*/
 
@@ -50,10 +49,11 @@ var slickCarousel = {
 		dots: false,
 		slidesToShow: 1,
 		centerMode: false,
-		variableWidth: false
+		variableWidth: false,
 	},
 
 	slickLocationSwitcher: {
+		speed: 300,
 		infinite: true,
 		slidesToShow: 1,
 		autoplay: false,
@@ -65,8 +65,9 @@ var slickCarousel = {
 	}
 };
 
-var filter = ko.observable({
+var filter = {
 	type: {
+
 		hike: ko.observable(false),
 		restaurant: ko.observable(false),
 		landmark: ko.observable(false),
@@ -87,6 +88,24 @@ var filter = ko.observable({
 		}
 	},
 
+	getKeywords: function(type) {
+		if(type === 'hike') {
+			return {
+				keywords: ['Fjelltur', 'Tur'],
+				icon: 'fa fa-compass fa-lg'
+			};
+		} else if(type === 'restaurant') {
+			return {
+				keywords: ['Restaurant'],
+				icon: 'fa fa-cutlery fa-lg'
+			};
+		} else if(type === 'landmark') {
+			return {
+				keywords: ['Severdighet'],
+				icon: 'fa fa-map-marker fa-lg'
+			};
+		}
+	},
 	active: function() {
 		if(this.type.hike() || this.type.restaurant() || this.type.landmark()) {
 			return true;
@@ -94,29 +113,16 @@ var filter = ko.observable({
 			return false;
 		}
 	},
-});
-
-var ViewModel = function() {
-	this.test = function() {
-		scroll(this.index);
-		toggleLocationSwitcherList();
-	};
-
-	$('#location_switcher_center').click(function() {
-		toggleLocationSwitcherList();
-	});
 };
 
-ko.applyBindings(new ViewModel());
 
+/*--------------------------------------------------------------
+# On load events
+--------------------------------------------------------------*/
 window.onload = function() {
-	// Initialize slick on featured views
-	console.log('Initialize slick carousels');
-	// $(".featured_image_container").slick(slickCarousel.slick);
-	console.log($(".featured_image_container").children().attr('class'));
-
 	// Initialize Slick on location switcher and add beforeChange listener
 	$(".location_switcher_swipe_list").slick(slickCarousel.slickLocationSwitcher);
+
 	$('.location_switcher_swipe_list').on('beforeChange', function(event, slick, currentSlide, nextSlide) {
 		// console.log(nextSlide);
 		focusMarker(nextSlide);
@@ -131,29 +137,27 @@ window.onload = function() {
 	// displayAvailableFeaturedContainer(0);
 };
 
-function getKeywords(type) {
-	if(type === 'hike') {
-		return {
-			keywords: ['Fjelltur', 'Tur'],
-			icon: 'fa fa-compass fa-lg'
-		};
-	} else if(type === 'restaurant') {
-		return {
-			keywords: ['Restaurant'],
-			icon: 'fa fa-cutlery fa-lg'
-		};
-	} else if(type === 'landmark') {
-		return {
-			keywords: ['Severdighet'],
-			icon: 'fa fa-map-marker fa-lg'
-		};
-	}
-}
+
+/*--------------------------------------------------------------
+# View Model
+--------------------------------------------------------------*/
+var ViewModel = function() {
+	this.test = function() {
+		scroll(this.index);
+		toggleLocationSwitcherList();
+	};
+
+	$('#location_switcher_center').click(function() {
+		toggleLocationSwitcherList();
+	});
+};
+
+ko.applyBindings(new ViewModel());
 
 var favoriteLocations = [
 	{
 		title: 'Sverd i fjell',
-		type: getKeywords('landmark'),
+		type: filter.getKeywords('landmark'),
 
 		location: {
 			lat: 58.9413738,
@@ -163,7 +167,7 @@ var favoriteLocations = [
 
 	{
 		title: 'Stavanger domkirke',
-		type: getKeywords('landmark'),
+		type: filter.getKeywords('landmark'),
 
 		location: {
 			lat: 58.9696008,
@@ -173,7 +177,7 @@ var favoriteLocations = [
 
 	{
 		title: 'Kjeragbolten',
-		type: getKeywords('hike'),
+		type: filter.getKeywords('hike'),
 
 		location: {
 			lat: 59.0346734,
@@ -183,7 +187,7 @@ var favoriteLocations = [
 
 	{
 		title: 'Preikestolen',
-		type: getKeywords('hike'),
+		type: filter.getKeywords('hike'),
 
 		location: {
 			lat: 58.9857634,
@@ -193,7 +197,7 @@ var favoriteLocations = [
 
 	{
 		title: 'Trolltunga',
-		type: getKeywords('hike'),
+		type: filter.getKeywords('hike'),
 
 		location: {
 			lat: 60.124167,
@@ -203,7 +207,7 @@ var favoriteLocations = [
 
 	{
 		title: 'Sauanuten',
-		type: getKeywords('hike'),
+		type: filter.getKeywords('hike'),
 
 		location: {
 			lat: 59.8274041,
@@ -213,7 +217,7 @@ var favoriteLocations = [
 
 	{
 		title: 'Ulriken',
-		type: getKeywords('hike'),
+		type: filter.getKeywords('hike'),
 
 		location: {
 			lat: 60.3774889,
@@ -223,7 +227,7 @@ var favoriteLocations = [
 
 	{
 		title: 'Big Horn Steak House',
-		type: getKeywords('restaurant'),
+		type: filter.getKeywords('restaurant'),
 
 		location: {
 			title: 'Haugesund',
@@ -234,7 +238,7 @@ var favoriteLocations = [
 
 	{
 		title: 'Døgnvill Burger',
-		type: getKeywords('restaurant'),
+		type: filter.getKeywords('restaurant'),
 		foursquareID: '52d679b111d25266c4e5516a',
 
 		location: {
@@ -246,7 +250,7 @@ var favoriteLocations = [
 
 	{
 		title: 'Godt Brød',
-		type: getKeywords('restaurant'),
+		type: filter.getKeywords('restaurant'),
 		foursquareID: '5437ab1a498eaaadad1694b3',
 
 		location: {
@@ -288,24 +292,24 @@ function sendItemsToSearch(searchString) {
 	var itemsToSearch = [];
 	for (var i = 0; i < markers().length; i++) {
 		// If a type filter is applied; only pass along the not filtered instances
-		if(filter().active()) {
+		if(filter.active()) {
 			// Make item invisible
 			// console.log("HIDIIIIIIIIIIIIIIIIIIIIIIING");
 			markerVisibillity(markers()[i], false);
 
 			// If filtering hikes; make item visible and push it to itemsToSearch
-			// if(filter().type.hike()) {
-				if(markers()[i].type.keywords[0] == 'Fjelltur' && filter().type.hike()) {
+			// if(filter.type.hike()) {
+				if(markers()[i].type.keywords[0] == 'Fjelltur' && filter.type.hike()) {
 					markerVisibillity(markers()[i], true);
 					// console.log("Pushing " + markers()[i].koTitle());
 					itemsToSearch.push({title: markers()[i].koTitle().toLowerCase(), index: i});
 
-				} else if(markers()[i].type.keywords[0] == 'Restaurant' && filter().type.restaurant()) {
+				} else if(markers()[i].type.keywords[0] == 'Restaurant' && filter.type.restaurant()) {
 					markerVisibillity(markers()[i], true);
 					// console.log("Pushing " + markers()[i].koTitle());
 					itemsToSearch.push({title: markers()[i].koTitle().toLowerCase(), index: i});
 
-				} else if(markers()[i].type.keywords[0] == 'Severdighet' && filter().type.landmark()) {
+				} else if(markers()[i].type.keywords[0] == 'Severdighet' && filter.type.landmark()) {
 					markerVisibillity(markers()[i], true);
 					// console.log("Pushing " + markers()[i].koTitle());
 					itemsToSearch.push({title: markers()[i].koTitle().toLowerCase(), index: i});
@@ -316,7 +320,7 @@ function sendItemsToSearch(searchString) {
 			// }
 		} else {
 			markerVisibillity(markers()[i], true);
-			// console.log("filter().active() = " + filter().active() + ", pushing: " + markers()[i].koTitle());
+			// console.log("filter.active() = " + filter.active() + ", pushing: " + markers()[i].koTitle());
 			itemsToSearch.push({title: markers()[i].koTitle().toLowerCase(), index: i});
 		}
 	}
@@ -515,11 +519,9 @@ function getExternalResources() {
 					// Removes the function wrapping and creates a JavaScript object
 					// from the JSON recieved from Flickr.
 					var responseJson = JSON.parse(response.slice(14, response.length - 1));
-					// console.log(responseJson);
 
 					for (var j = 0; j < ajax.flickr.imgCount; j++) {
 						(function(j, i) {
-							// console.log("running!");
 							$.ajax({
 								url: ajax.flickr.url + '?&?callback=?',
 								dataType: 'text',
@@ -532,12 +534,14 @@ function getExternalResources() {
 							})
 
 							.done(function(response2) {
-								// Removes the function wrapping and creates a JavaScript object
-								// from the JSON recieved from Flickr.
-								var response2Json = JSON.parse(response2.slice(14, response2.length - 1));
+								if(responseJson.photos.photo[j]) {
+									// Removes the function wrapping and creates a JavaScript object
+									// from the JSON recieved from Flickr.
+									var response2Json = JSON.parse(response2.slice(14, response2.length - 1));
 
-								// console.log(response2Json);
-								markers()[i].flickr.img().push({url: response2Json.sizes.size[5].source, credit: {name: responseJson.photos.photo[j].ownername}});
+									// console.log(response2Json);
+									markers()[i].flickr.img().push({url: response2Json.sizes.size[5].source, credit: {name: responseJson.photos.photo[j].ownername}});
+								}
 							})
 
 							.fail(function(jqxhr, textStatus, error) {
@@ -1325,6 +1329,7 @@ function initMap() {
 }
 
 function toggleBounce(obj) {
+	console.log('Toggeled!');
 	if(obj.getAnimation() !== null) {
 		obj.setAnimation(null);
 	} else {
