@@ -25,7 +25,7 @@
 		<!-- /Plug-in scripts -->
 	</head>
 	<body>
-		<!-- ko with: markers()[featured().container[0].index()] -->
+		<!-- ko with: markers()[displays.featured.container[0].index()] -->
 			<article class="featured_container featured_container_hidden">
 				<header>
 					<div class="featured_minimize" data-bind="click: minimizeFeaturedContainer">
@@ -75,7 +75,10 @@
 					</div>
 				</header>
 				<!-- ko if: wikipedia.hasContent() -->
-					<div class="article_body article_body_hidden">
+					<!-- ko if: wikipedia.error.hasError() -->
+						<!-- ko text: wikipedia.error.message() --><!-- /ko -->
+					<!-- /ko -->
+					<div class="article_body" data-bind="css: wikipedia.bodyText().length + wikipedia.ingress().length > 100 ? 'article_body_hidden' : ''">
 						<div class="article_body_read_more"></div>
 						<p class="ingress" data-bind="html: wikipedia.ingress()"></p>
 						<p class="body_text" data-bind="html: wikipedia.bodyText()"></p>
@@ -83,7 +86,7 @@
 							<cite>Henta frå <a href="" data-bind="attr: { href: wikipedia.url }">Wikipedia</a></cite>
 						</p>
 					</div>
-					<div class="full_width_button article_body_read_more_button" onclick="displayBodyText(0)">
+					<div class="full_width_button article_body_read_more_button" onclick="displayBodyText(0)" data-bind="css: wikipedia.bodyText().length + wikipedia.ingress().length > 100 ? '' : 'article_body_read_more_button_hidden'">
 						Les meir
 					</div>
 				<!-- /ko -->
@@ -107,7 +110,7 @@
 											Navn Navnesen
 										</h4>
 										<div class="foursquare_tip_body_text" data-bind="text: text">
-											Her kommer et lite tips.
+											Her kjem eit lite tips.
 										</div>
 										<div class="foursquare_tip_extras">
 											<!-- ko if: $parent.tipIsPositive -->
@@ -131,6 +134,8 @@
 									<div class="clear"></div>
 								</div>
 							<!-- /ko -->
+							<br>
+							<cite>Henta frå <a href="https://foursquare.com/">Foursquare</a></cite>
 						<!-- /ko -->
 					</div>
 				<!-- /ko -->
@@ -174,7 +179,7 @@
 
 
 
-		<!-- ko with: markers()[featured().container[1].index()] -->
+		<!-- ko with: markers()[displays.featured.container[1].index()] -->
 			<article class="featured_container featured_container_hidden">
 				<header>
 					<div class="featured_minimize" data-bind="click: minimizeFeaturedContainer">
@@ -301,8 +306,8 @@
 		</div>
 		<div id="map"></div>
 
-		<div class="location_switcher_container">
-			<div class="location_switcher_list_container">
+		<div class="location_switcher_container" data-bind="css: displays.locationSwitcher.displaying() == true ? '' : 'location_switcher_container_hidden'">
+			<div class="location_switcher_list_container" data-bind="css: displays.locationList.displaying() == true ? '' : 'location_switcher_list_container_hidden'">
 				<input type="text" placeholder="Filter" class="location_switcher_search_field">
 				<div class="location_switcher_type_filter">
 					<!-- The data-bind is wrapped within a function to prevent it from being called on load -->
@@ -337,7 +342,7 @@
 					<!-- ko if: koVisible -->
 						<li data-bind="click: $root.test">
 							<h2 class="location_switcher_list_title" data-bind="text: koTitle()"></h2>
-							<p class="location_switcher_list_type" data-bind="click: $root.test">
+							<p class="location_switcher_list_type">
 								<i data-bind="attr: { class: type.icon }"></i>
 								<!-- ko text: type.keywords[0] --><!-- /ko -->
 							</p>

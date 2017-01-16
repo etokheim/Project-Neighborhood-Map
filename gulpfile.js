@@ -74,8 +74,9 @@ gulp.task('get-slick-carousel', function() {
 	gulp.src('./node_modules/slick-carousel/slick/*.css')
 		.pipe(gulp.dest('./docs/css/plug-ins/'));
 
-	gulp.src('./node_modules/slick-carousel/slick/*.min.js')
-		.pipe(gulp.dest('./docs/js/plug-ins/'));
+	// Modified manually, should not be overwritten
+	// gulp.src('./node_modules/slick-carousel/slick/*.min.js')
+	// 	.pipe(gulp.dest('./docs/js/plug-ins/'));
 
 	gulp.src('./node_modules/slick-carousel/slick/*.gif')
 		.pipe(gulp.dest('./docs/img/plug-ins/'));
