@@ -90,7 +90,7 @@ Article
 }
 
 .article_body_hidden {
-	max-height: 200px;
+	max-height: 150px;
 	overflow: hidden;
 	position: relative;
 }
@@ -100,6 +100,7 @@ Article
 	height: 100px;
 	position: absolute;
 	bottom: 0;
+	pointer-events: none;
 
 	/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,ffffff+100&0+1,1+100 */
 	background: -moz-linear-gradient(top,  rgba(255,255,255,0) 0%, rgba(255,255,255,0) 1%, rgba(255,255,255,1) 100%); /* FF3.6-15 */
@@ -184,7 +185,7 @@ cite a {
 .article_extras {
 	height: auto;
 	width: 100%;
-	min-width: 380px;
+	min-width: 379px;
 	/*background-color: #eee;*/
 	margin: 0px 0 1rem;
 	display: flex;

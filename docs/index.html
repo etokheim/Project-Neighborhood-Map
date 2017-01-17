@@ -26,25 +26,27 @@
 	</head>
 	<body>
 		<!-- ko with: markers()[displays.featured.container[0].index()] -->
-			<article class="featured_container featured_container_hidden">
+			<article class="featured_container" data-bind="css: { featured_container_minimized: displays.featured.container[0].minimized(), featured_container_hidden: !displays.featured.container[0].displaying() }">
 				<header>
-					<div class="featured_minimize" data-bind="click: minimizeFeaturedContainer">
+					<div class="featured_minimize" data-bind="click: displays.featured.minimize">
 						<i class="fa fa-window-minimize" aria-hidden="true"></i>
 					</div>
-					<div class="featured_close" data-bind="click: hideFeaturedContainer">
+					<div class="featured_close" data-bind="click: displays.featured.hide">
 						<i class="fa fa-times fa-lg"></i>
 					</div>
-					<div class="featured_image_container" data-bind="foreach: getImages()">
-						<figure class="featured_image_figure">
-							<img data-bind="attr: { src: url, alt: 'Bilete av ' + $parent.title }">
-							<figcaption>
-								<i class="fasdf fa fa-info-circle" aria-hidden="true"></i>
-								<div class="img_credit" data-bind="attr: { style: 'width: ' + credit.name.length * 12 + 'px;' }">
-									<i class="fa fa-copyright" aria-hidden="true"></i> <!-- ko text: credit.name -->Namn Namnesen<!-- /ko -->
-								</div>
-							</figcaption>
-						</figure>
-					</div>
+					<!-- ko if: flickr.hasContent() || foursquare.hasContent() -->
+						<div class="featured_image_container" data-bind="foreach: getImages()">
+							<figure class="featured_image_figure">
+								<img data-bind="attr: { src: url, alt: 'Bilete av ' + $parent.title }">
+								<figcaption>
+									<i class="fasdf fa fa-info-circle" aria-hidden="true"></i>
+									<div class="img_credit" data-bind="attr: { style: 'width: ' + credit.name.length * 12 + 'px;' }">
+										<i class="fa fa-copyright" aria-hidden="true"></i> <!-- ko text: credit.name -->Namn Namnesen<!-- /ko -->
+									</div>
+								</figcaption>
+							</figure>
+						</div>
+					<!-- /ko -->
 
 					<div class="">
 						<h1 class="article_heading" data-bind="text: title"></h1>
@@ -78,15 +80,15 @@
 					<!-- ko if: wikipedia.error.hasError() -->
 						<!-- ko text: wikipedia.error.message() --><!-- /ko -->
 					<!-- /ko -->
-					<div class="article_body" data-bind="css: wikipedia.bodyText().length + wikipedia.ingress().length > 100 ? 'article_body_hidden' : ''">
-						<div class="article_body_read_more"></div>
+					<div title="Dobbelklikk for å visa/skjula innhaldet" class="article_body" data-bind="css: { article_body_hidden: !displays.featured.wikipedia.displaying() }">
+						<div class="article_body_read_more" data-bind="css: { article_body_read_more_hidden: displays.featured.wikipedia.displaying() }"></div>
 						<p class="ingress" data-bind="html: wikipedia.ingress()"></p>
 						<p class="body_text" data-bind="html: wikipedia.bodyText()"></p>
 						<p>
 							<cite>Henta frå <a href="" data-bind="attr: { href: wikipedia.url }">Wikipedia</a></cite>
 						</p>
 					</div>
-					<div class="full_width_button article_body_read_more_button" onclick="displayBodyText(0)" data-bind="css: wikipedia.bodyText().length + wikipedia.ingress().length > 100 ? '' : 'article_body_read_more_button_hidden'">
+					<div class="full_width_button article_body_read_more_button" data-bind="click: displays.featured.wikipedia.toggle, text: displays.featured.wikipedia.displaying() === false ? 'Les meir' : 'Gøym artikkel'">
 						Les meir
 					</div>
 				<!-- /ko -->
@@ -182,10 +184,10 @@
 		<!-- ko with: markers()[displays.featured.container[1].index()] -->
 			<article class="featured_container featured_container_hidden">
 				<header>
-					<div class="featured_minimize" data-bind="click: minimizeFeaturedContainer">
+					<div class="featured_minimize" data-bind="click: displays.featured.minimize">
 						<i class="fa fa-window-minimize" aria-hidden="true"></i>
 					</div>
-					<div class="featured_close" data-bind="click: hideFeaturedContainer">
+					<div class="featured_close" data-bind="click: displays.featured.hide">
 						<i class="fa fa-times fa-lg"></i>
 					</div>
 					<div class="featured_image_container" data-bind="foreach: getImages()">

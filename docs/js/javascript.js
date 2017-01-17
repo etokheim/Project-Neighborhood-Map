@@ -70,11 +70,13 @@ var displays = {
 		container: [
 			{
 				displaying: ko.observable(false),
+				minimized: ko.observable(false),
 				index: ko.observable(0),
 			},
 
 			{
 				displaying: ko.observable(false),
+				minimized: ko.observable(false),
 				index: ko.observable(0)
 			}
 		],
@@ -88,17 +90,32 @@ var displays = {
 					displays.featured.container[index].displaying(!displays.featured.container[index].displaying());
 				}
 
-				$('.featured_container').eq(index).toggleClass('featured_container_hidden');
-				$('.featured_container').eq(index).removeClass('featured_container_minimized');
+				displays.featured.container[index].minimized(false);
 
-				if($('.featured_minimize').css('display') !== 'none') {
-					$('.featured_container').eq(index).toggleClass('featured_container_minimized');
+				if(screen.size() == 'small') {
+					displays.featured.container[index].minimized(true);
 
 					setTimeout(function() {
-						$('.featured_container').eq(index).removeClass('featured_container_minimized');
+						displays.featured.container[index].minimized(false);
 					}, 3000);
 				}
 			}, 1);
+		},
+
+		hide: function() {
+			displays.locationSwitcher.toggle();
+
+			displays.featured.container[displays.featured.displaying()].displaying(false);
+			displays.featured.displaying(false);
+
+			// Collapses the Wikipedia text into the read more state
+			displays.featured.wikipedia.displaying(false);
+
+			resetZoomAndMap();
+		},
+
+		minimizeFeaturedContainer: function() {
+			displays.featured.container[displays.featured.displaying()].minimized(false);
 		},
 
 		toggleAvailable: function(locationIndex) {
@@ -120,16 +137,47 @@ var displays = {
 				displays.featured.toggle(0);
 			}
 
-			populateFeatured(displays.featured.displaying(), locationIndex);
+			displays.featured.populate(displays.featured.displaying(), locationIndex);
+			
+			// Binds a double click event to the article body which toggles
+			// its display.
+			$('.article_body').on('dblclick', function(event) {
+				displays.featured.wikipedia.toggle();
+
+				// Deselect text (if some was selected by the double click)
+				// "event.preventDefault();" or "return false;" didn't work.
+				// Credit to Gert Grenander (http://stackoverflow.com/questions/3169786/clear-text-selection-with-javascript)
+				if (window.getSelection) {
+					if (window.getSelection().empty) {  // Chrome
+						window.getSelection().empty();
+					} else if (window.getSelection().removeAllRanges) {  // Firefox
+						window.getSelection().removeAllRanges();
+					}
+				}
+			});
 
 			// (I think) if the Slick carousel is being initiated while it's not on-screen,
-			// the slides to have their width set incorrectly. To solve this I just delay
+			// the slides will have their width set incorrectly. To solve this I just delay
 			// the reslicking
 			setTimeout(function() {
 				slickCarousel.reslick($(".featured_image_container"), slickCarousel.featuredSettings);
 			}, 300);
 
-		}
+		},
+
+		// Populates the featured view with appropriate content.
+		// Requires index of marker and the index of which featured container to populate.
+		populate: function(featuredIndex, markerIndex) {
+			displays.featured.container[featuredIndex].index(markerIndex);
+		},
+
+		wikipedia: {
+			displaying: ko.observable(false),
+
+			toggle: function(index) {
+				displays.featured.wikipedia.displaying(!displays.featured.wikipedia.displaying());
+			}
+		},
 	}
 };
 
@@ -308,8 +356,6 @@ window.onload = function() {
 	setTimeout(function() {
 		displays.locationList.toggle();
 	}, 500);
-
-
 };
 
 
@@ -332,6 +378,7 @@ $('.location_switcher_swipe_list').on('beforeChange', function(event, slick, cur
 	// console.log(nextSlide);
 	focusMarker(nextSlide);
 });
+
 
 
 /*--------------------------------------------------------------
@@ -514,10 +561,11 @@ var ajax = {
 				})
 
 				.done(function(response) {
+					var marker = markers()[i];
+
 					// Gets the name of the first property name of the object (Since we don't have the
 					// page ID - which is the name of the property)
 					var firstPropertyName = Object.getOwnPropertyNames(response.query.pages)[0];
-					// console.log("firstPropertyName = " + firstPropertyName);
 
 					// Gets the object we want the first property of
 					var canDo = response.query.pages;
@@ -532,7 +580,7 @@ var ajax = {
 
 					// If Wikipedia had an article about it
 					if(articleText) {
-						markers()[i].wikipedia.hasContent(true);
+						marker.wikipedia.hasContent(true);
 
 						// If first paragraph is empty; use the second one.
 						// Else use the first one.
@@ -556,17 +604,19 @@ var ajax = {
 						}
 					}
 
-					markers()[i].wikipedia.ingress(ingress);
-					markers()[i].wikipedia.bodyText(bodyText);
+					marker.wikipedia.ingress(ingress);
+					marker.wikipedia.bodyText(bodyText);
 
-					markers()[i].wikipedia.url(canDo[firstPropertyName].fullurl);
+					marker.wikipedia.url(canDo[firstPropertyName].fullurl);
 
 				})
 
 				.fail(function( xhr, status, errorThrown ) {
-					console.log( "Wikipedia not responding!" );
-					markers()[i].wikipedia.hasContent(true);
-					markers()[i].wikipedia.error.hasError(true);
+					var marker = markers()[i];
+
+					console.error( "Wikipedia is not responding! (Error code: " + xhr.status + ")" );
+					marker.wikipedia.hasContent(true);
+					marker.wikipedia.error.hasError(true);
 				});
 			})(i);
 
@@ -615,26 +665,30 @@ var ajax = {
 
 								.done(function(response2) {
 									if(responseJson.photos.photo[j]) {
+										var marker = markers()[i];
+
 										// Removes the function wrapping and creates a JavaScript object
 										// from the JSON recieved from Flickr.
 										var response2Json = JSON.parse(response2.slice(14, response2.length - 1));
 
-										// console.log(response2Json);
-										markers()[i].flickr.img().push({url: response2Json.sizes.size[5].source, credit: {name: responseJson.photos.photo[j].ownername}});
+										marker.flickr.img().push({url: response2Json.sizes.size[5].source, credit: {name: responseJson.photos.photo[j].ownername}});
+
+										marker.flickr.hasContent(true);
 									}
 								})
 
-								.fail(function(jqxhr, textStatus, error) {
+								.fail(function(xhr, textStatus, error) {
 								});
 							})(j, i);
 						}
 					})
 
 					.fail(function( xhr, status, errorThrown ) {
-						console.log( "Flickr not responding!" );
+						console.error("Flickr is not responding! (Error code: " + xhr.status + ")");
 						var marker = markers()[i];
 
-						marker.foursquare.error.hasError(true);
+						marker.flickr.error.hasError(true);
+						marker.flickr.hasContent(true);
 					});
 				})(i);
 			}
@@ -663,16 +717,18 @@ var ajax = {
 						})
 
 						.done(function(response) {
+							var marker = markers()[i];
+
 							var matches = 0;
 
 							// If the response contains a venue name equal to the markers title; use that
 							for (var j = 0; j < response.response.venues.length; j++) {
-								if(response.response.venues[j].name == markers()[i].koTitle()) {
+								if(response.response.venues[j].name == marker.koTitle()) {
 									matches++;
 
 									var venue = response.response.venues[j];
 
-									markers()[i].foursquareID = venue.id;
+									marker.foursquareID = venue.id;
 
 									setMarkerVenue(venue.id, i);
 								}
@@ -685,7 +741,7 @@ var ajax = {
 						})
 
 						.fail(function( xhr, status, errorThrown ) {
-							console.log( 'Foursquare not responding!' );
+							console.error( "Foursquare is not responding! (Error code: " + xhr.status + ")" );
 							var marker = markers()[i];
 
 							marker.foursquare.hasContent(true);
@@ -708,7 +764,6 @@ var ajax = {
 						})
 
 						.done(function(response) {
-							console.log(response);
 							var marker = markers()[i];
 							var venue = response.response.venue;
 							var venuePhotos = venue.photos.groups[0].items;
@@ -729,7 +784,7 @@ var ajax = {
 								var lastName = photoObject.user.lastName || '';
 
 								imgUrl = photoObject.prefix + "483x250" + photoObject.suffix;
-								imgCredit = {name: firstName + ' ' + lastName};
+								imgCredit = { name: firstName + ' ' + lastName };
 
 								marker.foursquare.img().push({
 									url: imgUrl,
@@ -741,65 +796,15 @@ var ajax = {
 							marker.foursquare.calculate();
 						})
 
-						.fail(function(jqxhr, textStatus, error) {
-							// console.log(jqxhr + ", " + textStatus + ", " + error);
-							// console.log("fail2");
-							// console.log(jqxhr);
-							// markers()[i].foursquare.hasContent(true);
-							console.log( 'Foursquare not responding!' );
-
+						.fail(function(xhr, textStatus, error) {
 							var marker = markers()[i];
+							
+							console.error( "Foursquare is not responding! (Error code: " + xhr.status + ")" );
 
 							marker.foursquare.hasContent(true);
 							marker.foursquare.error.hasError(true);
 						});
 					};
-
-					// Get venue photos
-					function getVenuePhotos(id, storedI) {
-						(function(storedI) {
-							console.log("running!" + id + ", " + storedI);
-							$.ajax({
-								url: ajax.foursquare.url + 'venues/' + id + '/photos',
-								dataType: 'json',
-								data: {
-									v: Date.now(),
-									ll: markers()[storedI].position.lat() + ',' + markers()[storedI].position.lng(),
-									format: 'json',
-									sort: 'popular',
-									client_id: ajax.foursquare.client_id,
-									client_secret: ajax.foursquare.client_secret,
-								}
-							})
-
-							.done(function(response2) {
-								// console.log("Getting venue photos! " + id + " i = " + storedI);
-								// console.log(response2);
-								var marker = markers()[storedI];
-								var imgUrl;
-								var imgCredit;
-
-								for (var i = 0; i < response2.response.photos.items.length; i++) {
-									var photoObject = response2.response.photos.items[i];
-									imgUrl = photoObject.prefix + "483x250" + photoObject.suffix;
-									imgCredit = {name: photoObject.user.firstName + ' ' + photoObject.user.lastName};
-
-									marker.foursquare.img().push({
-										url: imgUrl,
-										credit: imgCredit
-									});
-								}
-							})
-
-							.fail(function(jqxhr, textStatus, error) {
-								// console.log(jqxhr + ", " + textStatus + ", " + error);
-								console.log("fail2");
-								console.log(jqxhr);
-
-
-							});
-						})(storedI);
-					}
 				}
 			}
 
@@ -830,7 +835,7 @@ var ajax = {
 			// })(i);
 
 			// Openweathermap ajax calls
-			if (markers()[i].type.keywords[0] == 'Fjelltur') {
+			if(markers()[i].type.keywords[0] == 'Fjelltur') {
 				(function(i) {
 					$.ajax({
 						url: ajax.openweathermap.url + 'data/2.5/forecast?',
@@ -850,9 +855,7 @@ var ajax = {
 					})
 
 					.fail(function( xhr, status, errorThrown ) {
-						console.log( "Error: " + errorThrown );
-						console.log( "Status: " + status );
-						console.dir( xhr );
+						console.error( "OpenWeatherMaps are not responding! (Error code: " + xhr.status + ")" );
 
 						markers()[i].openweathermap.hasContent(true);
 						markers()[i].openweathermap.error.hasError(true);
@@ -864,44 +867,16 @@ var ajax = {
 };
 
 
-
-function hideFeaturedContainer() {
-	$('.featured_container').eq(displays.featured.displaying()).toggleClass('featured_container_hidden');
-	displays.locationSwitcher.toggle();
-
-	displays.featured.displaying(false);
-
-	resetZoomAndMap();
-}
-
-function minimizeFeaturedContainer() {
-	$('.featured_container').eq(displays.featured.displaying()).toggleClass('featured_container_minimized');
-	// displays.locationSwitcher.toggle();
-
-	// displays.featured.displaying(false);
-
-	// resetZoomAndMap();
-}
-
-function displayBodyText(index) {
-	$('.article_body').eq(index).toggleClass('article_body_hidden');
-	$('.article_body_read_more').eq(index).toggleClass('article_body_read_more_hidden');
-	$('.article_body_read_more_button').eq(index).toggleClass('article_body_read_more_button_hidden');
-}
-
-// Populates the featured view with appropriate content.
-// Requires index of marker and the index of which featured container to populate.
-function populateFeatured(featuredIndex, markerIndex) {
-	displays.featured.container[featuredIndex].index(markerIndex);
-}
-
+/*--------------------------------------------------------------
+# Google Maps related
+--------------------------------------------------------------*/
 function readMore(locationIndex) {
-	// console.log(locationIndex);
 	displays.featured.toggleAvailable(locationIndex);
 	infoWindow.closeAll();
 
 	zoomToMarker(locationIndex);
 }
+
 
 function zmoothZoom(newZoom, latlng, offsetX, offsetY, locationIndex) {
 	var oldZoom = map.zoom;
@@ -1018,6 +993,9 @@ function moveToMarker(marker) {
 	map.panTo(coordinates);
 }
 
+/*--------------------------------------------------------------
+## Info window
+--------------------------------------------------------------*/
 var infoWindow = {
 	populate: function(marker, infowindow) {
 		// If marker does not have an infoWindow; make one
@@ -1063,6 +1041,18 @@ var infoWindow = {
 	}
 };
 
+function toggleBounce(marker) {
+	if(marker.getAnimation() !== null) {
+		marker.setAnimation(null);
+	} else {
+		marker.setAnimation(google.maps.Animation.BOUNCE);
+	}
+}
+
+
+/*--------------------------------------------------------------
+# Google Maps
+--------------------------------------------------------------*/
 function initMap() {
 	console.log("creating map");
 
@@ -1162,27 +1152,28 @@ function initMap() {
 
 				error: {
 					hasError: ko.observable(false),
-					message: ko.observable('Wikipedia svarar ikkje, prøv igjen seinare')
+					message: ko.observable('Kunne ikkje nå Wikipedia. Dersom du trur det er ein feil i programmet; vennligst ta kontakt og vis til feilmeldingane i konsollen. (f12).')
 				}
 			},
 
 			// Flickr
 			flickr: {
 				img: ko.observableArray([]),
+				hasContent: ko.observable(false),
 				error: {
 					hasError: ko.observable(false),
 
-					img: ko.observable({
+					img: ko.observableArray([{
 						url: 'img/flickr-error.svg',
 						credit: { name: 'Kan ikkje nå Flickr' }
-					})
+					}])
 				}
 			},
 
 			foursquare: {
 				error: {
 					hasError: ko.observable(false),
-					message: ko.observable('Foursquare svarar ikkje!'),
+					message: ko.observable('Kunne ikkje nå Foursquare. Dersom du trur det er ein feil i programmet; vennligst ta kontakt og vis til feilmeldingane i konsollen. (f12).'),
 					img: ko.observableArray([{
 						url: 'img/foursquare-error.svg',
 						credit: { name: 'Kan ikkje nå Foursquare' }
@@ -1205,7 +1196,6 @@ function initMap() {
 
 					// Converts the ten star rating to five stars
 					var fiveRating = Math.round(tenRating / 2);
-					console.log(tenRating + ", " + fiveRating);
 
 					for (var i = 0; i < 5; i++) {
 						if(fiveRating > i) {
@@ -1216,9 +1206,9 @@ function initMap() {
 					}
 				},
 
+				// Gets the price class and translate it to Norwegian.
 				getPrice: function() {
 					var priceTier = this.venue().price.tier;
-					console.log(priceTier);
 
 					if(priceTier == 1) {
 						this.price('Billig');
@@ -1231,6 +1221,8 @@ function initMap() {
 					}
 				},
 
+				// Populates marker data.
+				// Called when Ajax request is finished.
 				calculate: function() {
 					this.getRating();
 					this.getPrice();
@@ -1243,7 +1235,7 @@ function initMap() {
 
 				error: {
 					hasError: ko.observable(false),
-					message: ko.observable('Kunne ikkje nå OpenWeatherMaps. Dersom du trur det er ein feil i programmet; ta kontakt og vis til feilmeldingane i konsollen (f12).'),
+					message: ko.observable('Kunne ikkje nå OpenWeatherMaps. Dersom du trur det er ein feil i programmet; vennligst ta kontakt og vis til feilmeldingane i konsollen. (f12).'),
 				}
 			},
 
@@ -1252,6 +1244,8 @@ function initMap() {
 					return this.foursquare.error.img();
 				} else if(this.foursquare.hasContent()) {
 					return this.foursquare.img();
+				} else if(this.flickr.error.hasError()) {
+					return this.flickr.error.img();
 				} else {
 					return this.flickr.img();
 				}
@@ -1307,13 +1301,4 @@ function initMap() {
 
 	displayMarkers();
 	ajax.getExternalResources();
-}
-
-function toggleBounce(obj) {
-	console.log('Toggeled!');
-	if(obj.getAnimation() !== null) {
-		obj.setAnimation(null);
-	} else {
-		obj.setAnimation(google.maps.Animation.BOUNCE);
-	}
 }
