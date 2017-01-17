@@ -9,11 +9,48 @@
 /*--------------------------------------------------------------
 >>> TABLE OF CONTENTS:
 ----------------------------------------------------------------
+# Settings
 # Defaults
 # On load events
 	## Bindings
 
 --------------------------------------------------------------*/
+
+/*--------------------------------------------------------------
+# Settings
+--------------------------------------------------------------*/
+var settings = {
+	// If small screens; this value dictates the delay time
+	// till the featured view maximizes itself
+	featuredMaximizeDelay: 750,
+
+	slick: {
+		featured: {
+			infinite: true,
+			slidesToShow: 1,
+			autoplay: true,
+			autoplaySpeed: 5000,
+			draggable: true,
+			arrows: true,
+			dots: false,
+			slidesToShow: 1,
+			centerMode: false,
+			variableWidth: false,
+		},
+
+		locationSwitcher: {
+			speed: 300,
+			infinite: true,
+			slidesToShow: 1,
+			autoplay: false,
+			draggable: true,
+			arrows: true,
+			dots: false,
+			nextArrow: $('.location_switcher_arrow')[1],
+			prevArrow: $('.location_switcher_arrow')[0],
+		}
+	}
+}
 
 
 /*--------------------------------------------------------------
@@ -94,10 +131,6 @@ var displays = {
 
 				if(screen.size() == 'small') {
 					displays.featured.container[index].minimized(true);
-
-					setTimeout(function() {
-						displays.featured.container[index].minimized(false);
-					}, 3000);
 				}
 			}, 1);
 		},
@@ -114,7 +147,15 @@ var displays = {
 			resetZoomAndMap();
 		},
 
-		minimizeFeaturedContainer: function() {
+		toggleMinimize: function() {
+			displays.featured.container[displays.featured.displaying()].minimized(!displays.featured.container[displays.featured.displaying()].minimized());
+		},
+
+		minimize: function() {
+			displays.featured.container[displays.featured.displaying()].minimized(false);
+		},
+
+		maximize: function() {
 			displays.featured.container[displays.featured.displaying()].minimized(false);
 		},
 
@@ -160,7 +201,7 @@ var displays = {
 			// the slides will have their width set incorrectly. To solve this I just delay
 			// the reslicking
 			setTimeout(function() {
-				slickCarousel.reslick($(".featured_image_container"), slickCarousel.featuredSettings);
+				slickCarousel.reslick($(".featured_image_container"), settings.slick.featured);
 			}, 300);
 
 		},
@@ -182,31 +223,6 @@ var displays = {
 };
 
 var slickCarousel = {
-	featuredSettings: {
-		infinite: true,
-		slidesToShow: 1,
-		autoplay: true,
-		autoplaySpeed: 5000,
-		draggable: true,
-		arrows: true,
-		dots: false,
-		slidesToShow: 1,
-		centerMode: false,
-		variableWidth: false,
-	},
-
-	locationSwitcherSettings: {
-		speed: 300,
-		infinite: true,
-		slidesToShow: 1,
-		autoplay: false,
-		draggable: true,
-		arrows: true,
-		dots: false,
-		nextArrow: $('.location_switcher_arrow')[1],
-		prevArrow: $('.location_switcher_arrow')[0],
-	},
-
 	// Reinitialize slick (slick breaks on content change)
 	// Initialized in window.onload function
 	reslick: function(element, settings) {
@@ -350,7 +366,7 @@ filter.apply($('.location_switcher_search_field').val());
 --------------------------------------------------------------*/
 window.onload = function() {
 	// Initialize Slick on location switcher and add beforeChange listener
-	slickCarousel.reslick($(".location_switcher_swipe_list"), slickCarousel.locationSwitcherSettings);
+	slickCarousel.reslick($(".location_switcher_swipe_list"), settings.slick.locationSwitcher);
 
 	// Hides the list after the user has seen it
 	setTimeout(function() {
@@ -378,7 +394,6 @@ $('.location_switcher_swipe_list').on('beforeChange', function(event, slick, cur
 	// console.log(nextSlide);
 	focusMarker(nextSlide);
 });
-
 
 
 /*--------------------------------------------------------------
@@ -850,15 +865,19 @@ var ajax = {
 					})
 
 					.done(function(response) {
-						markers()[i].openweathermap.data(response);
-						markers()[i].openweathermap.hasContent(true);
+						var marker = markers()[i];
+
+						marker.openweathermap.data(response);
+						marker.openweathermap.hasContent(true);
 					})
 
 					.fail(function( xhr, status, errorThrown ) {
+						var marker = markers()[i];
+
 						console.error( "OpenWeatherMaps are not responding! (Error code: " + xhr.status + ")" );
 
-						markers()[i].openweathermap.hasContent(true);
-						markers()[i].openweathermap.error.hasError(true);
+						marker.openweathermap.hasContent(true);
+						marker.openweathermap.error.hasError(true);
 					});
 				})(i);
 			}
@@ -878,25 +897,30 @@ function readMore(locationIndex) {
 }
 
 
-function zmoothZoom(newZoom, latlng, offsetX, offsetY, locationIndex) {
+function zmoothZoom(newZoom, latlng, offsetX, offsetY, locationIndex, callback) {
+	callback = callback || function() {};
 	var oldZoom = map.zoom;
 	var zoomDifference = Math.abs(oldZoom) - Math.abs(newZoom);
 	var zoomDirection;
 
+	// Determine zoom direction.
 	if(oldZoom < newZoom) {
 		zoomDirection = 1;
 	} else {
 		zoomDirection = -1;
 	}
 
+	// If remaining zoom > 1; call this function again.
 	if(Math.abs(zoomDifference) > 1) {
 		map.panTo(getOffsetCenter(latlng, offsetX, offsetY));
 		setTimeout(function() {
-			zmoothZoom(newZoom, latlng, offsetX, offsetY, locationIndex);
+			zmoothZoom(newZoom, latlng, offsetX, offsetY, locationIndex, callback);
 			map.setZoom(oldZoom + 1 * zoomDirection);
 
 			map.setCenter(getOffsetCenter(latlng, offsetX, offsetY));
 		}, 250);
+
+	// Else stop zooming and fire callback function
 	} else {
 		map.setZoom(newZoom);
 		map.setCenter(getOffsetCenter(latlng, offsetX, offsetY));
@@ -907,7 +931,13 @@ function zmoothZoom(newZoom, latlng, offsetX, offsetY, locationIndex) {
 			} else {
 				map.setMapTypeId('roadmap');
 			}
-		}, 250);
+		}, 150);
+
+		// Give the users some time to orient themselves
+		setTimeout(function() {
+			callback();
+		}, settings.featuredMaximizeDelay);
+
 	}
 }
 
@@ -921,7 +951,7 @@ function zoomToMarker(locationIndex) {
 	// getOffsetCenter(markers()[locationIndex].position, relativeCenter, 0);
 
 
-	zmoothZoom(12, markers()[locationIndex].position, relativeCenter, 0, locationIndex);
+	zmoothZoom(12, markers()[locationIndex].position, relativeCenter, 0, locationIndex, displays.featured.maximize);
 }
 
 var newCenter;

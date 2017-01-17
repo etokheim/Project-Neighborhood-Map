@@ -28,7 +28,7 @@
 		<!-- ko with: markers()[displays.featured.container[0].index()] -->
 			<article class="featured_container" data-bind="css: { featured_container_minimized: displays.featured.container[0].minimized(), featured_container_hidden: !displays.featured.container[0].displaying() }">
 				<header>
-					<div class="featured_minimize" data-bind="click: displays.featured.minimize">
+					<div class="featured_minimize" data-bind="click: displays.featured.toggleMinimize">
 						<i class="fa fa-window-minimize" aria-hidden="true"></i>
 					</div>
 					<div class="featured_close" data-bind="click: displays.featured.hide">

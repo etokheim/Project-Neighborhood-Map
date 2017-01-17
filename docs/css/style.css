@@ -1,3 +1,27 @@
+/*
+
+	Author: Erling Tokheim
+	Author URI: https://github.com/etokheim
+
+*/
+
+
+/*--------------------------------------------------------------
+>>> TABLE OF CONTENTS:
+----------------------------------------------------------------
+# Defaults
+# Google Maps
+# Article
+# Featured
+# Location Switcher
+# Plug-ins
+	## Slick Carousel
+
+--------------------------------------------------------------*/
+
+/*--------------------------------------------------------------
+# Defaults
+--------------------------------------------------------------*/
 html {
 	font-size: 90%;
 }
@@ -18,12 +42,6 @@ body {
 .side_text {
 	font-size: 1rem;
 	color: #aaa;
-}
-
-#map {
-	width: 100%;
-	height: 100%;
-	position: absolute !important; /* Google maps has a default position of relative. */
 }
 
 .clear {
@@ -74,11 +92,20 @@ a {
 	color: #fff;
 }
 
-/*
-********************************
-Article
-*/
 
+/*--------------------------------------------------------------
+# Google Maps
+--------------------------------------------------------------*/
+#map {
+	width: 100%;
+	height: 100%;
+	position: absolute !important; /* Google maps has a default position of relative. */
+}
+
+
+/*--------------------------------------------------------------
+# Article
+--------------------------------------------------------------*/
 .article_container {
 	width: 80%;
 	margin: 0 auto;
@@ -214,20 +241,9 @@ cite a {
 }
 
 
-/* Hides the pictures included in the Wikipedia article */
-h2 > span#Bilder {
-	display: none;
-}
-
-ul.mw-gallery-traditional {
-	display: none;
-}
-
-/*
-********************************
-Featured
-*/
-
+/*--------------------------------------------------------------
+# Featured
+--------------------------------------------------------------*/
 .featured_container {
 	max-width: calc(100% - 4rem);
 	width: 500px;
@@ -281,7 +297,6 @@ Featured
 	padding: 5px;
 	margin-left: -5px;
 	margin-top: -5px;
-	/*background-color: green;*/
 }
 
 .featured_image_figure figcaption i:hover + .img_credit {
@@ -392,18 +407,22 @@ Featured
 	margin-top: 5px;
 }
 
+/* Hides the pictures included in the Wikipedia article */
+h2 > span#Bilder {
+	display: none;
+}
+
+ul.mw-gallery-traditional {
+	display: none;
+}
 
 
-
-/*
-********************************
-Locations switcher
-*/
-
+/*--------------------------------------------------------------
+# Location Switcher
+--------------------------------------------------------------*/
 .location_switcher_container {
 	width: calc(100% - 4rem);
 	max-width: 500px;
-	/*width: 100%;*/
 	margin: 0 auto;
 	position: relative;
 	top: calc(100% - 6rem);
@@ -442,13 +461,6 @@ Locations switcher
 	margin: 0 auto;
 }
 
-.location_switcher_swipe_list {
-	/*display: flex;*/
-	/*flex-wrap: nowrap;*/
-	/*flex-direction: row;*/
-	/*overflow: hidden;*/
-}
-
 .location_switcher_search_field {
 	width: 100%;
 	height: 4rem;
@@ -480,8 +492,6 @@ Locations switcher
 }
 
 .location_switcher_swipe_list_item {
-	/*float: left;*/
-	/*padding: 0 calc(50% - 50px);*/
 	width: 300px;
 }
 
@@ -520,6 +530,7 @@ Locations switcher
 	background-color: #eee;
 	cursor: pointer;
 }
+
 .location_switcher_list_container {
 	position: absolute;
 	width: 100%;
@@ -576,15 +587,14 @@ Locations switcher
 }
 
 
-/*
-********************************
-Plug-ins
-*/
+/*--------------------------------------------------------------
+# Plug-ins
+--------------------------------------------------------------*/
 
-/*
-****************
-Slick carousel
-*/
+
+/*--------------------------------------------------------------
+## Slick Carousel
+--------------------------------------------------------------*/
 button.slick-arrow {
 	width: 50%;
 	height: 100%;
