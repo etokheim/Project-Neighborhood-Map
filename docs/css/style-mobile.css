@@ -4,6 +4,7 @@
 .featured_container {
 	top: initial;
 	bottom: 2rem;
+	width: initial;
 }
 
 .featured_container_hidden {

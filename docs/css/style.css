@@ -36,7 +36,7 @@ html {
 
 body {
 	margin: 0;
-	overflow: hidden;
+	/*overflow: hidden;*/
 }
 
 .side_text {
@@ -492,7 +492,7 @@ ul.mw-gallery-traditional {
 }
 
 .location_switcher_swipe_list_item {
-	width: 300px;
+	width: 100%;
 }
 
 #location_switcher_center {
@@ -506,6 +506,19 @@ ul.mw-gallery-traditional {
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
+	overflow: hidden;
+}
+
+.location_switcher_tips {
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+
+	transition: 300ms all ease-out;
+}
+
+.location_switcher_tips_hidden {
+	height: 0%;
 }
 
 #location_switcher_center:hover, #location_switcher_center:focus {

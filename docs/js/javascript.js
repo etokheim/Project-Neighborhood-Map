@@ -24,6 +24,9 @@ var settings = {
 	// till the featured view maximizes itself
 	featuredMaximizeDelay: 750,
 
+	// How far to zoom when focusing on a marker.
+	zoomInAmount: 14,
+
 	slick: {
 		featured: {
 			infinite: true,
@@ -95,6 +98,10 @@ var displays = {
 
 	locationSwitcher: {
 		displaying: ko.observable(true),
+
+		displayList: ko.observable(true),
+
+		displayTip: ko.observable(true),
 
 		toggle: function() {
 			displays.locationSwitcher.displaying(!displays.locationSwitcher.displaying());
@@ -232,10 +239,73 @@ var slickCarousel = {
 		}
 
 		element.eq(0).slick(settings);
-	}
+	},
+
+	rebind: function(element) {
+		element.on('beforeChange', function(event, slick, currentSlide, nextSlide) {
+			console.log(nextSlide);
+			focusMarker(slickCarousel.convert.index.carouselToMarker(nextSlide));
+		});
+	},
+
+	convert: {
+		index: {
+			markerToCarousel: function(markerIndex) {
+				var match = false;
+				var marker = markers()[markerIndex];
+
+				var filteredMarkersLength = filter.markers().length;
+
+				for (var i = 0; i < filteredMarkersLength; i++) {
+					var filteredMarker = filter.markers()[i];
+
+					if(marker.title == filteredMarker.title) {
+						match = true;
+						console.log("MARKER TO CAROUSEL: " + marker.title + " == " + filteredMarker.title + ", index " + i);
+						return i;
+					}
+				}
+
+				if(!match) {
+					console.error("Can't scroll to " + marker.title + " because it's currently not in the swipe list.");
+				}
+			},
+
+			carouselToMarker: function(carouselIndex) {
+				var match = false;
+				var filteredMarker = filter.markers()[carouselIndex];
+
+				var markersLength = markers().length;
+
+				for (var i = 0; i < markersLength; i++) {
+					var marker = markers()[i];
+
+					if(filteredMarker !== undefined && marker !== undefined) {
+						console.log(filteredMarker.title + marker.title);
+						if(filteredMarker.title == marker.title) {
+							match = true;
+							console.log("CAROUSEL TO MARKER: " + filteredMarker.title + " == " + marker.title + ", index " + i);
+							return i;
+						}
+					}
+				}
+
+				if(!match) {
+					return 0;
+					// console.error("Can't scroll to " + filteredMarker.title + " because it's currently not in the swipe list.");
+				}
+			}
+		}
+	},
+
+	swipeListGoTo: function(index) {
+		$(".location_switcher_swipe_list").slick('slickGoTo', index);
+	},
 };
 
 var filter = {
+	markers: ko.observableArray([]),
+
 	type: {
 
 		hike: ko.observable(false),
@@ -322,9 +392,13 @@ var filter = {
 		object.setVisible(visibillity);
 	},
 
+	// Searches for "search" in "strings"
 	// Inspired by: http://stackoverflow.com/questions/16907825/how-to-implement-sublime-text-like-fuzzy-search
 	search: function(search, strings) {
+		filter.markers([]);
 		search = search.toLowerCase();
+
+		infoWindow.closeAll();
 
 		var matches = strings.filter(function(item) {
 			item.title = item.title.toLowerCase();
@@ -346,19 +420,57 @@ var filter = {
 				if (posOfLastFound == -1) {
 					filter.markerVisibillity(markers()[item.index], false);
 					return false;
-
-				// Else, include it
-				} else {
-					filter.markerVisibillity(markers()[item.index], true);
 				}
 			}
+			
+			// Else, include it
+			console.log("RUNNN");
+			filter.markers.push(markers()[item.index]);
 			return true;
 		});
+
+		// Bug: There is a bug with the Slick Carousel. When being reinitialized
+		// it re-orders everything except comments. This posed a problem, since I
+		// was relying on comments to check whether a location should be displayed or not. 
+		// When the comments got out of order, Knockout instead created twice as many 
+		// elements as it was supposed to. To work around this, I used a div with a
+		// data-bind attribute instead to decide whether it should display. This worked as far as Knockout was concerned,
+		// but even though the div didn't have any content, the Slick Carousel
+		// still created a slide of the empty div. Therefor I had to loop through and
+		// delete all the slides without content.
+		// 		This works, but also leads to another problem: the slides are
+		// are deleted. So when the filter changes, the markers that was previously
+		// deleted and should now display, are not re-created - even though the
+		// koVisible observable changes value. So to re-create the list, I force the
+		// foreach loop to run again by wrapping it inside another Knockout binding
+		// in the View Model.
+		//
+		// Check out this fiddle for an example on how the comments are out of sync:
+		// https://jsfiddle.net/bfd9vd6p/1/
+		// The fiddle is not working yet...
+
+		// To avoid duplicates; force the forEach to run again
+		displays.locationSwitcher.displayList(false);
+		displays.locationSwitcher.displayList(true);
+
+		slickCarousel.reslick($(".location_switcher_swipe_list"), settings.slick.locationSwitcher);
+		slickCarousel.rebind($(".location_switcher_swipe_list"));
+
+		// Delete the empty slides
+		var slickSlides = $('.slick-slide');
+		var slickSlidesLength = slickSlides.length;
+		// Looping backwards because we are deleting items
+		for(var i = slickSlidesLength; i > 0; i--) {
+			var childrenLength = slickSlides.eq(i).children().length;
+			if(childrenLength < 1) {
+				console.log(childrenLength + " > " + 1);
+				var emptyItem = slickSlides.eq(i).attr('data-slick-index');
+				console.log("delete number: " + emptyItem);
+				$(".location_switcher_swipe_list").slick('slickRemove', emptyItem);
+			}
+		}
 	}
 };
-
-filter.apply($('.location_switcher_search_field').val());
-
 
 
 /*--------------------------------------------------------------
@@ -372,6 +484,8 @@ window.onload = function() {
 	setTimeout(function() {
 		displays.locationList.toggle();
 	}, 500);
+
+	filter.apply($('.location_switcher_search_field').val());
 };
 
 
@@ -390,18 +504,13 @@ $('.location_switcher_search_field').on('input', function() {
 	filter.apply(this.value);
 });
 
-$('.location_switcher_swipe_list').on('beforeChange', function(event, slick, currentSlide, nextSlide) {
-	// console.log(nextSlide);
-	focusMarker(nextSlide);
-});
-
 
 /*--------------------------------------------------------------
 # View Model
 --------------------------------------------------------------*/
 var ViewModel = function() {
 	this.test = function() {
-		focusMarker(this.index);
+		slickCarousel.swipeListGoTo(this.index);
 		displays.locationList.toggle();
 	};
 
@@ -686,7 +795,7 @@ var ajax = {
 										// from the JSON recieved from Flickr.
 										var response2Json = JSON.parse(response2.slice(14, response2.length - 1));
 
-										marker.flickr.img().push({url: response2Json.sizes.size[5].source, credit: {name: responseJson.photos.photo[j].ownername}});
+										marker.flickr.img.push({url: response2Json.sizes.size[5].source, credit: {name: responseJson.photos.photo[j].ownername}});
 
 										marker.flickr.hasContent(true);
 									}
@@ -801,7 +910,7 @@ var ajax = {
 								imgUrl = photoObject.prefix + "483x250" + photoObject.suffix;
 								imgCredit = { name: firstName + ' ' + lastName };
 
-								marker.foursquare.img().push({
+								marker.foursquare.img.push({
 									url: imgUrl,
 									credit: imgCredit
 								});
@@ -942,16 +1051,11 @@ function zmoothZoom(newZoom, latlng, offsetX, offsetY, locationIndex, callback) 
 }
 
 function zoomToMarker(locationIndex) {
-	// map.setZoom(12);
-
-
 	// Where the center is when a featured container is displayed
 	// 80 = $(".featured_container").offset().left (When it is displayed)
 	var relativeCenter = ($(".featured_container").outerWidth() + 80) / 2;
-	// getOffsetCenter(markers()[locationIndex].position, relativeCenter, 0);
 
-
-	zmoothZoom(12, markers()[locationIndex].position, relativeCenter, 0, locationIndex, displays.featured.maximize);
+	zmoothZoom(settings.zoomInAmount, markers()[locationIndex].position, relativeCenter, 0, locationIndex, displays.featured.maximize);
 }
 
 var newCenter;
@@ -1003,9 +1107,15 @@ function resetZoomAndMap() {
 }
 
 function focusMarker(index) {
+	// Hide the tip
+	displays.locationSwitcher.displayTip(false);
+	
 	var marker = markers()[index];
 
 	focusedMarker(index);
+	
+	slickCarousel.swipeListGoTo(index);
+
 	moveToMarker(markers()[index]);
 
 	infoWindow.closeAll(marker);
@@ -1311,6 +1421,7 @@ function initMap() {
 			}
 
 			toggleBounce(this);
+			focusMarker(this.index);
 
 		});
 

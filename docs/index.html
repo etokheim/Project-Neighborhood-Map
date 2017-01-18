@@ -362,14 +362,20 @@
 						Skru på JavaScript for å bruke sida!
 					<!-- /ko -->
 
-					<div id="swipe_list" class="location_switcher_swipe_list list-unstyled" data-bind="foreach: markers">
-						<!-- ko if: koVisible -->
-							<div class="location_switcher_swipe_list_item">
-								<i data-bind="attr: { class: type.icon }"></i>
-								<!-- ko text: koTitle --><!-- /ko -->
-							</div>
-						<!-- /ko -->
+					<div class="location_switcher_tips" data-bind="css: { location_switcher_tips_hidden: !displays.locationSwitcher.displayTip() }">
+						Klikk for sortering<!-- ko if: screen.size() == 'small' -->, dra for å gå til neste<!-- /ko -->
 					</div>
+
+					<!-- ko if: displays.locationSwitcher.displayList -->
+						<div id="swipe_list" class="location_switcher_swipe_list" data-bind="foreach: filter.markers">
+							<div data-bind="if: koVisible">
+								<div class="location_switcher_swipe_list_item">
+									<i data-bind="attr: { class: type.icon }"></i>
+									<!-- ko text: koTitle --><!-- /ko -->
+								</div>
+							</div>
+						</div>
+					<!-- /ko -->
 				</div>
 
 				<div class="location_switcher_arrow">
