@@ -151,7 +151,17 @@ var displays = {
 			// Collapses the Wikipedia text into the read more state
 			displays.featured.wikipedia.displaying(false);
 
-			resetZoomAndMap();
+			if(isZooming) {
+				stopZooming = true;
+
+				// Wait till the last zoom is finished
+				setTimeout(function() {
+					resetZoomAndMap();
+				}, 250);
+			} else {
+				resetZoomAndMap();
+			}
+
 		},
 
 		toggleMinimize: function() {
@@ -1005,8 +1015,10 @@ function readMore(locationIndex) {
 	zoomToMarker(locationIndex);
 }
 
-
+var stopZooming = false;
+var isZooming = false;
 function zmoothZoom(newZoom, latlng, offsetX, offsetY, locationIndex, callback) {
+	isZooming = true;
 	callback = callback || function() {};
 	var oldZoom = map.zoom;
 	var zoomDifference = Math.abs(oldZoom) - Math.abs(newZoom);
@@ -1019,34 +1031,41 @@ function zmoothZoom(newZoom, latlng, offsetX, offsetY, locationIndex, callback) 
 		zoomDirection = -1;
 	}
 
-	// If remaining zoom > 1; call this function again.
-	if(Math.abs(zoomDifference) > 1) {
-		map.panTo(getOffsetCenter(latlng, offsetX, offsetY));
-		setTimeout(function() {
-			zmoothZoom(newZoom, latlng, offsetX, offsetY, locationIndex, callback);
-			map.setZoom(oldZoom + 1 * zoomDirection);
+	if(!stopZooming && isZooming) {
+		// If remaining zoom > 1; call this function again.
+		if(Math.abs(zoomDifference) > 1) {
+			map.panTo(getOffsetCenter(latlng, offsetX, offsetY));
+			setTimeout(function() {
+				zmoothZoom(newZoom, latlng, offsetX, offsetY, locationIndex, callback);
+				map.setZoom(oldZoom + 1 * zoomDirection);
 
+				map.setCenter(getOffsetCenter(latlng, offsetX, offsetY));
+			}, 250);
+
+		// Else stop zooming and fire callback function
+		} else {
+			isZooming = false;
+			map.setZoom(newZoom);
 			map.setCenter(getOffsetCenter(latlng, offsetX, offsetY));
-		}, 250);
 
-	// Else stop zooming and fire callback function
+			setTimeout(function() {
+				if(markers()[locationIndex].type.keywords[0] == 'Fjelltur') {
+					map.setMapTypeId('satellite');
+				} else {
+					map.setMapTypeId('roadmap');
+				}
+			}, 150);
+
+			// Give the users some time to orient themselves
+			setTimeout(function() {
+				callback();
+			}, settings.featuredMaximizeDelay);
+
+		}
 	} else {
-		map.setZoom(newZoom);
-		map.setCenter(getOffsetCenter(latlng, offsetX, offsetY));
-
-		setTimeout(function() {
-			if(markers()[locationIndex].type.keywords[0] == 'Fjelltur') {
-				map.setMapTypeId('satellite');
-			} else {
-				map.setMapTypeId('roadmap');
-			}
-		}, 150);
-
-		// Give the users some time to orient themselves
-		setTimeout(function() {
-			callback();
-		}, settings.featuredMaximizeDelay);
-
+		stopZooming = false;
+		isZooming = false;
+		console.log(stopZooming);
 	}
 }
 
@@ -1109,7 +1128,7 @@ function resetZoomAndMap() {
 function focusMarker(index) {
 	// Hide the tip
 	displays.locationSwitcher.displayTip(false);
-	
+
 	var marker = markers()[index];
 
 	focusedMarker(index);
