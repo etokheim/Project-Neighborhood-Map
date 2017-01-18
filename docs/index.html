@@ -363,7 +363,8 @@
 					<!-- /ko -->
 
 					<div class="location_switcher_tips" data-bind="css: { location_switcher_tips_hidden: !displays.locationSwitcher.displayTip() }">
-						Klikk for sortering<!-- ko if: screen.size() == 'small' -->, dra for å gå til neste<!-- /ko -->
+						<!-- ko if: screen.size() == 'big' -->Klikk for sortering<!-- /ko -->
+						<!-- ko if: screen.size() == 'small' -->Klikk eller dra<!-- /ko -->
 					</div>
 
 					<!-- ko if: displays.locationSwitcher.displayList -->
