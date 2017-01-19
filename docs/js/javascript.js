@@ -256,7 +256,6 @@ var slickCarousel = {
 
 	rebind: function(element) {
 		element.on('beforeChange', function(event, slick, currentSlide, nextSlide) {
-			console.log(nextSlide);
 			focusMarker(slickCarousel.convert.index.carouselToMarker(nextSlide));
 		});
 	},
@@ -274,7 +273,6 @@ var slickCarousel = {
 
 					if(marker.title == filteredMarker.title) {
 						match = true;
-						console.log("MARKER TO CAROUSEL: " + marker.title + " == " + filteredMarker.title + ", index " + i);
 						return i;
 					}
 				}
@@ -294,10 +292,8 @@ var slickCarousel = {
 					var marker = markers()[i];
 
 					if(filteredMarker !== undefined && marker !== undefined) {
-						console.log(filteredMarker.title + marker.title);
 						if(filteredMarker.title == marker.title) {
 							match = true;
-							console.log("CAROUSEL TO MARKER: " + filteredMarker.title + " == " + marker.title + ", index " + i);
 							return i;
 						}
 					}
@@ -439,7 +435,6 @@ var filter = {
 			}
 			
 			// Else, include it
-			console.log("RUNNN");
 			filter.markers.push(markers()[item.index]);
 			return true;
 		});
@@ -478,9 +473,7 @@ var filter = {
 		for(var i = slickSlidesLength; i > 0; i--) {
 			var childrenLength = slickSlides.eq(i).children().length;
 			if(childrenLength < 1) {
-				console.log(childrenLength + " > " + 1);
 				var emptyItem = slickSlides.eq(i).attr('data-slick-index');
-				console.log("delete number: " + emptyItem);
 				$(".location_switcher_swipe_list").slick('slickRemove', emptyItem);
 			}
 		}
@@ -563,6 +556,76 @@ var favoriteLocations = [
 	},
 
 	{
+		title: 'Langfossen',
+		type: filter.getKeywords('landmark'),
+
+		location: {
+			lat: 59.8454932,
+			lng: 6.339577
+		}
+	},
+
+	{
+		title: 'Låtefossen',
+		type: filter.getKeywords('landmark'),
+
+		location: {
+			lat: 59.9475823,
+			lng: 6.5847937
+		}
+	},
+
+	{
+		title: 'Baroniet Rosendal',
+		type: filter.getKeywords('landmark'),
+
+		location: {
+			lat: 59.9896187,
+			lng: 6.0289293
+		}
+	},
+
+	{
+		title: 'Kongeparken',
+		type: filter.getKeywords('landmark'),
+
+		location: {
+			lat: 58.778757,
+			lng: 5.84055
+		}
+	},
+
+	{
+		title: 'Utsira',
+		type: filter.getKeywords('landmark'),
+
+		location: {
+			lat: 59.308129,
+			lng: 4.8798742
+		}
+	},
+
+	{
+		title: 'Tungenes fyr',
+		type: filter.getKeywords('landmark'),
+
+		location: {
+			lat: 59.0355653,
+			lng: 5.5795811
+		}
+	},
+
+	{
+		title: 'Lundeneset VGS',
+		type: filter.getKeywords('landmark'),
+
+		location: {
+			lat: 59.6082346,
+			lng: 5.7730419
+		}
+	},
+
+	{
 		title: 'Kjeragbolten',
 		type: filter.getKeywords('hike'),
 
@@ -583,22 +646,22 @@ var favoriteLocations = [
 	},
 
 	{
+		title: 'Eikedalen Skisenter',
+		type: filter.getKeywords('hike'),
+
+		location: {
+			lat: 60.4067785,
+			lng: 5.9173345
+		}
+	},
+
+	{
 		title: 'Trolltunga',
 		type: filter.getKeywords('hike'),
 
 		location: {
 			lat: 60.124167,
 			lng: 6.7378113
-		}
-	},
-
-	{
-		title: 'Sauanuten',
-		type: filter.getKeywords('hike'),
-
-		location: {
-			lat: 59.8274041,
-			lng: 6.3854395
 		}
 	},
 
@@ -613,11 +676,20 @@ var favoriteLocations = [
 	},
 
 	{
+		title: 'Flor & fjære',
+		type: filter.getKeywords('restaurant'),
+
+		location: {
+			lat: 59.0525365,
+			lng: 5.8230277
+		}
+	},
+
+	{
 		title: 'Big Horn Steak House',
 		type: filter.getKeywords('restaurant'),
 
 		location: {
-			title: 'Haugesund',
 			lat: 59.411882825000006,
 			lng: 5.26830164
 		}
@@ -849,7 +921,7 @@ var ajax = {
 							dataType: 'json',
 							data: {
 								v: Date.now(),
-								ll: markers()[7].position.lat() + ',' + markers()[7].position.lng(),
+								ll: markers()[i].position.lat() + ',' + markers()[i].position.lng(),
 								format: "json",
 								client_id: ajax.foursquare.client_id,
 								client_secret: ajax.foursquare.client_secret,
@@ -863,7 +935,7 @@ var ajax = {
 
 							// If the response contains a venue name equal to the markers title; use that
 							for (var j = 0; j < response.response.venues.length; j++) {
-								if(response.response.venues[j].name == marker.koTitle()) {
+								if(response.response.venues[j].name.toLowerCase().indexOf(marker.koTitle().toLowerCase()) !== -1) {
 									matches++;
 
 									var venue = response.response.venues[j];
@@ -1071,7 +1143,6 @@ function zmoothZoom(newZoom, latlng, offsetX, offsetY, locationIndex, callback) 
 	} else {
 		stopZooming = false;
 		isZooming = false;
-		console.log(stopZooming);
 	}
 }
 
@@ -1377,7 +1448,7 @@ function initMap() {
 
 				// Gets the price class and translate it to Norwegian.
 				getPrice: function() {
-					var priceTier = this.venue().price.tier;
+					var priceTier = this.venue().price !== undefined ? this.venue().price.tier : '';
 
 					if(priceTier == 1) {
 						this.price('Billig');
@@ -1387,6 +1458,8 @@ function initMap() {
 						this.price('Dyrt');
 					} else if(priceTier == 4) {
 						this.price('Veldig dyrt');
+					} else {
+						this.price('Ukjent prisklasse');
 					}
 				},
 
