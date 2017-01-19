@@ -88,6 +88,9 @@ var displays = {
 		// You can pass in the optional parameter option to
 		// either hide or display instead of toggling.
 		toggle: function(option) {
+			// Hide the tip
+			displays.locationSwitcher.displayTip(false);
+
 			if(option === "hide") {
 				displays.locationList.displaying(false);
 			} else {
@@ -169,7 +172,7 @@ var displays = {
 		},
 
 		minimize: function() {
-			displays.featured.container[displays.featured.displaying()].minimized(false);
+			displays.featured.container[displays.featured.displaying()].minimized(true);
 		},
 
 		maximize: function() {
@@ -219,7 +222,7 @@ var displays = {
 			// the reslicking
 			setTimeout(function() {
 				slickCarousel.reslick($(".featured_image_container"), settings.slick.featured);
-			}, 300);
+			}, 600);
 
 		},
 
@@ -244,7 +247,7 @@ var slickCarousel = {
 	// Initialized in window.onload function
 	reslick: function(element, settings) {
 		// If element has been slicked before, unslick it first.
-		if(element.attr('class').includes('slick')) {
+		if(element.attr('class').indexOf('slick') !== -1) {
 			element.eq(0).slick('unslick');
 		}
 
@@ -309,6 +312,8 @@ var slickCarousel = {
 	},
 
 	swipeListGoTo: function(index) {
+		// Check out the Slick binding (in the rebind function) to see what
+		// happens when the slider is moving.
 		$(".location_switcher_swipe_list").slick('slickGoTo', index);
 	},
 };
@@ -493,6 +498,7 @@ window.onload = function() {
 	// Hides the list after the user has seen it
 	setTimeout(function() {
 		displays.locationList.toggle();
+		displays.locationSwitcher.displayTip(true);
 	}, 500);
 
 	filter.apply($('.location_switcher_search_field').val());
@@ -519,8 +525,8 @@ $('.location_switcher_search_field').on('input', function() {
 # View Model
 --------------------------------------------------------------*/
 var ViewModel = function() {
-	this.test = function() {
-		slickCarousel.swipeListGoTo(this.index);
+	this.closeAndGoToMarker = function() {
+		slickCarousel.swipeListGoTo(slickCarousel.convert.index.markerToCarousel(this.index));
 		displays.locationList.toggle();
 	};
 
@@ -917,7 +923,7 @@ var ajax = {
 								// If there is no last name, set it to an empty string
 								var lastName = photoObject.user.lastName || '';
 
-								imgUrl = photoObject.prefix + "483x250" + photoObject.suffix;
+								imgUrl = photoObject.prefix + "579x400" + photoObject.suffix;
 								imgCredit = { name: firstName + ' ' + lastName };
 
 								marker.foursquare.img.push({
@@ -1074,7 +1080,11 @@ function zoomToMarker(locationIndex) {
 	// 80 = $(".featured_container").offset().left (When it is displayed)
 	var relativeCenter = ($(".featured_container").outerWidth() + 80) / 2;
 
-	zmoothZoom(settings.zoomInAmount, markers()[locationIndex].position, relativeCenter, 0, locationIndex, displays.featured.maximize);
+	// Delays the animation a bit to give the computer less to do at once and
+	// for smoother animation. (When the featured container is appearing)
+	setTimeout(function() {
+		zmoothZoom(settings.zoomInAmount, markers()[locationIndex].position, relativeCenter, 0, locationIndex, displays.featured.maximize);
+	}, 200);
 }
 
 var newCenter;
@@ -1133,7 +1143,7 @@ function focusMarker(index) {
 
 	focusedMarker(index);
 	
-	slickCarousel.swipeListGoTo(index);
+	// slickCarousel.swipeListGoTo(index);
 
 	moveToMarker(markers()[index]);
 
