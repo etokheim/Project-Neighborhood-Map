@@ -149,6 +149,9 @@ var displays = {
 		},
 
 		hide: function() {
+			// Remove minimized class (if container was minimized)
+			displays.featured.container[displays.featured.displaying()].minimized(false);
+
 			displays.locationSwitcher.toggle();
 
 			displays.featured.container[displays.featured.displaying()].displaying(false);
@@ -1257,7 +1260,7 @@ var infoWindow = {
 		}
 
 		// Set infoWindow content
-		marker.infoWindow.setContent('<div style="width: 200px;"><h5>' + marker.title + '</h5><p>' + markers()[marker.index].wikipedia.ingress() + '</p><button class="full_width_button" onclick="readMore(' + marker.index + ')">Les meir</button></div>');
+		marker.infoWindow.setContent('<div class="info_window"><h5>' + marker.title + '</h5><p>' + markers()[marker.index].wikipedia.ingress() + '</p><button class="full_width_button" onclick="readMore(' + marker.index + ')">Les meir</button></div>');
 
 		// Close the infoWindow on "x" click
 		marker.infoWindow.addListener('closeclick', function() {
@@ -1307,7 +1310,7 @@ function toggleBounce(marker) {
 # Google Maps
 --------------------------------------------------------------*/
 function initMap() {
-	console.log("creating map");
+	console.log("Creating the map");
 
 	// Map styling
 	var styles = [

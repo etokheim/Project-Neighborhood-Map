@@ -1,6 +1,24 @@
-html {
-	font-size: 65%;
+/* For small screens */
+@media screen and (max-width: 390px) {
+	html {
+		font-size: 80%;
+	}	
 }
+
+/* For very small screens */
+@media screen and (max-width: 350px) {
+	html {
+		font-size: 70%;
+	}	
+}
+
+/* For mini screens */
+@media screen and (max-width: 300px) {
+	html {
+		font-size: 60%;
+	}	
+}
+
 
 /*--------------------------------------------------------------
 # Featured

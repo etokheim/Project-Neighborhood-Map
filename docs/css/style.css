@@ -36,7 +36,7 @@ html {
 	outline: none;
 }
 
-body {
+body, main {
 	margin: 0;
 	height: 100%;
 	overflow: hidden;
@@ -119,6 +119,11 @@ a {
 	width: 100%;
 	height: 100%;
 	position: absolute !important; /* Google maps has a default position of relative. */
+}
+
+.info_window {
+	width: 200px;
+	max-width: 50vw;
 }
 
 
