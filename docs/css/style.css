@@ -476,18 +476,18 @@ ul.mw-gallery-traditional {
 	max-width: 500px;
 	margin: 0 auto;
 	position: relative;
-	bottom: ;
 	height: 4rem;
 	background-color: rgba(255, 255, 255, 0.2);
 	z-index: 100;
 	will-change: transform;
 	transform: translateZ(0);
+	top: 0;
 
 	transition: all 600ms ease-out;
 }
 
 .location_switcher_container_hidden {
-	top: calc(100vh + 1rem);
+	top: 7rem;
 }
 
 #location_switcher {

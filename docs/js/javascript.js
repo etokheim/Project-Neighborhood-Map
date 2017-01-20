@@ -535,7 +535,21 @@ $('.location_switcher_search_field').on('input', function() {
 --------------------------------------------------------------*/
 var ViewModel = function() {
 	this.closeAndGoToMarker = function() {
-		slickCarousel.swipeListGoTo(slickCarousel.convert.index.markerToCarousel(this.index));
+		// If there is more than one slide in the slider; tell
+		// Slick to to to clicked marker
+		if(filter.markers().length > 1) {
+			slickCarousel.swipeListGoTo(slickCarousel.convert.index.markerToCarousel(this.index));
+
+		// Else call the "focusMarker()" function at once 
+		// (usually called when the slider moves). This is
+		// because if there is only one slide in the slick
+		// carousel, the carousel doesn't move, which is what
+		// the binding (which usually fires focusMarker()) is
+		// listening for.
+		} else {
+			focusMarker(slickCarousel.convert.index.markerToCarousel(this.index));
+		}
+
 		displays.locationList.toggle();
 	};
 
