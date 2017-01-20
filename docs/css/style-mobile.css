@@ -58,3 +58,10 @@
 .location_switcher_list_item {
 	transition: none;
 }
+
+/*
+	Remove hover state, which displays after element is clicked
+*/
+.location_switcher_filter_instance p:hover {
+	background-color: initial;
+}

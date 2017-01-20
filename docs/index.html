@@ -333,69 +333,70 @@
 			<!-- /ko -->
 
 			<div id="map"></div>
-
-			<div class="location_switcher_container" data-bind="css: displays.locationSwitcher.displaying() == true ? '' : 'location_switcher_container_hidden'">
-				<div class="location_switcher_list_container" data-bind="css: displays.locationList.displaying() == true ? '' : 'location_switcher_list_container_hidden'">
-					<input type="text" placeholder="Skriv nøkkelord her" class="location_switcher_search_field">
-					<div class="location_switcher_filter">
-						<!-- The data-bind is wrapped within a function to prevent it from being called on load -->
-						<div class="location_switcher_filter_instance" data-bind="click: function() { click: filter.type.toggleHike() }, css: { location_switcher_filter_active: filter.type.hike() }">
-							<p>
-								<i class="fa fa-compass fa-lg"></i>
-							</p>
+			<div class="top_position">
+				<div class="location_switcher_container" data-bind="css: displays.locationSwitcher.displaying() == true ? '' : 'location_switcher_container_hidden'">
+					<div class="location_switcher_list_container" data-bind="css: displays.locationList.displaying() == true ? '' : 'location_switcher_list_container_hidden'">
+						<input type="text" placeholder="Skriv nøkkelord her" class="location_switcher_search_field">
+						<div class="location_switcher_filter">
+							<!-- The data-bind is wrapped within a function to prevent it from being called on load -->
+							<div class="location_switcher_filter_instance" data-bind="click: function() { click: filter.type.toggleHike() }, css: { location_switcher_filter_active: filter.type.hike() }">
+								<p>
+									<i class="fa fa-compass fa-lg"></i>
+								</p>
+							</div>
+							<!-- The data-bind is wrapped within a function to prevent it from being called on load -->
+							<div class="location_switcher_filter_instance" data-bind="click: function() { click: filter.type.toggleRestaurant() }, css: { location_switcher_filter_active: filter.type.restaurant() }">
+								<p>
+									<i class="fa fa-cutlery fa-lg"></i>
+								</p>
+							</div>
+							<!-- The data-bind is wrapped within a function to prevent it from being called on load -->
+							<div class="location_switcher_filter_instance" data-bind="click: function() { click: filter.type.toggleLandmark() }, css: { location_switcher_filter_active: filter.type.landmark() }">
+								<p>
+									<i class="fa fa-map-marker fa-lg"></i>
+								</p>
+							</div>
 						</div>
-						<!-- The data-bind is wrapped within a function to prevent it from being called on load -->
-						<div class="location_switcher_filter_instance" data-bind="click: function() { click: filter.type.toggleRestaurant() }, css: { location_switcher_filter_active: filter.type.restaurant() }">
-							<p>
-								<i class="fa fa-cutlery fa-lg"></i>
-							</p>
-						</div>
-						<!-- The data-bind is wrapped within a function to prevent it from being called on load -->
-						<div class="location_switcher_filter_instance" data-bind="click: function() { click: filter.type.toggleLandmark() }, css: { location_switcher_filter_active: filter.type.landmark() }">
-							<p>
-								<i class="fa fa-map-marker fa-lg"></i>
-							</p>
-						</div>
+						<ul id="location_switcher_list" data-bind="foreach: markers">
+							<li class="location_switcher_list_item" data-bind="click: $root.closeAndGoToMarker, css: { location_switcher_list_item_hidden: !koVisible() }">
+								<h2 class="location_switcher_list_title" data-bind="text: koTitle()"></h2>
+								<p class="location_switcher_list_type">
+									<i data-bind="attr: { class: type.icon }"></i>
+									<!-- ko text: type.keywords[0] --><!-- /ko -->
+								</p>
+							</li>
+						</ul>
 					</div>
-					<ul id="location_switcher_list" data-bind="foreach: markers">
-						<li class="location_switcher_list_item" data-bind="click: $root.closeAndGoToMarker, css: { location_switcher_list_item_hidden: !koVisible() }">
-							<h2 class="location_switcher_list_title" data-bind="text: koTitle()"></h2>
-							<p class="location_switcher_list_type">
-								<i data-bind="attr: { class: type.icon }"></i>
-								<!-- ko text: type.keywords[0] --><!-- /ko -->
-							</p>
-						</li>
-					</ul>
-				</div>
-				<div id="location_switcher">
-					<div class="location_switcher_arrow" data-bind="click: slickCarousel.swipeList.previous">
-						<i class="fa fa-chevron-left" aria-hidden="true"></i>
-					</div>
-
-					<div id="location_switcher_center">
-						<!-- ko if: 2+2 == 2 -->
-							Skru på JavaScript for å bruke sida!
-						<!-- /ko -->
-
-						<div class="location_switcher_tips" data-bind="css: { location_switcher_tips_hidden: !displays.locationSwitcher.displayTip() }">
-							<!-- ko if: screen.size() == 'large' -->Klikk for å sortera<!-- /ko -->
-							<!-- ko if: screen.size() == 'small' -->Klikk eller dra<!-- /ko -->
+					<div id="location_switcher">
+						<div class="location_switcher_arrow" data-bind="click: slickCarousel.swipeList.previous">
+							<i class="fa fa-chevron-left" aria-hidden="true"></i>
 						</div>
 
-						<!-- ko if: displays.locationSwitcher.displayList -->
-							<div id="swipe_list" class="location_switcher_swipe_list" data-bind="foreach: filter.markers">
-								<div data-bind="if: koVisible">
-									<div class="location_switcher_swipe_list_item">
-										<i data-bind="attr: { class: type.icon }"></i>
-										<!-- ko text: koTitle --><!-- /ko -->
+						<div id="location_switcher_center">
+							<!-- ko if: 2+2 == 2 -->
+								Skru på JavaScript for å bruke sida!
+							<!-- /ko -->
+
+							<div class="location_switcher_tips" data-bind="css: { location_switcher_tips_hidden: !displays.locationSwitcher.displayTip() }">
+								<!-- ko if: screen.size() == 'large' -->Klikk for å sortera<!-- /ko -->
+								<!-- ko if: screen.size() == 'small' -->Klikk eller dra<!-- /ko -->
+							</div>
+
+							<!-- ko if: displays.locationSwitcher.displayList -->
+								<div id="swipe_list" class="location_switcher_swipe_list" data-bind="foreach: filter.markers">
+									<div data-bind="if: koVisible">
+										<div class="location_switcher_swipe_list_item">
+											<i data-bind="attr: { class: type.icon }"></i>
+											<!-- ko text: koTitle --><!-- /ko -->
+										</div>
 									</div>
 								</div>
-							</div>
-						<!-- /ko -->
-					</div>
+							<!-- /ko -->
+						</div>
 
-					<div class="location_switcher_arrow" data-bind="click: slickCarousel.swipeList.next">
-						<i class="fa fa-chevron-right" aria-hidden="true"></i>
+						<div class="location_switcher_arrow" data-bind="click: slickCarousel.swipeList.next">
+							<i class="fa fa-chevron-right" aria-hidden="true"></i>
+						</div>
 					</div>
 				</div>
 			</div>

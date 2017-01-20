@@ -26,6 +26,7 @@ html {
 	font-size: 90%;
 	height: 100%;
 	overflow: hidden;
+	touch-action: manipulation;
 }
 
 * {
@@ -455,12 +456,27 @@ ul.mw-gallery-traditional {
 /*--------------------------------------------------------------
 # Location Switcher
 --------------------------------------------------------------*/
+/*
+	Apple's mobile Safari's view port is higher then the screen
+	height when the url bar is displayed. Since the location
+	switcher was placed based on view port height, it was placed
+	off the screen. To work around this I now use the bottom
+	property.
+*/
+.top_position {
+	width: 100%;
+	pointer-events: none;
+	position: absolute;
+	bottom: 2rem;
+}
+
 .location_switcher_container {
+	pointer-events: initial;
 	width: calc(100% - 4rem);
 	max-width: 500px;
 	margin: 0 auto;
 	position: relative;
-	top: calc(100vh - 6rem);
+	bottom: ;
 	height: 4rem;
 	background-color: rgba(255, 255, 255, 0.2);
 	z-index: 100;
@@ -544,7 +560,7 @@ ul.mw-gallery-traditional {
 	cursor: pointer;
 }
 
-.location_switcher_filter_instance p:hover, .location_switcher_filter_instance p:focus {
+.location_switcher_filter_instance p:hover {
 	background-color: #f6f6f6;
 }
 
