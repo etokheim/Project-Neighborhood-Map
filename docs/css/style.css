@@ -24,6 +24,8 @@
 --------------------------------------------------------------*/
 html {
 	font-size: 90%;
+	height: 100%;
+	overflow: hidden;
 }
 
 * {
@@ -36,8 +38,18 @@ html {
 
 body {
 	margin: 0;
+	height: 100%;
 	overflow: hidden;
-	font-family: arial;
+}
+
+/*
+	Apparently Safari ignores overflow hidden on the body
+	element for some reason. Therefor I wrapped everything
+	in an extra element.
+*/
+main {
+	/*margin: 0;
+	overflow: hidden;*/
 }
 
 .side_text {
@@ -67,7 +79,12 @@ h4 {
 	margin: .2em 0;
 }
 
-p {
+h5 {
+	font-size: 1rem;
+	font-weight: bold;
+}
+
+p, div {
 	font-size: 1rem;
 }
 
@@ -86,6 +103,7 @@ a {
 	margin: 1rem auto 0;
 	text-align: center;
 	overflow: hidden;
+	font-size: 1rem;
 }
 
 .full_width_button:hover, .full_width_button:focus {
@@ -172,7 +190,7 @@ a {
 }
 
 .ingress {
-	font-size: 1.2em;
+	font-size: 1.2rem;
 	color: #aaa;
 	font-style: italic;
 	font-family: serif;
@@ -328,7 +346,6 @@ cite a {
 	left: 1.5rem;
 	border-radius: 2px;
 	padding: .2rem;
-	/*padding-left: 1.2rem;*/
 	text-shadow: none;
 	color: #1f1f1f;
 	font-weight: bold;
@@ -646,8 +663,8 @@ ul.mw-gallery-traditional {
 
 .location_switcher_list_item {
 	border-bottom: 1px solid #eee;
-	height: 120px;
-	padding: 1rem 25%;
+	height: 8.5rem;
+	padding: 1rem;
 	list-style-type: none;
 	overflow: hidden;
 	will-change: transform;
@@ -658,7 +675,7 @@ ul.mw-gallery-traditional {
 
 .location_switcher_list_item_hidden {
 	border-bottom: 0px solid rgba(255, 255, 255, 0);
-	height: 0;
+	height: 0 !important;
 	padding: 0;
 }
 

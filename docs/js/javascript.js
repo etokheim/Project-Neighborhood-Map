@@ -47,10 +47,13 @@ var settings = {
 			slidesToShow: 1,
 			autoplay: false,
 			draggable: true,
-			arrows: true,
 			dots: false,
-			nextArrow: $('.location_switcher_arrow')[1],
-			prevArrow: $('.location_switcher_arrow')[0],
+
+			// If arrows are added through Slick, they will also be
+			// removed though slick, ie. if there is only one slide.
+			arrows: false,
+			// nextArrow: $('.location_switcher_arrow')[1],
+			// prevArrow: $('.location_switcher_arrow')[0],
 		}
 	}
 }
@@ -258,6 +261,16 @@ var slickCarousel = {
 		element.on('beforeChange', function(event, slick, currentSlide, nextSlide) {
 			focusMarker(slickCarousel.convert.index.carouselToMarker(nextSlide));
 		});
+	},
+
+	swipeList: {
+		next: function() {
+			$('.location_switcher_swipe_list').slick('slickNext');
+		},
+
+		previous: function() {
+			$('.location_switcher_swipe_list').slick('slickPrev');
+		}
 	},
 
 	convert: {
