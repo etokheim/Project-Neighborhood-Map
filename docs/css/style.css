@@ -509,13 +509,19 @@ ul.mw-gallery-traditional {
 	transition: all 200ms ease-out;
 }
 
-.location_switcher_search_field:focus, .location_switcher_search_field:hover {
+.location_switcher_search_field:hover {
 	border-radius: 10px;
 	background-color: #f6f6f6;
 }
 
 .location_switcher_search_field:focus {
 	background-color: #fff;
+
+	/*
+		For safari
+	*/
+	-webkit-appearance: none;
+	-webkit-box-shadow: 0px 3px 200px rgba(0, 0, 0, 0.4);
 	box-shadow: 0px 3px 200px rgba(0, 0, 0, 0.4);
 }
 
