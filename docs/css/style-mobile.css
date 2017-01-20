@@ -24,18 +24,18 @@
 # Featured
 --------------------------------------------------------------*/
 .featured_container {
-	top: initial;
-	bottom: 2rem;
+	top: 2rem;
 	width: initial;
+	box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.5);
 }
 
 .featured_container_hidden {
 	left: 2rem;
-	bottom: -100vh;
+	top: 100vh;
 }
 
 .featured_container_minimized {
-	bottom: calc(-100vh + 10rem);
+	top: calc(100vh - 15%);
 	left: 2rem;
 }
 
@@ -50,4 +50,11 @@
 --------------------------------------------------------------*/
 .location_switcher_list_item {
 	height: 10rem;
+}
+
+/*
+	Disable heavy animation
+*/
+.location_switcher_list_item {
+	transition: none;
 }
