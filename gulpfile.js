@@ -12,12 +12,22 @@ var gulp =			require('gulp'),
 
 // Gulp default task
 gulp.task('default', ['clean'], function() {
-	gulp.start('get-bootstrap', 'get-slick-carousel', 'get-font-awesome', 'get-jquery', 'get-knockout', 'minify-scripts', 'minify-css', 'minify-html');
+	gulp.start(
+		'get-bootstrap',
+		'get-slick-carousel',
+		'get-font-awesome',
+		'get-jquery',
+		'get-knockout',
+		'minify-scripts',
+		'minify-css',
+		'minify-html',
+		'move-images',
+		'move-fonts');
 });
 
 gulp.task('minify-scripts', function() {
 	return gulp.src('docs/js/**/*.js')
-		.pipe(rename({suffix: '.min'}))
+		// .pipe(rename({suffix: '.min'}))
 		.pipe(uglify())
 		.pipe(gulp.dest('dist/js'))
 		.pipe(notify({ message: 'Minifying scripts complete' }));
@@ -25,7 +35,7 @@ gulp.task('minify-scripts', function() {
 
 gulp.task('minify-css', function() {
 	return gulp.src('docs/css/**/*.css')
-		.pipe(rename({suffix: '.min'}))
+		// .pipe(rename({suffix: '.min'}))
 		.pipe(cleanCSS({compatibility: 'ie8'}))
 		.pipe(gulp.dest('dist/css'))
 		.pipe(notify({ message: 'Minifying CSS complete' }));
@@ -33,10 +43,22 @@ gulp.task('minify-css', function() {
 
 gulp.task('minify-html', function() {
 	return gulp.src('docs/*.html')
-		.pipe(rename({suffix: '.min'}))
+		// .pipe(rename({suffix: '.min'}))
 		.pipe(htmlmin({collapseWhitespace: true}))
 		.pipe(gulp.dest('dist'))
 		.pipe(notify({ message: 'Minifying CSS complete' }));
+});
+
+gulp.task('move-images', function() {
+	return gulp.src('docs/img/*')
+		.pipe(gulp.dest('dist/img'))
+		.pipe(notify({ message: 'Moving images complete' }));
+});
+
+gulp.task('move-fonts', function() {
+	return gulp.src('docs/fonts/*')
+		.pipe(gulp.dest('dist/fonts'))
+		.pipe(notify({ message: 'Moving fonts complete' }));
 });
 
 gulp.task('clean', function() {
