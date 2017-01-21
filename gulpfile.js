@@ -22,47 +22,48 @@ gulp.task('default', ['clean'], function() {
 		'minify-css',
 		'minify-html',
 		'move-images',
-		'move-fonts');
+		'move-fonts'
+	);
 });
 
 gulp.task('minify-scripts', function() {
-	return gulp.src('docs/js/**/*.js')
+	return gulp.src('src/js/**/*.js')
 		// .pipe(rename({suffix: '.min'}))
 		.pipe(uglify())
-		.pipe(gulp.dest('dist/js'))
+		.pipe(gulp.dest('docs/js'))
 		.pipe(notify({ message: 'Minifying scripts complete' }));
 });
 
 gulp.task('minify-css', function() {
-	return gulp.src('docs/css/**/*.css')
+	return gulp.src('src/css/**/*.css')
 		// .pipe(rename({suffix: '.min'}))
 		.pipe(cleanCSS({compatibility: 'ie8'}))
-		.pipe(gulp.dest('dist/css'))
+		.pipe(gulp.dest('docs/css'))
 		.pipe(notify({ message: 'Minifying CSS complete' }));
 });
 
 gulp.task('minify-html', function() {
-	return gulp.src('docs/*.html')
+	return gulp.src('src/*.html')
 		// .pipe(rename({suffix: '.min'}))
 		.pipe(htmlmin({collapseWhitespace: true}))
-		.pipe(gulp.dest('dist'))
+		.pipe(gulp.dest('docs'))
 		.pipe(notify({ message: 'Minifying CSS complete' }));
 });
 
 gulp.task('move-images', function() {
-	return gulp.src('docs/img/*')
-		.pipe(gulp.dest('dist/img'))
+	return gulp.src('src/img/*')
+		.pipe(gulp.dest('docs/img'))
 		.pipe(notify({ message: 'Moving images complete' }));
 });
 
 gulp.task('move-fonts', function() {
-	return gulp.src('docs/fonts/*')
-		.pipe(gulp.dest('dist/fonts'))
+	return gulp.src('src/fonts/*')
+		.pipe(gulp.dest('docs/fonts'))
 		.pipe(notify({ message: 'Moving fonts complete' }));
 });
 
 gulp.task('clean', function() {
-	return del(['dist/css', 'dist/js', 'dist/img', 'dist']);
+	return del(['docs/css', 'docs/js', 'docs/img', 'docs']);
 });
 
 
@@ -70,38 +71,38 @@ gulp.task('clean', function() {
 // Get extra files //
 /////////////////////
 gulp.task('get-bootstrap', function() {
-	gulp.src('./node_modules/bootstrap/dist/css/bootstrap.css')
-		.pipe(gulp.dest('./docs/css/plug-ins/'));
+	gulp.src('./node_modules/bootstrap/docs/css/bootstrap.css')
+		.pipe(gulp.dest('./src/css/plug-ins/'));
 });
 
 gulp.task('get-knockout', function() {
 	gulp.src('./node_modules/knockout/build/output/knockout-latest.js')
-		.pipe(gulp.dest('./docs/js/plug-ins/'));
+		.pipe(gulp.dest('./src/js/plug-ins/'));
 });
 
 gulp.task('get-jquery', function() {
-	gulp.src('./node_modules/jquery/dist/jquery.min.js')
-		.pipe(gulp.dest('./docs/js/plug-ins/'));
+	gulp.src('./node_modules/jquery/docs/jquery.min.js')
+		.pipe(gulp.dest('./src/js/plug-ins/'));
 });
 
 gulp.task('get-font-awesome', function() {
 	gulp.src('./node_modules/font-awesome/css/font-awesome.css')
-		.pipe(gulp.dest('./docs/css/plug-ins/'));
+		.pipe(gulp.dest('./src/css/plug-ins/'));
 
 	gulp.src('./node_modules/font-awesome/fonts/*')
-		.pipe(gulp.dest('./docs/fonts/'));
+		.pipe(gulp.dest('./src/fonts/'));
 });
 
 gulp.task('get-slick-carousel', function() {
 	gulp.src('./node_modules/slick-carousel/slick/*.css')
-		.pipe(gulp.dest('./docs/css/plug-ins/'));
+		.pipe(gulp.dest('./src/css/plug-ins/'));
 
 	// Modified manually, should not be overwritten
 	// gulp.src('./node_modules/slick-carousel/slick/*.min.js')
-	// 	.pipe(gulp.dest('./docs/js/plug-ins/'));
+	// 	.pipe(gulp.dest('./src/js/plug-ins/'));
 
 	gulp.src('./node_modules/slick-carousel/slick/*.gif')
-		.pipe(gulp.dest('./docs/img/plug-ins/'));
+		.pipe(gulp.dest('./src/img/plug-ins/'));
 });
 
 
@@ -117,11 +118,11 @@ gulp.task('serve', function() {
 		// Note: this uses an unsigned certificate which on first access
 		//       will present a certificate warning in the browser.
 		// https: true,
-		server: ['.tmp', 'docs']
+		server: ['.tmp', 'src']
 	});
 
-	gulp.watch(['docs/*.html'], reload);
-	gulp.watch(['docs/css/*.{scss,css}'], reload);
-	gulp.watch(['docs/js/*.js'], reload);
-	gulp.watch(['docs/images/**/*'], reload);
+	gulp.watch(['src/*.html'], reload);
+	gulp.watch(['src/css/*.{scss,css}'], reload);
+	gulp.watch(['src/js/*.js'], reload);
+	gulp.watch(['src/images/**/*'], reload);
 });
