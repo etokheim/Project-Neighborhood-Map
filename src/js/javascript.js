@@ -9,10 +9,17 @@
 /*--------------------------------------------------------------
 >>> TABLE OF CONTENTS:
 ----------------------------------------------------------------
-# Settings
-# Defaults
-# On load events
-	## Bindings
+
+	# Settings
+	# Defaults
+	# Bindings
+		## On load events
+		## On window resize
+	# View Model
+	# Model
+	# Google Maps related
+		## Info window
+		## Initialize map
 
 --------------------------------------------------------------*/
 
@@ -21,11 +28,12 @@
 --------------------------------------------------------------*/
 var settings = {
 	// If small screens; this value dictates the delay time
-	// till the featured view maximizes itself
+	// until the featured view maximizes itself
 	featuredMaximizeDelay: 750,
-
 	// How far to zoom when focusing on a marker.
 	zoomInAmount: 14,
+	zoomInterval: 500,
+	defaultMapType: 'roadmap',
 
 	slick: {
 		featured: {
@@ -56,7 +64,7 @@ var settings = {
 			// prevArrow: $('.location_switcher_arrow')[0],
 		}
 	}
-}
+};
 
 
 /*--------------------------------------------------------------
@@ -317,7 +325,6 @@ var slickCarousel = {
 
 				if(!match) {
 					return 0;
-					// console.error("Can't scroll to " + filteredMarker.title + " because it's currently not in the swipe list.");
 				}
 			}
 		}
@@ -455,25 +462,33 @@ var filter = {
 			return true;
 		});
 
-		// Bug: There is a bug with the Slick Carousel. When being reinitialized
-		// it re-orders everything except comments. This posed a problem, since I
-		// was relying on comments to check whether a location should be displayed or not. 
-		// When the comments got out of order, Knockout instead created twice as many 
-		// elements as it was supposed to. To work around this, I used a div with a
-		// data-bind attribute instead to decide whether it should display. This worked as far as Knockout was concerned,
-		// but even though the div didn't have any content, the Slick Carousel
-		// still created a slide of the empty div. Therefor I had to loop through and
-		// delete all the slides without content.
-		// 		This works, but also leads to another problem: the slides are
-		// are deleted. So when the filter changes, the markers that was previously
-		// deleted and should now display, are not re-created - even though the
-		// koVisible observable changes value. So to re-create the list, I force the
-		// foreach loop to run again by wrapping it inside another Knockout binding
-		// in the View Model.
-		//
-		// Check out this fiddle for an example on how the comments are out of sync:
-		// https://jsfiddle.net/bfd9vd6p/1/
-		// The fiddle is not working yet...
+		/*
+
+			Bug: There is a bug with the Slick Carousel. When being
+			reinitialized it re-orders everything except comments.
+			This posed a problem, since I was relying on comments to
+			check whether a location should be displayed or not.
+			When the comments got out of order, Knockout instead
+			created twice as many  elements as it was supposed to.
+			To work around this, I used a div with a data-bind
+			attribute instead to decide whether it should display or
+			not. This worked as far as Knockout was concerned, but
+			even though the div didn't have any content, the Slick
+			Carousel still created a slide of the empty div. Therefor
+			I had to loop through and delete all the slides without
+			content.
+				This works, but also leads to another problem: the
+			slides are are deleted. So when the filter changes, the
+			markers that was previously deleted and should now
+			display, are not re-created - even though the koVisible
+			observable changes value. So to re-create the list, I
+			force the foreach loop to run again by wrapping it inside
+			another Knockout binding in the View Model.
+				Check out this fiddle for an example on how the
+			comments are out of sync: The fiddle is not finished
+			yet... (https://jsfiddle.net/bfd9vd6p/1/)
+
+		*/
 
 		// To avoid duplicates; force the forEach to run again
 		displays.locationSwitcher.displayList(false);
@@ -485,6 +500,7 @@ var filter = {
 		// Delete the empty slides
 		var slickSlides = $('.slick-slide');
 		var slickSlidesLength = slickSlides.length;
+
 		// Looping backwards because we are deleting items
 		for(var i = slickSlidesLength; i > 0; i--) {
 			var childrenLength = slickSlides.eq(i).children().length;
@@ -498,7 +514,15 @@ var filter = {
 
 
 /*--------------------------------------------------------------
-# On load events
+# Bindings
+--------------------------------------------------------------*/
+$('.location_switcher_search_field').on('input', function() {
+	filter.apply(this.value);
+});
+
+
+/*--------------------------------------------------------------
+## On load events
 --------------------------------------------------------------*/
 window.onload = function() {
 	// Initialize Slick on location switcher and add beforeChange listener
@@ -515,19 +539,11 @@ window.onload = function() {
 
 
 /*--------------------------------------------------------------
-# On window resize
+## On window resize
 --------------------------------------------------------------*/
 window.onresize = function(event) {
 	screen.updateSize();
 };
-
-
-/*--------------------------------------------------------------
-# Bindings
---------------------------------------------------------------*/
-$('.location_switcher_search_field').on('input', function() {
-	filter.apply(this.value);
-});
 
 
 /*--------------------------------------------------------------
@@ -536,7 +552,7 @@ $('.location_switcher_search_field').on('input', function() {
 var ViewModel = function() {
 	this.closeAndGoToMarker = function() {
 		// If there is more than one slide in the slider; tell
-		// Slick to to to clicked marker
+		// Slick to go to clicked marker
 		if(filter.markers().length > 1) {
 			slickCarousel.swipeListGoTo(slickCarousel.convert.index.markerToCarousel(this.index));
 
@@ -913,7 +929,12 @@ var ajax = {
 										// from the JSON recieved from Flickr.
 										var response2Json = JSON.parse(response2.slice(14, response2.length - 1));
 
-										marker.flickr.img.push({url: response2Json.sizes.size[5].source, credit: {name: responseJson.photos.photo[j].ownername}});
+										marker.flickr.img.push({
+											url: response2Json.sizes.size[5].source,
+											credit: {
+												name: responseJson.photos.photo[j].ownername
+											}
+										});
 
 										marker.flickr.hasContent(true);
 									}
@@ -1051,6 +1072,11 @@ var ajax = {
 			}
 
 			// Nasjonal turbase ajax calls
+
+			// This API can be used to get hiking information.
+			// They have everything from routes to difficulty level,
+			// time, distance, height, comments, photos etc.
+
 			// Store the current i value
 			// (function(i) {
 			// 	$.ajax({
@@ -1058,8 +1084,6 @@ var ajax = {
 			// 		type: 'GET',
 			// 		dataType: 'text',
 			// 		data: {
-			// 			// method: 'flickr.photos.search',
-			// 			// text: markers()[i].koTitle(),
 			// 			format: "json",
 			// 			api_key: ajax.nasjonalturbase.key,
 			// 		}
@@ -1075,6 +1099,7 @@ var ajax = {
 			// 		console.dir( xhr );
 			// 	});
 			// })(i);
+
 
 			// Openweathermap ajax calls
 			if(markers()[i].type.keywords[0] == 'Fjelltur') {
@@ -1120,96 +1145,111 @@ function readMore(locationIndex) {
 	displays.featured.toggleAvailable(locationIndex);
 	infoWindow.closeAll();
 
-	zoomToMarker(locationIndex);
+	zmoothZoom(locationIndex, 200);
 }
 
+
+/*
+
+	If Google map's setZoom is greater than 2 zoom levels it
+	will zoom without animating (possibly because of the greater
+	performance and network demands). But without the animation,
+	users tend to get disoriented and zooming out again to re-
+	orient, which may lead to irritation and a bad user
+	experience.
+		This function makes sure the zoom animates by only
+	zooming one level at a time.
+
+*/
 var stopZooming = false;
 var isZooming = false;
-function zmoothZoom(newZoom, latlng, offsetX, offsetY, locationIndex, callback) {
-	isZooming = true;
-	callback = callback || function() {};
-	var oldZoom = map.zoom;
-	var zoomDifference = Math.abs(oldZoom) - Math.abs(newZoom);
-	var zoomDirection;
 
-	// Determine zoom direction.
-	if(oldZoom < newZoom) {
-		zoomDirection = 1;
-	} else {
-		zoomDirection = -1;
-	}
-
-	if(!stopZooming && isZooming) {
-		// If remaining zoom > 1; call this function again.
-		if(Math.abs(zoomDifference) > 1) {
-			map.panTo(getOffsetCenter(latlng, offsetX, offsetY));
-			setTimeout(function() {
-				zmoothZoom(newZoom, latlng, offsetX, offsetY, locationIndex, callback);
-				map.setZoom(oldZoom + 1 * zoomDirection);
-
-				map.setCenter(getOffsetCenter(latlng, offsetX, offsetY));
-			}, 250);
-
-		// Else stop zooming and fire callback function
-		} else {
-			isZooming = false;
-			map.setZoom(newZoom);
-			map.setCenter(getOffsetCenter(latlng, offsetX, offsetY));
-
-			setTimeout(function() {
-				if(markers()[locationIndex].type.keywords[0] == 'Fjelltur') {
-					map.setMapTypeId('satellite');
-				} else {
-					map.setMapTypeId('roadmap');
-				}
-			}, 150);
-
-			// Give the users some time to orient themselves
-			setTimeout(function() {
-				callback();
-			}, settings.featuredMaximizeDelay);
-
-		}
-	} else {
-		stopZooming = false;
-		isZooming = false;
-	}
-}
-
-function zoomToMarker(locationIndex) {
-	// Where the center is when a featured container is displayed
-	// 80 = $(".featured_container").offset().left (When it is displayed)
-	var relativeCenter = ($(".featured_container").outerWidth() + 80) / 2;
-
+function zmoothZoom(locationIndex, delay, callback) {
 	// Delays the animation a bit to give the computer less to do at once and
 	// for smoother animation. (When the featured container is appearing)
+	delay = delay || 0;
+	
+	isZooming = true;
+	
 	setTimeout(function() {
-		zmoothZoom(settings.zoomInAmount, markers()[locationIndex].position, relativeCenter, 0, locationIndex, displays.featured.maximize);
-	}, 200);
-}
+		callback = displays.featured.maximize || function() {};
+		
+		// Where the center is when a featured container is displayed
+		// 80 = $(".featured_container").offset().left (When it is displayed)
+		var offsetX = ($(".featured_container").outerWidth() + 80) / 2;
+		var offsetY = 0;
 
-var newCenter;
+		var latlng = markers()[locationIndex].position;
+		var oldZoom = map.zoom;
+		var newZoom = settings.zoomInAmount;
+		var zoomDifference = Math.abs(oldZoom) - Math.abs(newZoom);
+		var zoomDirection;
+
+		// Determine zoom direction.
+		if(oldZoom < newZoom) {
+			zoomDirection = 1;
+		} else {
+			zoomDirection = -1;
+		}
+
+		if(!stopZooming && isZooming) {
+			// If remaining zoom >= 1; call this function again.
+			if(Math.abs(zoomDifference) >= 1) {
+				map.panTo(getOffsetCenter(latlng, offsetX, offsetY));
+				setTimeout(function() {
+					zmoothZoom(locationIndex);
+					map.setZoom(oldZoom + 1 * zoomDirection);
+
+					map.setCenter(getOffsetCenter(latlng, offsetX, offsetY));
+				}, settings.zoomInterval);
+
+			// Else stop zooming and fire callback function
+			} else {
+				isZooming = false;
+				map.setZoom(newZoom);
+				map.setCenter(getOffsetCenter(latlng, offsetX, offsetY));
+
+				setTimeout(function() {
+					if(markers()[locationIndex].type.keywords[0] == 'Fjelltur') {
+						map.setMapTypeId('satellite');
+					} else {
+						map.setMapTypeId(settings.defaultMapType);
+					}
+				}, 150);
+
+				// Give the users some time to orient themselves
+				setTimeout(function() {
+					callback();
+				}, settings.featuredMaximizeDelay);
+			}
+		} else {
+			stopZooming = false;
+			isZooming = false;
+		}
+	}, delay);
+}
 
 // Inspired by:
 // http://stackoverflow.com/questions/10656743/how-to-offset-the-center-point-in-google-maps-api-v3
+//
+// Gets the coordinates of the map's center point when it's
+// being offset by x and y pixels.
+//
+// latlng is the true center
+// offsetX is the offset on the x-axis in pixels
+// offsetY is the offset on the y-axis in pixels
+// offset can be negative
+// offsetX and offsetY are both optional
 function getOffsetCenter(latlng, offsetX, offsetY) {
+	var newCenter;
 
 	// If screen is small, use the true center
 	if($('.featured_minimize').css('display') !== 'none') {
-
 		return latlng;
 
 	// Else calculate a relative center when the featured container is displayed
 	} else {
-
-		// latlng is the apparent centre-point
-		// offsetX is the distance you want that point to move to the right, in pixels
-		// offsetY is the distance you want that point to move upwards, in pixels
-		// offset can be negative
-		// offsetX and offsetY are both optional
-
 		var scale = Math.pow(2, map.getZoom());
-
 		var worldCoordinateCenter = map.getProjection().fromLatLngToPoint(latlng);
 		var pixelOffset = new google.maps.Point((offsetX/scale) || 0,(offsetY/scale) ||0);
 
@@ -1233,18 +1273,16 @@ function resetZoomAndMap() {
 
 	map.fitBounds(bounds);
 
-	map.setMapTypeId('roadmap');
+	map.setMapTypeId(settings.defaultMapType);
 }
 
 function focusMarker(index) {
+	var marker = markers()[index];
+
 	// Hide the tip
 	displays.locationSwitcher.displayTip(false);
 
-	var marker = markers()[index];
-
 	focusedMarker(index);
-	
-	// slickCarousel.swipeListGoTo(index);
 
 	moveToMarker(markers()[index]);
 
@@ -1321,7 +1359,7 @@ function toggleBounce(marker) {
 
 
 /*--------------------------------------------------------------
-# Google Maps
+## Initialize map
 --------------------------------------------------------------*/
 function initMap() {
 	console.log("Creating the map");
