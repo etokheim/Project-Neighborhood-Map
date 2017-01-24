@@ -122,6 +122,53 @@ a {
 	position: absolute !important; /* Google maps has a default position of relative. */
 }
 
+.maps_error_container {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	background-color: #eee;
+}
+
+.maps_error {
+	max-width: 350px;
+	width: 100%;
+	height: auto;
+	padding: 25px;
+	padding-top: 25px;
+	background-color: #fff;
+	border-radius: 3px;
+	box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+	text-align: center;
+}
+
+.maps_error i {
+	color: #aaa;
+	font-size: 3rem;
+}
+
+.maps_error h1 {
+	font-size: 1.2rem;
+	/*color: #aaa;*/
+	/*text-transform: uppercase;*/
+}
+
+.maps_error h1:after {
+	content: "";
+	margin: 0 auto;
+	margin-top: 25px;
+	margin-bottom: 25px;
+	width: 25px;
+	display: block;
+	border-bottom: 1px solid #aaa;
+}
+
+.maps_error p {
+	/*color: #aaa;*/
+}
+
 .info_window {
 	width: 200px;
 	max-width: 50vw;
@@ -270,8 +317,8 @@ cite a {
 /*--------------------------------------------------------------
 # Featured
 --------------------------------------------------------------*/
-/*  
-	Without will-change the browser repaints every frame on 
+/*
+	Without will-change the browser repaints every frame on
 	scroll which makes it very performance heavy. This only
 	affects the children - not grandchildren etc.
 */
@@ -573,7 +620,7 @@ ul.mw-gallery-traditional {
 	height: 100%;
 	line-height: 4.5rem;
 	vertical-align: middle;
-	
+
 	transition: all 150ms ease-out;
 	animation: filterBounceReverse 1000ms linear both;
 }
@@ -647,8 +694,8 @@ ul.mw-gallery-traditional {
 	cursor: pointer;
 }
 
-/*  
-	Without will-change the browser repaints every frame on 
+/*
+	Without will-change the browser repaints every frame on
 	scroll which makes it very performance heavy. This only
 	affects the children - not grandchildren etc.
 */
@@ -731,7 +778,7 @@ ul.mw-gallery-traditional {
 # Animation
 --------------------------------------------------------------*/
 /* Generated with Bounce.js. Edit at https://goo.gl/7c5KDK */
-@keyframes filterBounceReverse { 
+@keyframes filterBounceReverse {
 	0% { transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
 	3.4% { transform: matrix3d(0.842, 0, 0, 0, 0, 0.797, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
 	4.7% { transform: matrix3d(0.775, 0, 0, 0, 0, 0.7, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
@@ -757,11 +804,11 @@ ul.mw-gallery-traditional {
 	75.28% { transform: matrix3d(0.499, 0, 0, 0, 0, 0.498, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
 	85.49% { transform: matrix3d(0.501, 0, 0, 0, 0, 0.5, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
 	90.69% { transform: matrix3d(0.5, 0, 0, 0, 0, 0.5, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
-	100% { transform: matrix3d(0.5, 0, 0, 0, 0, 0.5, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); } 
+	100% { transform: matrix3d(0.5, 0, 0, 0, 0, 0.5, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
 }
 
 /* Generated with Bounce.js. Edit at https://goo.gl/Vn2Euz */
-@keyframes filterBounce { 
+@keyframes filterBounce {
 	0% { transform: matrix3d(0.5, 0, 0, 0, 0, 0.5, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
 	3.4% { transform: matrix3d(0.658, 0, 0, 0, 0, 0.703, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
 	4.7% { transform: matrix3d(0.725, 0, 0, 0, 0, 0.8, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
@@ -787,10 +834,10 @@ ul.mw-gallery-traditional {
 	75.28% { transform: matrix3d(1.001, 0, 0, 0, 0, 1.002, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
 	85.49% { transform: matrix3d(0.999, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
 	90.69% { transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
-	100% { transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); } 
+	100% { transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
 }
 
-@keyframes locationSwitcher { 
+@keyframes locationSwitcher {
 	0% { bottom: calc(0% + 1rem); height: 0; }
 	4.3% { bottom: calc(51.427% + 1rem) }
 	8.61% { bottom: calc(87.859% + 1rem); height: 600px; }
@@ -800,12 +847,12 @@ ul.mw-gallery-traditional {
 	39.44% { bottom: calc(99.377% + 1rem) }
 	61.66% { bottom: calc(100.042% + 1rem) }
 	83.98% { bottom: calc(99.997% + 1rem) }
-	100% { bottom: calc(100% + 1rem)} 
+	100% { bottom: calc(100% + 1rem)}
 }
 
-@keyframes locationSwitcherReverse { 
+@keyframes locationSwitcherReverse {
   0% { bottom: calc(100% + 1rem); height: 600px; }
-  100% { bottom: 0; height: 0; } 
+  100% { bottom: 0; height: 0; }
 }
 
 

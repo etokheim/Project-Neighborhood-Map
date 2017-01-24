@@ -18,11 +18,6 @@
 			<link rel="stylesheet" href="css/style-mobile.css" media="(max-width: 800px)">
 			<link rel="stylesheet" href="css/style-tablet.css" media="(max-width: 1200px)">
 		<!-- /Custom styles -->
-
-		<!-- Plug-in scripts -->
-			<script src="js/plug-ins/jquery.min.js"></script>
-			<script src="js/plug-ins/knockout-latest.js"></script>
-		<!-- /Plug-in scripts -->
 	</head>
 	<body>
 		<main>
@@ -402,11 +397,16 @@
 			</div>
 		</main>
 
+		<!-- Plug-in scripts -->
+			<script src="js/plug-ins/jquery.min.js"></script>
+			<script src="js/plug-ins/knockout-latest.js"></script>
+		<!-- /Plug-in scripts -->
+
 		<script src="js/javascript.js"></script>
 
 		<!-- Plug-in scripts -->
 			<script async type="text/javascript" src="js/plug-ins/slick.min.js"></script>
-			<script async defer src="https://maps.googleapis.com/maps/api/js?libraries=geometry,places,drawing&key=AIzaSyBxaRfeTwSjp8rx6Mh-0R_TPNboRa9QRac&v=3&callback=initMap"></script>
+			<script async defer onerror="googleMapsError();" src="https://maps.googleapis.com/maps/api/js?libraries=geometry,places,drawing&key=AIzaSyBxaRfeTwSjp8rx6Mh-0R_TPNboRa9QRac&v=3&callback=initMap"></script>
 		<!-- /Plug-in scripts -->
 	</body>
 </html>

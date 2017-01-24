@@ -213,7 +213,7 @@ var displays = {
 			}
 
 			displays.featured.populate(displays.featured.displaying(), locationIndex);
-			
+
 			// Binds a double click event to the article body which toggles
 			// its display.
 			$('.article_body').on('dblclick', function(event) {
@@ -456,7 +456,7 @@ var filter = {
 					return false;
 				}
 			}
-			
+
 			// Else, include it
 			filter.markers.push(markers()[item.index]);
 			return true;
@@ -556,7 +556,7 @@ var ViewModel = function() {
 		if(filter.markers().length > 1) {
 			slickCarousel.swipeListGoTo(slickCarousel.convert.index.markerToCarousel(this.index));
 
-		// Else call the "focusMarker()" function at once 
+		// Else call the "focusMarker()" function at once
 		// (usually called when the slider moves). This is
 		// because if there is only one slide in the slick
 		// carousel, the carousel doesn't move, which is what
@@ -1061,7 +1061,7 @@ var ajax = {
 
 						.fail(function(xhr, textStatus, error) {
 							var marker = markers()[i];
-							
+
 							console.error( "Foursquare is not responding! (Error code: " + xhr.status + ")" );
 
 							marker.foursquare.hasContent(true);
@@ -1168,12 +1168,12 @@ function zmoothZoom(locationIndex, delay, callback) {
 	// Delays the animation a bit to give the computer less to do at once and
 	// for smoother animation. (When the featured container is appearing)
 	delay = delay || 0;
-	
+
 	isZooming = true;
-	
+
 	setTimeout(function() {
 		callback = displays.featured.maximize || function() {};
-		
+
 		// Where the center is when a featured container is displayed
 		// 80 = $(".featured_container").offset().left (When it is displayed)
 		var offsetX = ($(".featured_container").outerWidth() + 80) / 2;
@@ -1361,6 +1361,22 @@ function toggleBounce(marker) {
 /*--------------------------------------------------------------
 ## Initialize map
 --------------------------------------------------------------*/
+function googleMapsError(error) {
+	console.log("error" + error);
+	$('#map').html('\
+		<div class="maps_error_container">\
+			<div class="maps_error">\
+				<i class="fa fa-google" aria-hidden="true"></i>\
+				<h1>Google Maps svarar ikkje!</h1>\
+				<p>\
+					<em>Vent litt og prøv på nytt.</em><br><br>\
+					Dersom du trur det er ein feil i programmet; vennligst ta kontakt og vis til feilmeldingane i konsollen. (f12).\
+				</p>\
+			</div>\
+		</div>\
+	');
+}
+
 function initMap() {
 	console.log("Creating the map");
 
