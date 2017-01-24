@@ -76,7 +76,7 @@
 						<!-- ko if: wikipedia.error.hasError() -->
 							<!-- ko text: wikipedia.error.message() --><!-- /ko -->
 						<!-- /ko -->
-						<div title="Dobbelklikk for å visa/skjula innhaldet" class="article_body" data-bind="css: { article_body_hidden: !displays.featured.wikipedia.displaying() }">
+						<div title="Dobbelklikk for å visa/skjula innhaldet" class="article_body" data-bind="click: { double: displays.featured.wikipedia.toggleAndDeselect }, css: { article_body_hidden: !displays.featured.wikipedia.displaying() }">
 							<div class="article_body_read_more" data-bind="css: { article_body_read_more_hidden: displays.featured.wikipedia.displaying() }"></div>
 							<p class="ingress" data-bind="html: wikipedia.ingress()"></p>
 							<p class="body_text" data-bind="html: wikipedia.bodyText()"></p>
@@ -232,7 +232,7 @@
 						<!-- ko if: wikipedia.error.hasError() -->
 							<!-- ko text: wikipedia.error.message() --><!-- /ko -->
 						<!-- /ko -->
-						<div title="Dobbelklikk for å visa/skjula innhaldet" class="article_body" data-bind="css: { article_body_hidden: !displays.featured.wikipedia.displaying() }">
+						<div title="Dobbelklikk for å visa/skjula innhaldet" class="article_body" data-bind="click: { double: displays.featured.wikipedia.toggleAndDeselect }, css: { article_body_hidden: !displays.featured.wikipedia.displaying() }">
 							<div class="article_body_read_more" data-bind="css: { article_body_read_more_hidden: displays.featured.wikipedia.displaying() }"></div>
 							<p class="ingress" data-bind="html: wikipedia.ingress()"></p>
 							<p class="body_text" data-bind="html: wikipedia.bodyText()"></p>

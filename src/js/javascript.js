@@ -22,6 +22,41 @@
 		## Initialize map
 
 --------------------------------------------------------------*/
+function testing() {
+	console.log("testing was called");
+}
+/*--------------------------------------------------------------
+# Knockout plug-ins
+--------------------------------------------------------------*/
+ko.bindingHandlers.click = {
+    init: function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
+        var accessor = valueAccessor();
+        var clicks = 0;
+        var timeout = 200;
+
+        $(element).click(function(event) {
+            if(typeof(accessor) === 'object') {
+                var single = accessor.single;
+                var double = accessor.double;
+                clicks++;
+                if (clicks === 1) {
+                    setTimeout(function() {
+                        if(clicks === 1) {
+                        	if(single !== undefined) {
+                            	single.call(viewModel, context.$data, event);
+                        	}
+                        } else {
+                            double.call(viewModel, context.$data, event);
+                        }
+                        clicks = 0;
+                    }, timeout);
+                }
+            } else {
+                accessor.call(viewModel, context.$data, event);
+            }
+        });
+    }
+};
 
 /*--------------------------------------------------------------
 # Settings
@@ -214,23 +249,6 @@ var displays = {
 
 			displays.featured.populate(displays.featured.displaying(), locationIndex);
 
-			// Binds a double click event to the article body which toggles
-			// its display.
-			$('.article_body').on('dblclick', function(event) {
-				displays.featured.wikipedia.toggle();
-
-				// Deselect text (if some was selected by the double click)
-				// "event.preventDefault();" or "return false;" didn't work.
-				// Credit to Gert Grenander (http://stackoverflow.com/questions/3169786/clear-text-selection-with-javascript)
-				if (window.getSelection) {
-					if (window.getSelection().empty) {  // Chrome
-						window.getSelection().empty();
-					} else if (window.getSelection().removeAllRanges) {  // Firefox
-						window.getSelection().removeAllRanges();
-					}
-				}
-			});
-
 			// (I think) if the Slick carousel is being initiated while it's not on-screen,
 			// the slides will have their width set incorrectly. To solve this I just delay
 			// the reslicking
@@ -251,7 +269,23 @@ var displays = {
 
 			toggle: function(index) {
 				displays.featured.wikipedia.displaying(!displays.featured.wikipedia.displaying());
-			}
+			},
+
+			// Fired when double clicking the Wikipedia article.
+			toggleAndDeselect: function() {
+				displays.featured.wikipedia.toggle();
+
+				// Deselect text (if some was selected by the double click)
+				// "event.preventDefault();" or "return false;" didn't work.
+				// Credit to Gert Grenander (http://stackoverflow.com/questions/3169786/clear-text-selection-with-javascript)
+				if (window.getSelection) {
+					if (window.getSelection().empty) {  // Chrome
+						window.getSelection().empty();
+					} else if (window.getSelection().removeAllRanges) {  // Firefox
+						window.getSelection().removeAllRanges();
+					}
+				}
+			},
 		},
 	}
 };
