@@ -86,8 +86,8 @@ gulp.task('get-jquery', function() {
 });
 
 gulp.task('get-font-awesome', function() {
-	gulp.src('./node_modules/font-awesome/css/font-awesome.css')
-		.pipe(gulp.dest('./src/css/plug-ins/'));
+	// gulp.src('./node_modules/font-awesome/css/font-awesome.css')
+	// 	.pipe(gulp.dest('./src/css/plug-ins/'));
 
 	gulp.src('./node_modules/font-awesome/fonts/*')
 		.pipe(gulp.dest('./src/fonts/'));
