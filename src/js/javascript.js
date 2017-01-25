@@ -22,12 +22,13 @@
 		## Initialize map
 
 --------------------------------------------------------------*/
-function testing() {
-	console.log("testing was called");
-}
+
+
 /*--------------------------------------------------------------
 # Knockout plug-ins
 --------------------------------------------------------------*/
+// Add support for double click bindings
+// Credit to Tobin Brown (https://brobin.me/blog/2016/02/knockoutjs-custom-double-click-binding/)
 ko.bindingHandlers.click = {
     init: function(element, valueAccessor, allBindingsAccessor, viewModel, context) {
         var accessor = valueAccessor();
@@ -374,6 +375,8 @@ var slickCarousel = {
 var filter = {
 	markers: ko.observableArray([]),
 
+	locationSwitcherInput: ko.observable(''),
+
 	type: {
 
 		hike: ko.observable(false),
@@ -382,17 +385,17 @@ var filter = {
 
 		toggleHike: function() {
 			this.hike(!this.hike());
-			filter.apply($('.location_switcher_search_field').val());
+			filter.apply(filter.locationSwitcherInput());
 		},
 
 		toggleRestaurant: function() {
 			this.restaurant(!this.restaurant());
-			filter.apply($('.location_switcher_search_field').val());
+			filter.apply(filter.locationSwitcherInput());
 		},
 
 		toggleLandmark: function() {
 			this.landmark(!this.landmark());
-			filter.apply($('.location_switcher_search_field').val());
+			filter.apply(filter.locationSwitcherInput());
 		}
 	},
 
@@ -550,8 +553,8 @@ var filter = {
 /*--------------------------------------------------------------
 # Bindings
 --------------------------------------------------------------*/
-$('.location_switcher_search_field').on('input', function() {
-	filter.apply(this.value);
+filter.locationSwitcherInput.subscribe(function(newValue) {
+    filter.apply(newValue);
 });
 
 
@@ -568,7 +571,7 @@ window.onload = function() {
 		displays.locationSwitcher.displayTip(true);
 	}, 500);
 
-	filter.apply($('.location_switcher_search_field').val());
+	filter.apply(filter.locationSwitcherInput());
 };
 
 
@@ -602,10 +605,6 @@ var ViewModel = function() {
 
 		displays.locationList.toggle();
 	};
-
-	$('#location_switcher_center').click(function() {
-		displays.locationList.toggle();
-	});
 };
 
 ko.applyBindings(new ViewModel());
@@ -1395,8 +1394,9 @@ function toggleBounce(marker) {
 /*--------------------------------------------------------------
 ## Initialize map
 --------------------------------------------------------------*/
-function googleMapsError(error) {
-	console.log("error" + error);
+function googleMapsError() {
+	console.log("Wikipedia is not responding!");
+
 	$('#map').html('\
 		<div class="maps_error_container">\
 			<div class="maps_error">\

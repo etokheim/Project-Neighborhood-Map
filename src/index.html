@@ -331,7 +331,7 @@
 			<div class="top_position">
 				<div class="location_switcher_container" data-bind="css: displays.locationSwitcher.displaying() == true ? '' : 'location_switcher_container_hidden'">
 					<div class="location_switcher_list_container" data-bind="css: displays.locationList.displaying() == true ? '' : 'location_switcher_list_container_hidden'">
-						<input type="text" placeholder="Skriv nøkkelord her" class="location_switcher_search_field">
+						<input type="text" placeholder="Skriv nøkkelord her" class="location_switcher_search_field" data-bind="textInput: filter.locationSwitcherInput">
 						<div class="location_switcher_filter">
 							<!-- The data-bind is wrapped within a function to prevent it from being called on load -->
 							<div class="location_switcher_filter_instance" data-bind="click: function() { click: filter.type.toggleHike() }, css: { location_switcher_filter_active: filter.type.hike() }">
@@ -367,7 +367,7 @@
 							<i class="fa fa-chevron-left" aria-hidden="true"></i>
 						</div>
 
-						<div id="location_switcher_center">
+						<div id="location_switcher_center" data-bind="click: displays.locationList.toggle">
 							<!-- ko if: 2+2 == 2 -->
 								Skru på JavaScript for å bruke sida!
 							<!-- /ko -->
