@@ -1,7 +1,6 @@
 # Project Neighborhood Map
-*(This assignment is part of the Frontend developer degree at Udacity)*
 
-For this assignment I wrote an app which displays some of my favorite locations in Norway on a map. The application has contact with several public information systems like Wikipedia and Foursquare and takes advantage of their enormous databases to give the user an interesting view of my favorite locations.
+For this project I wrote an app to show off some of my favorite locations in Norway. The application has contact with several public information systems like Wikipedia and Foursquare and takes advantage of their enormous databases to give the user an interesting view of my favorite locations.
 
 If you want to check out the app, just visit the link below or clone/download the project files. (How-to-download under the download section)
 
